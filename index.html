@@ -71,8 +71,7 @@
             <a class="pill js-tf-send" href="#" data-phone="+18647770688">Send message</a>
           </div>
         </div>
-        <p class="hero__quiet"><a href="#proof">200+ results, proven on the bill.</a> Diagnosis on us.<sup class="fn"><a href="#notes">1, 2</a></sup>
-        <button type="button" class="hero__filmlink ghostlink" data-open-film><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg> Watch the film &middot; 6 min</button></p>
+        <p class="hero__quiet"><a href="#proof">200+ results, proven on the bill.</a> Diagnosis on us.<sup class="fn"><a href="#notes">1, 2</a></sup></p>
       </div>
 
       <svg class="signal hero__signal" data-rise viewBox="0 0 1200 46" preserveAspectRatio="none" aria-hidden="true">
@@ -296,7 +295,7 @@
           </ul>
           <p class="fig">15 to 30% less heating and cooling energy<sup class="fn"><a href="#notes">1</a></sup></p>
           <div class="beat__links">
-            <button type="button" class="pill" data-open-film>Watch the film, 6 min</button>
+            <a class="pill" href="#film">Watch the film, 6 min</a>
             <a class="ghostlink" href="how-it-works.html#heat">See how it works &rarr;</a>
           </div>
         </article>
@@ -321,6 +320,25 @@
       <p class="method-close reveal">The Exam tells us which one is costing you more. <strong>We fix both.</strong></p>
       <div class="cta-row reveal" style="margin-top: var(--space-3)">
         <button type="button" class="ghostlink" data-cal-namespace="15min" data-cal-link="dan-knows-a-gut/15min" data-cal-config='{"layout":"month_view","theme":"light"}'>Convinced already? Book the 15-minute fit call &rarr;</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- CH 4.5 · THE FILM (inline, plays in place) -->
+  <section class="cinema film-band" id="film" aria-labelledby="film-title">
+    <div class="container">
+      <div class="film-band__head">
+        <p class="film-band__eyebrow reveal">The film</p>
+        <h2 id="film-title" class="reveal" style="--ri:1">See the whole method in six minutes.</h2>
+        <p class="lede reveal" style="--ri:2">How we find the waste, prove it on your own bill, and install only what pays for itself.</p>
+      </div>
+      <div class="film-player reveal" style="--ri:3">
+        <button type="button" class="film-player__facade" data-film-play aria-label="Play the six-minute film">
+          <img class="film-player__poster" src="assets/img/hero-building.png" alt="" loading="lazy">
+          <span class="film-player__scrim" aria-hidden="true"></span>
+          <span class="film-player__play" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13l11-6.5z"/></svg></span>
+          <span class="film-player__meta" aria-hidden="true">Energy Plus &middot; 6 min</span>
+        </button>
       </div>
     </div>
   </section>
@@ -402,28 +420,111 @@
     </div>
   </section>
 
-  <!-- CH 8 · THE STAKES -->
+  <!-- CH 8 · THE STAKES (animated equipment) -->
   <section class="sect" id="stakes" aria-labelledby="stakes-title">
     <div class="container">
       <h2 id="stakes-title" class="reveal">The waste doesn't just inflate the bill. <span class="beat">It eats the equipment.</span></h2>
-      <div class="ledger">
-        <div class="ledger__row reveal">
-          <h3>Elevator traction motors</h3>
-          <p>Hard starts at 6 to 8x running current wear the motor out early, with ADA exposure while the cab is down.</p>
-          <p class="cost">$50K to $150K per cab<sup class="fn"><a href="#notes">1</a></sup></p>
-        </div>
-        <div class="ledger__row reveal" style="--ri:1">
-          <h3>HVAC and RTU fleet</h3>
-          <p>Runs around the clock under constant electrical stress that ages an entire fleet years too early.</p>
-          <p class="cost">$260K to $480K per property<sup class="fn"><a href="#notes">1</a></sup></p>
-        </div>
-        <div class="ledger__row reveal" style="--ri:2">
-          <h3>Pump, spa, and laundry drives</h3>
-          <p>Fail the same way, and a peak-season failure turns straight into review damage.</p>
-          <p class="cost">$8K to $25K per pump<sup class="fn"><a href="#notes">1</a></sup></p>
-        </div>
+      <p class="lede reveal" style="--ri:1">The same electrical stress that shows up on your bill runs through the machines behind it. Three loads carry almost every building.</p>
+      <div class="equip">
+
+        <article class="eq-card reveal">
+          <div class="eq-figure">
+            <svg class="eq-svg" viewBox="0 0 200 150" fill="none" role="img" aria-label="Rooftop HVAC unit with a turning fan">
+              <g class="eq-heat"><path d="M86 26 q6 -8 0 -16"/><path d="M100 24 q6 -8 0 -16"/><path d="M114 26 q6 -8 0 -16"/></g>
+              <g class="eq-ink">
+                <rect x="34" y="72" width="132" height="58" rx="4"/>
+                <line x1="34" y1="112" x2="166" y2="112"/>
+                <line x1="46" y1="120" x2="66" y2="120"/>
+                <line x1="46" y1="125" x2="80" y2="125"/>
+                <line x1="150" y1="118" x2="158" y2="118"/>
+                <rect x="70" y="36" width="60" height="36" rx="3"/>
+                <circle cx="100" cy="52" r="15"/>
+              </g>
+              <g class="eq-spin" style="transform-origin:100px 52px">
+                <g class="eq-ink">
+                  <line x1="100" y1="52" x2="114" y2="52"/>
+                  <line x1="100" y1="52" x2="107" y2="64"/>
+                  <line x1="100" y1="52" x2="93" y2="64"/>
+                  <line x1="100" y1="52" x2="86" y2="52"/>
+                  <line x1="100" y1="52" x2="93" y2="40"/>
+                  <line x1="100" y1="52" x2="107" y2="40"/>
+                </g>
+              </g>
+              <circle class="eq-hub" cx="100" cy="52" r="3"/>
+            </svg>
+          </div>
+          <h3>HVAC &amp; RTU fleet</h3>
+          <p>Rooftop units run around the clock. Constant electrical stress ages an entire fleet years before its time.</p>
+          <p class="eq-cost">$260K to $480K per property<sup class="fn"><a href="#notes">1</a></sup></p>
+        </article>
+
+        <article class="eq-card reveal" style="--ri:1">
+          <div class="eq-figure">
+            <svg class="eq-svg" viewBox="0 0 200 150" fill="none" role="img" aria-label="Electric motor with a turning rotor">
+              <g class="eq-heat"><path d="M96 44 q6 -8 0 -16"/><path d="M110 46 q6 -8 0 -16"/></g>
+              <g class="eq-ink">
+                <rect x="60" y="56" width="82" height="50" rx="11"/>
+                <line x1="76" y1="56" x2="76" y2="106"/>
+                <line x1="90" y1="56" x2="90" y2="106"/>
+                <line x1="104" y1="56" x2="104" y2="106"/>
+                <line x1="118" y1="56" x2="118" y2="106"/>
+                <line x1="132" y1="56" x2="132" y2="106"/>
+                <circle cx="60" cy="81" r="22"/>
+                <line x1="142" y1="81" x2="166" y2="81"/>
+                <rect x="72" y="106" width="12" height="9"/>
+                <rect x="118" y="106" width="12" height="9"/>
+              </g>
+              <g class="eq-spin" style="transform-origin:60px 81px">
+                <g class="eq-ink">
+                  <line x1="60" y1="81" x2="76" y2="81"/>
+                  <line x1="60" y1="81" x2="68" y2="95"/>
+                  <line x1="60" y1="81" x2="52" y2="95"/>
+                  <line x1="60" y1="81" x2="44" y2="81"/>
+                  <line x1="60" y1="81" x2="52" y2="67"/>
+                  <line x1="60" y1="81" x2="68" y2="67"/>
+                </g>
+              </g>
+              <circle class="eq-hub" cx="60" cy="81" r="3"/>
+            </svg>
+          </div>
+          <h3>Motors &amp; drives</h3>
+          <p>Every fan, elevator, and pump rides on a motor. Hard starts and harmonic heating wear them out early, and on an elevator the same failure runs into six figures.</p>
+          <p class="eq-cost">$2K to $20K per motor<sup class="fn"><a href="#notes">1</a></sup></p>
+        </article>
+
+        <article class="eq-card reveal" style="--ri:2">
+          <div class="eq-figure">
+            <svg class="eq-svg" viewBox="0 0 200 150" fill="none" role="img" aria-label="Centrifugal pump with a turning impeller">
+              <defs><path id="eq-blade" d="M95 85 C 101 75, 113 76, 119 84"/></defs>
+              <g class="eq-heat"><path d="M128 60 q6 -8 0 -16"/><path d="M140 62 q6 -8 0 -16"/></g>
+              <g class="eq-ink">
+                <circle cx="95" cy="85" r="38"/>
+                <rect x="84" y="18" width="26" height="32" rx="2"/>
+                <line x1="84" y1="34" x2="110" y2="34"/>
+                <rect x="26" y="72" width="30" height="26" rx="2"/>
+                <line x1="41" y1="72" x2="41" y2="98"/>
+                <rect x="58" y="122" width="74" height="10" rx="2"/>
+              </g>
+              <g class="eq-spin" style="transform-origin:95px 85px">
+                <g class="eq-ink">
+                  <use href="#eq-blade"/>
+                  <use href="#eq-blade" transform="rotate(60 95 85)"/>
+                  <use href="#eq-blade" transform="rotate(120 95 85)"/>
+                  <use href="#eq-blade" transform="rotate(180 95 85)"/>
+                  <use href="#eq-blade" transform="rotate(240 95 85)"/>
+                  <use href="#eq-blade" transform="rotate(300 95 85)"/>
+                </g>
+              </g>
+              <circle class="eq-hub" cx="95" cy="85" r="4"/>
+            </svg>
+          </div>
+          <h3>Pumps &amp; circulation</h3>
+          <p>Booster, chiller, and process pumps fail the same quiet way. A peak-season failure is the one that takes rooms, floors, or a production line down with it.</p>
+          <p class="eq-cost">$8K to $25K per pump<sup class="fn"><a href="#notes">1</a></sup></p>
+        </article>
+
       </div>
-      <p class="prose reveal" style="margin-top: var(--space-3)"><strong>None of this appears in a standard energy audit.</strong> It survives for years, until someone measures it at the panel.</p>
+      <p class="prose reveal" style="margin-top: var(--space-4)"><strong>None of this appears in a standard energy audit.</strong> It survives for years, until someone measures it at the panel.</p>
     </div>
   </section>
 
@@ -444,12 +545,12 @@
           <div class="gate__body">
             <div class="team-grid">
               <div class="member">
-                <img src="assets/img/ronson.jpeg" alt="Ronson Provido" loading="lazy">
-                <div><h3>Ronson Provido</h3><p class="role">Principal Engineering Advisor</p><p>20+ years in electrical engineering: design, commissioning, R&amp;D, and project management. Portfolio includes LAX and multi-state commercial and hospitality projects. Licensed PE, Title 24 and LEED qualified.</p></div>
-              </div>
-              <div class="member">
                 <img src="assets/img/daniel.jpeg" alt="Daniel Gutierrez" loading="lazy">
                 <div><h3>Daniel Gutierrez</h3><p class="role">CEO + Founder</p><p>19 years connecting people, capital, and opportunity across 14+ industries and 70+ specialized markets. Former director of FDA-registered clinical trials. Works fee-for-performance, and is committed to deploying profits toward American infrastructure.</p></div>
+              </div>
+              <div class="member">
+                <img src="assets/img/ronson.jpeg" alt="Ronson Provido" loading="lazy">
+                <div><h3>Ronson Provido</h3><p class="role">Principal Engineering Advisor</p><p>20+ years in electrical engineering: design, commissioning, R&amp;D, and project management. Portfolio includes LAX and multi-state commercial and hospitality projects. Licensed PE, Title 24 and LEED qualified.</p></div>
               </div>
               <div class="member">
                 <img src="assets/img/cj.jpeg" alt="CJ Metz" loading="lazy">
@@ -568,11 +669,6 @@
     <button type="button" class="sticky-cta__close" aria-label="Dismiss">&times;</button>
   </div>
 </div>
-
-<dialog class="film-modal" id="film-modal" aria-label="Energy Plus film">
-  <button type="button" class="film-modal__close" aria-label="Close film">&times;</button>
-  <div class="film-modal__frame"></div>
-</dialog>
 
 <script src="assets/vendor/gsap.min.js" defer></script>
 <script src="assets/vendor/ScrollTrigger.min.js" defer></script>

@@ -59,12 +59,33 @@
 
   let heroTl = null;
   let heroForced = false;
-  const cleanLine = document.querySelector(".hero .sig-clean");
+  // Hero signal: a distorted waveform that morphs into a clean sine as it
+  // resolves, its stroke shifting heat -> verdigris. Built from two point
+  // arrays sampled across the viewBox, so we can interpolate a true morph
+  // without the paid MorphSVG plugin.
   const dirtyLine = document.querySelector(".hero .sig-dirty");
-  if (cleanLine) {
-    const len = cleanLine.getTotalLength ? cleanLine.getTotalLength() : 1200;
-    gsap.set(cleanLine, { strokeDasharray: len, strokeDashoffset: len });
-    if (dirtyLine) gsap.set(dirtyLine, { opacity: 0.55 });
+  const cleanLine = document.querySelector(".hero .sig-clean");
+  let setSignal = null;
+  if (dirtyLine) {
+    if (cleanLine) gsap.set(cleanLine, { opacity: 0 }); // choreo drives the one path
+    const N = 96, W = 1200, MID = 23, AMP = 15;
+    const hash = (i) => { const s = Math.sin(i * 12.9898) * 43758.5453; return (s - Math.floor(s)) * 2 - 1; };
+    const xs = [], dirty = [], clean = [];
+    for (let i = 0; i <= N; i++) {
+      xs.push((i / N) * W);
+      dirty.push(Math.max(6, Math.min(40, MID + AMP * hash(i))));
+      clean.push(MID + AMP * Math.sin((i / N) * Math.PI * 2 * 8));
+    }
+    const buildD = (t) => {
+      let d = "";
+      for (let i = 0; i <= N; i++) {
+        const y = dirty[i] + (clean[i] - dirty[i]) * t;
+        d += (i === 0 ? "M" : "L") + xs[i].toFixed(1) + " " + y.toFixed(2) + " ";
+      }
+      return d.trim();
+    };
+    setSignal = (t) => dirtyLine.setAttribute("d", buildD(t));
+    setSignal(0); // hero opens distorted
   }
 
   const startHero = () => {
@@ -73,9 +94,10 @@
     const p = document.getElementById("hero-plate");
     if (p) heroTl.to(p, { scale: 1, duration: 2.4, ease: "power2.out" }, 0);
     heroTl.to(".hero h1 .wi", { yPercent: 0, duration: 1.05, stagger: 0.07 }, 0.15);
-    if (cleanLine) {
-      heroTl.to(cleanLine, { strokeDashoffset: 0, duration: 1.6, ease: "power2.inOut" }, 0.5);
-      if (dirtyLine) heroTl.to(dirtyLine, { opacity: 0.18, duration: 1.2 }, 0.7);
+    if (setSignal) {
+      dirtyLine.classList.add("is-cleaning"); // CSS transitions the stroke heat -> verd
+      heroTl.to({ t: 0 }, { t: 1, duration: 1.8, ease: "power2.inOut",
+        onUpdate: function () { setSignal(this.targets()[0].t); } }, 0.5);
     }
     heroTl.to(".hero [data-rise]", { opacity: 1, y: 0, duration: 0.9, stagger: 0.12 }, 0.55)
       .to(".hero__cue", { opacity: 1, duration: 0.8 }, 1.6);
@@ -92,8 +114,7 @@
     gsap.set(".hero [data-rise]", { opacity: 1, y: 0 });
     gsap.set(".hero__cue", { opacity: 1 });
     gsap.set("#hero-plate", { scale: 1 });
-    if (cleanLine) gsap.set(cleanLine, { strokeDashoffset: 0 });
-    if (dirtyLine) gsap.set(dirtyLine, { opacity: 0.18 });
+    if (setSignal) { setSignal(1); dirtyLine.classList.add("is-cleaning"); }
   };
   setTimeout(forceHero, 2600);
   if (document.visibilityState === "visible") {

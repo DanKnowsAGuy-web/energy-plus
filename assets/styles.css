@@ -47,7 +47,7 @@
   --space-4: 3rem;
   --space-5: 5rem;
   --space-6: clamp(6rem, 5rem + 6vw, 11rem);
-  --space-chapter: clamp(8rem, 7rem + 9vw, 16rem);
+  --space-chapter: clamp(5.5rem, 4.5rem + 6vw, 11rem);
 
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --dur: 600ms;
@@ -224,6 +224,8 @@ sup.fn a { color: inherit; text-decoration: none; }
 .hero__filmlink { padding: 0; display: inline-flex; align-items: center; gap: 0.45rem; font-family: var(--font-mono); text-decoration-color: oklch(0.4 0.01 220); }
 .hero__signal { margin-top: var(--space-4); }
 .hero .sig-clean { stroke: oklch(0.72 0.08 188); }
+.hero .sig-dirty { transition: stroke 1400ms var(--ease-out); }
+.hero .sig-dirty.is-cleaning { stroke: oklch(0.72 0.08 188); }
 .hero__cue {
   position: absolute; bottom: 1.4rem; left: 50%; transform: translateX(-50%); z-index: 1;
   display: flex; flex-direction: column; align-items: center; gap: 0.35rem;
@@ -265,6 +267,10 @@ sup.fn a { color: inherit; text-decoration: none; }
 
 /* ---------- sections ---------- */
 .sect { padding-block: var(--space-5); }
+/* When a section is followed by a chapter break or the closing echo, that
+   next block already supplies the breathing room; drop this one's bottom
+   padding so a collapsed accordion doesn't leave a cavern of whitespace. */
+.sect:has(+ .chapter), .sect:has(+ .close-echo) { padding-bottom: 0; }
 .sect h2 { font-size: var(--step-3); max-width: 24ch; }
 .sect h2 .beat { display: block; color: var(--muted); font-weight: 500; }
 .lede { font-size: var(--step-1); color: var(--body); margin-top: var(--space-3); }
@@ -434,9 +440,23 @@ details.gate .gate__body > * + * { margin-top: var(--space-2); }
 .ledger__row .cost { font-family: var(--font-mono); color: var(--heat-deep); font-size: var(--step-0); white-space: nowrap; }
 
 /* ---------- success / team ---------- */
-.team-grid { display: grid; gap: var(--space-3); grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
-.member { display: grid; grid-template-columns: 72px 1fr; gap: 1rem; align-items: start; }
-.member img { width: 72px; height: 72px; object-fit: cover; border-radius: 50%; filter: grayscale(0.2); }
+.team-grid { display: grid; gap: var(--space-4) var(--space-3); grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+.member { display: grid; grid-template-columns: 128px 1fr; gap: 1.4rem; align-items: start; }
+.member img {
+  width: 128px; height: 160px; object-fit: cover; object-position: center top;
+  border-radius: 8px; box-shadow: var(--elev-1); filter: none;
+  transition: filter 900ms var(--ease-out), transform 500ms var(--ease-out), box-shadow 500ms var(--ease-out);
+}
+/* With JS on, portraits arrive black-and-white and bloom to colour when the
+   panel opens (staggered) or on hover. Without JS they simply stay in colour. */
+.js details.gate .member img { filter: grayscale(1) contrast(1.03); }
+.js details.gate.gate--shown .member img { filter: grayscale(0) contrast(1); }
+.js .gate--shown .team-grid .member:nth-child(2) img { transition-delay: 90ms; }
+.js .gate--shown .team-grid .member:nth-child(3) img { transition-delay: 180ms; }
+.js .gate--shown .team-grid .member:nth-child(4) img { transition-delay: 270ms; }
+.js .gate--shown .team-grid .member:nth-child(5) img { transition-delay: 360ms; }
+.member:hover img { filter: grayscale(0) contrast(1); transform: translateY(-3px); box-shadow: var(--elev-2); }
+@media (max-width: 400px) { .member { grid-template-columns: 104px 1fr; gap: 1rem; } .member img { width: 104px; height: 132px; } }
 .member h3 { font-size: var(--step-0); font-weight: 500; }
 .member .role { font-family: var(--font-mono); font-size: 0.78rem; color: var(--verd-ink); margin-top: 0.15rem; }
 .member p { font-size: 0.88rem; margin-top: 0.5rem; color: var(--body); line-height: 1.55; }
@@ -686,6 +706,73 @@ details.gate .gate__body > * + * { margin-top: var(--space-2); }
   .bill__cut { opacity: 1; transform: none; }
   .bill__after { opacity: 1; transform: none; filter: none; }
 }
+
+/* ---------- animated equipment (the stakes) ---------- */
+.equip { margin-top: var(--space-5); display: grid; gap: var(--space-3); grid-template-columns: 1fr; }
+@media (min-width: 640px) { .equip { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 900px) { .equip { grid-template-columns: repeat(3, 1fr); } }
+.eq-card {
+  display: flex; flex-direction: column;
+  border: 1px solid var(--line); border-radius: var(--radius);
+  padding: var(--space-3); background: var(--bg); box-shadow: var(--elev-1);
+  transition: box-shadow 400ms var(--ease-out), transform 400ms var(--ease-out);
+}
+.eq-card:hover { box-shadow: var(--elev-2); transform: translateY(-3px); }
+.eq-figure {
+  aspect-ratio: 4 / 3; display: grid; place-items: center;
+  border-radius: calc(var(--radius) - 5px); margin-bottom: var(--space-3);
+  background:
+    radial-gradient(120% 120% at 50% 15%, color-mix(in oklch, var(--verd) 5%, var(--bg)), var(--surface));
+  border: 1px solid var(--line-soft);
+}
+.eq-svg { width: 82%; height: auto; display: block; }
+.eq-ink { stroke: var(--ink); stroke-width: 1.5; fill: none; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.eq-hub { fill: var(--verd); stroke: none; }
+.eq-heat { stroke: var(--heat); stroke-width: 1.6; fill: none; stroke-linecap: round; opacity: 0.32; }
+.eq-card h3 { font-size: var(--step-1); font-weight: 500; color: var(--ink); }
+.eq-card p { font-size: var(--step--1); color: var(--body); margin-top: 0.6rem; line-height: 1.6; }
+.eq-cost { margin-top: auto; padding-top: var(--space-2); font-family: var(--font-mono); color: var(--heat-deep); font-size: var(--step-0); white-space: nowrap; }
+.eq-card p.eq-cost { color: var(--heat-deep); }
+
+/* The moving parts only turn once the card is on screen (real, painting
+   renderer), and the reduced-motion catch-all neutralises them entirely. */
+.eq-spin { transform-box: view-box; transform-origin: center; }
+.anim-ready .eq-card.is-in .eq-spin { animation: eq-rot linear infinite; }
+.anim-ready .eq-card:nth-child(1).is-in .eq-spin { animation-duration: 8s; }
+.anim-ready .eq-card:nth-child(2).is-in .eq-spin { animation-duration: 5.5s; }
+.anim-ready .eq-card:nth-child(3).is-in .eq-spin { animation-duration: 11s; }
+.anim-ready .eq-card.is-in .eq-heat { animation: eq-pulse 2.8s ease-in-out infinite; }
+@keyframes eq-rot { to { transform: rotate(360deg); } }
+@keyframes eq-pulse { 0%, 100% { opacity: 0.22; } 50% { opacity: 0.7; } }
+
+/* ---------- inline film band ---------- */
+.film-band { padding-block: var(--space-6); }
+.film-band__head { max-width: 40ch; }
+.film-band__eyebrow { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: oklch(0.72 0.08 188); }
+.film-band h2 { color: var(--cinema-ink); font-size: var(--step-3); margin-top: 0.6rem; }
+.film-band .lede { color: var(--cinema-body); margin-top: 0.9rem; }
+.film-player { margin-top: var(--space-4); }
+.film-player__facade {
+  position: relative; display: block; width: 100%; aspect-ratio: 16 / 9;
+  border: 1px solid var(--cinema-line); border-radius: var(--radius); overflow: hidden;
+  padding: 0; cursor: pointer; background: var(--cinema); box-shadow: var(--elev-3);
+}
+.film-player__poster { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: grayscale(0.3) brightness(0.62); transition: transform 900ms var(--ease-out), filter 700ms var(--ease-out); }
+.film-player__scrim { position: absolute; inset: 0; background: radial-gradient(60% 60% at 50% 50%, transparent, oklch(0.12 0.01 230 / 0.55)); }
+.film-player__play {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  width: 74px; height: 74px; border-radius: 50%; display: grid; place-items: center;
+  background: oklch(0.99 0.002 188 / 0.92); color: var(--ink); box-shadow: var(--elev-2);
+  transition: transform 300ms var(--ease-out), background 300ms var(--ease-out);
+}
+.film-player__play svg { width: 30px; height: 30px; margin-left: 3px; }
+.film-player__meta { position: absolute; left: 1rem; bottom: 0.9rem; font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.05em; color: oklch(0.94 0.005 210); }
+.film-player__facade:hover .film-player__poster { transform: scale(1.03); filter: grayscale(0) brightness(0.7); }
+.film-player__facade:hover .film-player__play { transform: translate(-50%, -50%) scale(1.06); background: #fff; }
+.film-player__facade:focus-visible { outline: 2px solid var(--verd); outline-offset: 3px; }
+.film-player.is-playing { aspect-ratio: auto; }
+.film-player__embed { aspect-ratio: 16 / 9; border-radius: var(--radius); overflow: hidden; background: var(--cinema); box-shadow: var(--elev-3); }
+.film-player__embed iframe { width: 100%; height: 100%; border: 0; display: block; }
 
 /* ---------- print ---------- */
 @media print {

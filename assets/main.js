@@ -108,31 +108,32 @@
     setStep(0);
   }
 
-  /* ---------- film modal (Wistia loads only on open) ---------- */
-  const modal = document.getElementById("film-modal");
-  const filmBtns = document.querySelectorAll("[data-open-film]");
-  if (modal && filmBtns.length) {
-    const frameHost = modal.querySelector(".film-modal__frame");
-    const open = () => {
-      if (!frameHost.querySelector("iframe")) {
-        const f = document.createElement("iframe");
-        f.src = "https://fast.wistia.net/embed/iframe/n765rk6v4z?autoPlay=true&playbar=true&dnt=true";
-        f.allow = "autoplay; fullscreen";
-        f.title = "Energy Plus: how we cut your energy bill, 6 minutes";
-        frameHost.appendChild(f);
-      }
-      modal.showModal();
-    };
-    const close = () => {
-      modal.close();
-      const f = frameHost.querySelector("iframe");
-      if (f) f.remove(); // stop playback
-    };
-    filmBtns.forEach((b) => b.addEventListener("click", open));
-    modal.querySelector(".film-modal__close").addEventListener("click", close);
-    modal.addEventListener("click", (e) => { if (e.target === modal) close(); });
-    modal.addEventListener("cancel", () => { const f = frameHost.querySelector("iframe"); if (f) f.remove(); });
+  /* ---------- inline film: the facade becomes the player, in place ---------- */
+  const filmPlayer = document.querySelector(".film-player");
+  const filmFacade = filmPlayer && filmPlayer.querySelector("[data-film-play]");
+  if (filmPlayer && filmFacade) {
+    filmFacade.addEventListener("click", () => {
+      const embed = document.createElement("div");
+      embed.className = "film-player__embed";
+      const f = document.createElement("iframe");
+      f.src = "https://fast.wistia.net/embed/iframe/n765rk6v4z?autoPlay=true&playbar=true&dnt=true";
+      f.allow = "autoplay; fullscreen";
+      f.title = "Energy Plus: how we cut your energy bill, 6 minutes";
+      embed.appendChild(f);
+      filmPlayer.replaceChildren(embed);
+      filmPlayer.classList.add("is-playing");
+    });
   }
+
+  /* ---------- gate open: bloom the portraits from black-and-white to colour ----------
+     Add the class on the next frame so the grayscale state paints first and the
+     filter actually transitions, rather than appearing already in colour. */
+  document.querySelectorAll("details.gate").forEach((d) => {
+    d.addEventListener("toggle", () => {
+      if (d.open) requestAnimationFrame(() => d.classList.add("gate--shown"));
+      else d.classList.remove("gate--shown");
+    });
+  });
 
   /* ---------- text-the-founder panels ---------- */
   const isIOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (/Mac/.test(navigator.userAgent) && "ontouchend" in document);
