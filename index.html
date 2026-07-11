@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Energy Plus: verified energy savings for commercial buildings</title>
+<meta name="description" content="We find the waste in your building, prove the savings with your own numbers, and you pay nothing until you've seen them.">
+<meta property="og:title" content="Energy Plus: verified energy savings for commercial buildings">
+<meta property="og:description" content="We find the waste in your building, prove the savings with your own numbers, and you pay nothing until you've seen them.">
+<meta property="og:type" content="website">
+<meta name="color-scheme" content="light">
+<meta name="theme-color" content="#fbfbfa">
+<link rel="icon" href="assets/img/energy-plus-logo.png">
+<link rel="stylesheet" href="assets/fonts/fonts.css">
+<link rel="stylesheet" href="assets/fonts/display.css">
+<link rel="stylesheet" href="assets/styles.css">
+<script>
+  /* Arm the page-load overture before first paint, so there is no flash.
+     Only on the first visit of a session, never with reduced motion, and
+     never without JS (this script is the only thing that shows it). */
+  (function () {
+    try {
+      var reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if (!reduce && !sessionStorage.getItem("ep-overture")) {
+        document.documentElement.classList.add("overture-on");
+        sessionStorage.setItem("ep-overture", "1");
+      }
+    } catch (e) {}
+  })();
+</script>
+</head>
+<body>
+<a href="#main" class="skip-link">Skip to content</a>
+<div class="overture" aria-hidden="true"><span class="overture__mark"><img src="assets/img/energy-plus-logo.png" alt=""></span></div>
+
+<header class="site-head">
+  <div class="container site-head__in">
+    <a href="#top" aria-label="Energy Plus, home"><img src="assets/img/energy-plus-logo.png" alt="Energy Plus" width="108" height="31"></a>
+    <nav class="site-nav" aria-label="Primary">
+      <a href="#problem">The problem</a>
+      <a href="#method">The method</a>
+      <a href="#proof">Proof</a>
+      <a href="#calculator">Calculator</a>
+      <button type="button" class="pill" data-cal-namespace="15min" data-cal-link="dan-knows-a-gut/15min" data-cal-config='{"layout":"month_view","theme":"light"}'>Book the 15-minute fit call</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+
+  <!-- CH 0 · HERO (cinema cold-open) -->
+  <section class="hero cinema" id="top" aria-labelledby="hero-title">
+    <div class="hero__media" aria-hidden="true">
+      <img id="hero-plate" src="assets/img/hero-building.png" alt="" loading="eager" fetchpriority="high">
+      <div class="hero__scrim"></div>
+      <div class="grain"></div>
+    </div>
+    <div class="container hero__inner">
+      <h1 id="hero-title" data-split>Cut your energy bill without the guesswork.</h1>
+      <p class="hero__lede" data-rise>We find the waste in your building, prove the savings with your own numbers, and you pay nothing until you've seen them.<sup class="fn"><a href="#notes" aria-label="See note 2">2</a></sup></p>
+      <div class="hero__ctas cta-block" data-rise id="hero-cta">
+        <div class="cta-row">
+          <button type="button" class="pill pill--lg" data-cal-namespace="15min" data-cal-link="dan-knows-a-gut/15min" data-cal-config='{"layout":"month_view","theme":"light"}'>Book the 15-minute fit call <span class="arrow" aria-hidden="true">&rarr;</span></button>
+          <button type="button" class="ghostlink js-tf-toggle" aria-expanded="false">Just text the founder</button>
+        </div>
+        <div class="tf-panel" role="group" aria-label="Text the founder">
+          <p class="tf-panel__to">To Dan &middot; (864) 777-0688</p>
+          <textarea rows="4" spellcheck="false" aria-label="Message to Dan">Hi Dan, I run a commercial building and I'd like to see what real energy savings could look like at my property, without the sales song and dance. What does it take to qualify?</textarea>
+          <div class="tf-panel__foot">
+            <span class="tf-panel__hint">Opens in your messages, ready to send.</span>
+            <a class="pill js-tf-send" href="#" data-phone="+18647770688">Send message</a>
+          </div>
+        </div>
+        <p class="hero__quiet"><a href="#proof">200+ results, proven on the bill.</a> Diagnosis on us.<sup class="fn"><a href="#notes">1, 2</a></sup>
+        <button type="button" class="hero__filmlink ghostlink" data-open-film><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg> Watch the film &middot; 6 min</button></p>
+      </div>
+
+      <svg class="signal hero__signal" data-rise viewBox="0 0 1200 46" preserveAspectRatio="none" aria-hidden="true">
+        <path class="sig-dirty" d="M0 23 L30 12 L55 34 L80 18 L110 30 L135 8 L160 27 L190 15 L215 36 L245 20 L270 29 L300 10 L330 25 L355 33 L385 14 L410 28 L440 19 L465 35 L495 11 L520 24 L550 31 L575 16 L600 26 L630 9 L655 30 L685 17 L710 34 L740 21 L765 12 L795 28 L820 23 L850 33 L875 13 L905 25 L930 36 L960 15 L985 27 L1015 10 L1040 30 L1070 18 L1095 32 L1125 14 L1150 26 L1180 20 L1200 23"/>
+        <path class="sig-clean" d="M0 23 C 25 5, 50 5, 75 23 S 125 41, 150 23 S 200 5, 225 23 S 275 41, 300 23 S 350 5, 375 23 S 425 41, 450 23 S 500 5, 525 23 S 575 41, 600 23 S 650 5, 675 23 S 725 41, 750 23 S 800 5, 825 23 S 875 41, 900 23 S 950 5, 975 23 S 1025 41, 1050 23 S 1100 5, 1125 23 S 1175 41, 1200 23"/>
+      </svg>
+
+    </div>
+    <a class="hero__cue" href="#problem" aria-label="Scroll to the problem">
+      <span>See how</span>
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 4v14M6 12l6 6 6-6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
+  </section>
+
+  <!-- CH 1 · THE PROBLEM -->
+  <section class="sect" id="problem" aria-labelledby="problem-title" style="padding-top: var(--space-chapter)">
+    <div class="container">
+      <div class="duo">
+        <div>
+          <p class="monument reveal"><span data-countup="30" data-prefix="~" data-suffix="%">~30%</span></p>
+          <p class="monument__cap reveal" style="--ri:1">The EPA's figure for how much energy the average commercial building wastes.<sup class="fn"><a href="#notes">1</a></sup></p>
+        </div>
+        <div class="prose">
+          <h2 id="problem-title" class="reveal">A third of the energy you buy is wasted. <span class="beat">None of it shows up as a line item.</span></h2>
+          <p class="lede reveal" style="--ri:1"><strong>Most owners have never had anyone qualified find out where theirs goes.</strong></p>
+          <p class="reveal" style="--ri:2">You've heard savings pitches before: a box, a brochure, a payback chart built before anyone read your bill or looked at your building. <strong>You were right not to believe them.</strong></p>
+          <p class="reveal" style="--ri:3">You shouldn't pay, month after month, for energy that does nothing. And left alone, the waste doesn't just sit on the bill; it shortens the life of the equipment paying for it.</p>
+          <div style="margin-top: var(--space-3)">
+            <details class="gate">
+              <summary>Why upgrades keep failing <span class="plus" aria-hidden="true">+</span></summary>
+              <div class="gate__body prose">
+                <p>A vendor's case study is someone else's prescription: what worked in their building, sold to yours before anyone read your bill or looked at your building. Most energy vendors carry one product, so every building gets the same answer.</p>
+                <p>The waste survives because nobody is paid to run the exam first. That is the entire difference between us and them: we start with your bill and your building, and we don't carry a box.</p>
+              </div>
+            </details>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CH 2 · THE GUIDE -->
+  <section class="sect" id="guide" aria-labelledby="guide-title">
+    <div class="container">
+      <div class="prose">
+        <h2 id="guide-title" class="reveal">You've been pitched before. <span class="beat">That's exactly why we measure first.</span></h2>
+        <p class="lede reveal" style="--ri:1"><strong>Skepticism is the qualification here.</strong> The operators we work best with are the ones who stopped believing vendor math years ago.</p>
+        <p class="reveal" style="--ri:2">We don't manufacture anything and we don't sell equipment. <strong>We diagnose your building and we work for you, not the vendor.</strong></p>
+      </div>
+      <ul class="authority reveal" style="--ri:3">
+        <li><span class="m">200+</span> verified results from the technologies we deploy: cold storage, hospitals, hotels, municipalities<sup class="fn"><a href="#notes">1</a></sup></li>
+        <li><span class="m">EXAM</span> your diagnosis is led by the engineer national labs called first<sup class="fn"><a href="#notes">5</a></sup></li>
+        <li><span class="m">3RD&nbsp;PARTY</span> every proposal can be independently verified for ROI, on request<sup class="fn"><a href="#notes">2</a></sup></li>
+      </ul>
+      <blockquote class="pull reveal">"Every other vendor has one to move. We don't."</blockquote>
+
+      <div style="margin-top: var(--space-4)">
+        <details class="gate">
+          <summary>The engineer running your exam <span class="plus" aria-hidden="true">+</span></summary>
+          <div class="gate__body">
+            <div class="member" style="max-width: 560px">
+              <img src="assets/img/cliff.jpeg" alt="Cliff Suljak, Chief Materials Engineer" loading="lazy">
+              <div>
+                <h3>Cliff Suljak</h3>
+                <p class="role">Chief Materials Engineer</p>
+                <p>For four decades, institutions that couldn't afford a wrong decision brought Cliff in to protect their capital budgets. Energy savings is a measurement problem before it is an equipment problem, and forty years of failure analysis and materials measurement is exactly the discipline your exam runs on. Now he runs it on your building, on your behalf, not the vendor's.<sup class="fn"><a href="#notes">5</a></sup></p>
+              </div>
+            </div>
+            <ul class="cred-tiles">
+              <li><span class="big">Sole source</span><p>22-person team across four DOE and DOD facilities, Sandia National Laboratories</p></li>
+              <li><span class="big">$600M+</span><p>in projects at the Salt River Project</p></li>
+              <li><span class="big">ASTM</span><p>co-wrote the national standards other engineers are tested against</p></li>
+              <li><span class="big">UAE grid</span><p>consulted Dubai, Abu Dhabi, and Sharjah on national grid reliability</p></li>
+            </ul>
+            <div class="record-cards" tabindex="0" aria-label="Selected work, scroll horizontally">
+              <article class="record-card">
+                <p class="tag">Sandia National Laboratories &middot; DOE / DOD</p>
+                <h4>Sole-source. Five years. Twenty-two engineers. Four national facilities.</h4>
+                <p>Sandia didn't put this contract out to bid. They awarded it directly to Cliff, then watched him assemble and direct a 22-person engineering team across facilities in Albuquerque, Livermore, Tonopah, and Kauai. Hundreds of task orders completed under Star Wars Program infrastructure.</p>
+              </article>
+              <article class="record-card">
+                <p class="tag">Salt River Project &middot; Arizona</p>
+                <h4>He built the quality control system from scratch. The industry copied it.</h4>
+                <p>As Manager of the Materials and Quality Services Division, Cliff created a complete quality control infrastructure for one of the Southwest's largest utilities: metallurgical lab, nondestructive testing, failure analysis, predictive vibration monitoring. Innovations introduced on projects exceeding $600M were later adopted by utilities across the country.</p>
+              </article>
+              <article class="record-card">
+                <p class="tag">York International &middot; LA County Courts</p>
+                <h4>Northridge earthquake. County engineers on the other side. He won.</h4>
+                <p>After the Northridge earthquake threatened the world's largest thermal storage system, York International hired Cliff sole-source to fix it. He performed the seismic stability analysis, delivered litigation testimony against the county's own engineers, and prevailed. Then he designed and personally oversaw installation of the custom seismic restraint system.</p>
+              </article>
+              <article class="record-card">
+                <p class="tag">UAE National Power Grid</p>
+                <h4>Three emirates. One grid. They called him in to assess all of it.</h4>
+                <p>What began as a reactive power loss engagement across Dubai, Abu Dhabi, and Sharjah grew into a full operational assessment of the UAE's entire power grid, consulting directly to utility authorities on sustainability and grid reliability.</p>
+              </article>
+              <article class="record-card">
+                <p class="tag">ASTM &middot; Standards Committee</p>
+                <h4>Eight years helping write the ASTM standards.</h4>
+                <p>Eight years on the ASTM committee developing test methods for leading-edge materials science diagnostic equipment: advanced composites and ultra-high-strength metals in extreme temperature environments. The methods he helped develop became national industry acceptance criteria for utility procurement.</p>
+              </article>
+            </div>
+          </div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- chapter break -->
+  <div class="chapter container" aria-hidden="true">
+    <p class="chapter__line reveal reveal--mask">Diagnose first. <span class="dim">Commit after.</span></p>
+  </div>
+
+  <!-- CH 3 · THE PLAN -->
+  <section class="sect" id="plan" aria-labelledby="plan-title">
+    <div class="container">
+      <div class="exam-viz reveal" role="img" aria-label="The Exam reads two things: your bill and your building, and connects a charge to the equipment that causes it.">
+        <svg viewBox="0 0 820 240" fill="none">
+          <g class="xv-ink">
+            <rect x="70" y="40" width="220" height="160" rx="4"/>
+            <line x1="70" y1="72" x2="290" y2="72"/>
+            <line x1="92" y1="98" x2="230" y2="98"/>
+            <line x1="92" y1="122" x2="250" y2="122"/>
+            <line x1="92" y1="176" x2="200" y2="176"/>
+          </g>
+          <rect class="xv-heat" x="80" y="112" width="210" height="20" rx="3"/>
+          <line class="xv-heatline" x1="92" y1="122" x2="250" y2="122"/>
+          <text class="xv-label" x="180" y="224" text-anchor="middle">YOUR BILL</text>
+          <g class="xv-ink">
+            <rect x="530" y="72" width="220" height="128" rx="4"/>
+            <line x1="530" y1="72" x2="750" y2="72"/>
+            <rect x="560" y="48" width="46" height="26" rx="3"/>
+            <rect x="640" y="48" width="46" height="26" rx="3"/>
+            <line x1="530" y1="112" x2="750" y2="112"/>
+            <line x1="530" y1="152" x2="750" y2="152"/>
+            <line x1="600" y1="72" x2="600" y2="200"/>
+            <line x1="680" y1="72" x2="680" y2="200"/>
+          </g>
+          <text class="xv-label" x="640" y="224" text-anchor="middle">YOUR BUILDING</text>
+          <path class="xv-link" d="M290 122 C 380 122, 470 61, 583 61"/>
+          <circle class="xv-node" cx="583" cy="61" r="4.5"/>
+          <text class="xv-exam" x="437" y="40" text-anchor="middle">THE EXAM</text>
+        </svg>
+      </div>
+      <h2 id="plan-title" class="reveal">Three steps. <span class="beat">You see the number before you spend a dollar.</span></h2>
+      <ol class="plan-steps">
+        <li class="plan-step reveal">
+          <div>
+            <h3>We run The Exam, on us.</h3>
+            <p>Two things tell us where your money leaks: <strong>your bill and your building.</strong> The Exam reads both. A $750 diagnosis at no cost, a written report yours to keep either way.<sup class="fn"><a href="#notes">2</a></sup></p>
+            <ul class="sub">
+              <li>Your bill: how you are charged, what you are penalized for, where the leverage is</li>
+              <li>Your building: the equipment you actually run and how hard it works</li>
+              <li>The overlap: where what you run collides with how you are billed</li>
+            </ul>
+          </div>
+        </li>
+        <li class="plan-step reveal" style="--ri:1">
+          <div>
+            <h3>We prove it on your bill.</h3>
+            <p>Not a projection, not a vendor claim. <strong>Your own bill, before and after.</strong><sup class="fn"><a href="#notes">1, 2</a></sup></p>
+          </div>
+        </li>
+        <li class="plan-step reveal" style="--ri:2">
+          <div>
+            <h3>You decide.</h3>
+            <p>If the number isn't worth your time, you walk away owing nothing.<sup class="fn"><a href="#notes">2</a></sup></p>
+          </div>
+        </li>
+      </ol>
+      <div class="zero-row reveal">
+        <p class="monument monument--verd">$0</p>
+        <p class="monument__cap">Your cost to find out.<sup class="fn"><a href="#notes">2</a></sup></p>
+      </div>
+      <div class="guarantee reveal">
+        <h3>The Floor Guarantee</h3>
+        <p><strong>If we can't prove your savings, nothing is installed and you owe nothing.</strong><sup class="fn"><a href="#notes">2</a></sup></p>
+      </div>
+      <div style="margin-top: var(--space-3)">
+        <details class="gate">
+          <summary>What the diagnosis covers <span class="plus" aria-hidden="true">+</span></summary>
+          <div class="gate__body prose">
+            <p>The pilot covers heating and cooling efficiency matched from more than four dozen solutions, conditioning the power your equipment draws, and a plan to flatten your peak demand charges. We also review every utility program and tax incentive your project qualifies for, and we file the paperwork ourselves.<sup class="fn"><a href="#notes">3, 4</a></sup></p>
+            <p>The 15-minute call is a fit check, not a pitch: building type, bill size, and whether your property qualifies for the no-cost diagnosis.<sup class="fn"><a href="#notes">2</a></sup></p>
+          </div>
+        </details>
+      </div>
+      <div class="cta-block" style="margin-top: var(--space-4)">
+        <div class="cta-row reveal">
+          <button type="button" class="pill pill--lg" data-cal-namespace="15min" data-cal-link="dan-knows-a-gut/15min" data-cal-config='{"layout":"month_view","theme":"light"}'>Book the 15-minute fit call <span class="arrow" aria-hidden="true">&rarr;</span></button>
+          <button type="button" class="ghostlink js-tf-toggle" aria-expanded="false">Just text the founder</button>
+        </div>
+        <div class="tf-panel" role="group" aria-label="Text the founder">
+          <p class="tf-panel__to">To Dan &middot; (864) 777-0688</p>
+          <textarea rows="4" spellcheck="false" aria-label="Message to Dan">Hi Dan, I run a commercial building and I'd like to see what real energy savings could look like at my property, without the sales song and dance. What does it take to qualify?</textarea>
+          <div class="tf-panel__foot">
+            <span class="tf-panel__hint">Opens in your messages, ready to send.</span>
+            <a class="pill js-tf-send" href="#" data-phone="+18647770688">Send message</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CH 4 · THE EXAM FINDS TWO WASTES (cinema) -->
+  <section class="cinema cinema-pad" id="method" aria-labelledby="method-title">
+    <div class="container">
+      <div class="method-intro">
+        <h2 id="method-title" class="reveal">One Exam. <span class="beat">Two kinds of waste.</span></h2>
+        <p class="lede reveal" style="--ri:1">Your building loses energy two ways: to heat and to wear. <strong>Most vendors sell a fix for one and never look at the other.</strong> The Exam finds both, and we only install what pays for itself.<sup class="fn"><a href="#notes">1</a></sup></p>
+      </div>
+
+      <div class="beats">
+        <article class="beat reveal">
+          <p class="beat__n">Waste one</p>
+          <h3>The energy you lose to heat</h3>
+          <p class="beat__claim">Your building works too hard to hold its temperature, and pays for the gap every hour it runs.</p>
+          <ul class="beat__points">
+            <li>Compressors that keep running after the air cannot get any colder</li>
+            <li>Heat bleeding in through the roof your system then has to fight</li>
+            <li>Coils that quietly lost their efficiency years ago, with no one to flag it</li>
+          </ul>
+          <p class="fig">15 to 30% less heating and cooling energy<sup class="fn"><a href="#notes">1</a></sup></p>
+          <div class="beat__links">
+            <button type="button" class="pill" data-open-film>Watch the film, 6 min</button>
+            <a class="ghostlink" href="how-it-works.html#heat">See how it works &rarr;</a>
+          </div>
+        </article>
+
+        <article class="beat reveal" style="--ri:1">
+          <p class="beat__n">Waste two</p>
+          <h3>The energy you lose to wear</h3>
+          <p class="beat__claim">Your equipment draws more power than the work it does, so you buy the difference and it wears out faster.</p>
+          <ul class="beat__points">
+            <li>Motors and compressors that pull hard every time they start</li>
+            <li>A higher bill for the same work, month after month</li>
+            <li>Equipment aging years early, then failing at the worst possible time</li>
+          </ul>
+          <p class="fig">8 to 14% off the bill, plus years of equipment life<sup class="fn"><a href="#notes">1, 12</a></sup></p>
+          <div class="beat__links">
+            <a class="ghostlink" href="how-it-works.html#wear">See how it works &rarr;</a>
+            <span class="beat__soon">Film in production</span>
+          </div>
+        </article>
+      </div>
+
+      <p class="method-close reveal">The Exam tells us which one is costing you more. <strong>We fix both.</strong></p>
+      <div class="cta-row reveal" style="margin-top: var(--space-3)">
+        <button type="button" class="ghostlink" data-cal-namespace="15min" data-cal-link="dan-knows-a-gut/15min" data-cal-config='{"layout":"month_view","theme":"light"}'>Convinced already? Book the 15-minute fit call &rarr;</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- chapter break -->
+  <div class="chapter container" aria-hidden="true">
+    <p class="chapter__line reveal reveal--mask">Proven on the bill. <span class="dim">Paid for by the waste.</span></p>
+  </div>
+
+  <!-- CH 5 · THE MONEY -->
+  <section class="sect" id="money" aria-labelledby="money-title">
+    <div class="container">
+      <div class="bill-stage">
+        <figure class="bill reveal" aria-label="Illustrative commercial energy bill showing where the waste hides">
+          <div class="bill__paper">
+            <div class="bill__head">
+              <span class="bill__util">Metropolitan Power &amp; Light</span>
+              <span class="bill__acct">Acct 4471-08 &middot; Commercial &middot; June</span>
+            </div>
+            <ul class="bill__lines">
+              <li class="bill__line"><span>Energy charge, on-peak</span><span class="bill__amt">$8,240</span></li>
+              <li class="bill__line" data-waste data-cut="1520"><span>Demand charge, peak kW <em>penalty</em></span><span class="bill__amtwrap"><span class="bill__amt">$3,120</span><span class="bill__cut">-$1,520</span></span></li>
+              <li class="bill__line"><span>Energy charge, off-peak</span><span class="bill__amt">$1,180</span></li>
+              <li class="bill__line" data-waste data-cut="640"><span>Power factor adjustment <em>penalty</em></span><span class="bill__amtwrap"><span class="bill__amt">$640</span><span class="bill__cut">-$640</span></span></li>
+              <li class="bill__line" data-waste data-cut="1890"><span>Excess consumption, HVAC <em>waste</em></span><span class="bill__amtwrap"><span class="bill__amt">$1,890</span><span class="bill__cut">-$1,890</span></span></li>
+              <li class="bill__line"><span>Taxes and fees</span><span class="bill__amt">$710</span></li>
+            </ul>
+            <div class="bill__total"><span>Total this month</span><span class="bill__total-amt" data-bill-total="15780">$15,780</span></div>
+            <div class="bill__after"><span class="bill__after-label">After The Exam</span><span class="bill__after-amt" data-bill-after>$11,730</span></div>
+          </div>
+          <figcaption class="bill__cap">Illustrative figures. Your report shows the real numbers, read from your own bill.<sup class="fn"><a href="#notes">1</a></sup></figcaption>
+        </figure>
+
+        <div class="bill-copy prose">
+          <h2 id="money-title" class="reveal">The waste hides in plain sight on your bill. <span class="beat">We know where to look.</span></h2>
+          <p class="lede reveal" style="--ri:1">Penalties, peak-demand spikes, and quiet excess consumption. <strong>We read every line, then file every deduction, credit, and rebate you qualify for.</strong><sup class="fn"><a href="#notes">3, 4</a></sup></p>
+          <p class="reveal" style="--ri:2"><strong>Cash flow positive from day one</strong> on qualifying projects, structured right, and it only improves from there.<sup class="fn"><a href="#notes">1, 2</a></sup></p>
+          <p class="reveal" style="--ri:3">And if you ever find a better verified return than ours, we pay a finder's fee; the terms are in the disclosures below, in plain English.<sup class="fn"><a href="#notes">7</a></sup></p>
+          <div style="margin-top: var(--space-3)">
+            <details class="gate">
+              <summary>How the finder's fee works <span class="plus" aria-hidden="true">+</span></summary>
+              <div class="gate__body prose">
+                <p>If you bring us a demonstrably better return on a like-for-like comparison (equivalent scope, equipment, and methodology), we verify it, and if it holds, we pay you a finder's fee. It's subject to separate written terms, and we administer the verification. The full language is in <a href="#disclosures-terms">the disclosures</a>, section 7.</p>
+              </div>
+            </details>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CH 6 · THE PROOF -->
+  <section class="sect" id="proof" aria-labelledby="proof-title">
+    <div class="container">
+      <h2 id="proof-title" class="reveal">Verified results. <span class="beat">Not case studies. Bills.</span></h2>
+      <p class="lede reveal" style="--ri:1">Measured on the bills of named facilities running the technologies we deploy.<sup class="fn"><a href="#notes">1, 9</a></sup></p>
+      <div class="results">
+        <div class="result reveal"><p class="fig"><span data-countup="15" data-suffix="%">15%</span></p><p class="of">of HVAC cost</p><p class="who"><b>DHL Refrigeration Plant</b> Cold storage<sup class="fn"><a href="#notes">1</a></sup></p></div>
+        <div class="result reveal" style="--ri:1"><p class="fig"><span data-countup="19.2" data-decimals="1" data-suffix="%">19.2%</span></p><p class="of">of HVAC cost</p><p class="who"><b>Anheuser-Busch, Mississippi</b> Beverage bottler<sup class="fn"><a href="#notes">1</a></sup></p></div>
+        <div class="result reveal" style="--ri:2"><p class="fig"><span data-countup="24" data-suffix="%">24%</span></p><p class="of">of total bill</p><p class="who"><b>Edward Hospital, Illinois</b> Hospital<sup class="fn"><a href="#notes">1</a></sup></p></div>
+        <div class="result reveal" style="--ri:3"><p class="fig"><span data-countup="27" data-suffix="%">27%</span></p><p class="of">of total bill</p><p class="who"><b>City of Rainsville, Alabama</b> Municipal<sup class="fn"><a href="#notes">1</a></sup></p></div>
+      </div>
+      <div class="proof-total">
+        <p class="monument">200+</p>
+        <p class="monument__cap">verified results from the technologies we deploy, across building types and climates<sup class="fn"><a href="#notes">1</a></sup></p>
+      </div>
+      <p class="prose reveal" style="margin-top: var(--space-3)">Independent verification under recognized protocols (IPMVP Option C, ASHRAE Guideline 14) is available on qualifying projects. <strong>If a claim of ours can't survive your accountant, we don't make it.</strong><sup class="fn"><a href="#notes">8</a></sup></p>
+    </div>
+  </section>
+
+  <!-- CH 7 · YOUR NUMBER -->
+  <section class="sect" id="calculator" aria-labelledby="calc-title">
+    <div class="container">
+      <h2 id="calc-title" class="reveal">Run the numbers on your own building.</h2>
+      <p class="lede reveal" style="--ri:1">Your spend, your region, your facility type. About 2 minutes. <strong>A conservative model, not a quote; the pilot confirms the real figure.</strong><sup class="fn"><a href="#notes">1</a></sup></p>
+      <div class="calc-frame reveal" style="--ri:2">
+        <iframe id="ep-calc-frame" src="https://danknowsaguy-web.github.io/hvac-calculator/?v=2026-07-04-2" title="Energy savings calculator" loading="lazy"></iframe>
+      </div>
+    </div>
+  </section>
+
+  <!-- CH 8 · THE STAKES -->
+  <section class="sect" id="stakes" aria-labelledby="stakes-title">
+    <div class="container">
+      <h2 id="stakes-title" class="reveal">The waste doesn't just inflate the bill. <span class="beat">It eats the equipment.</span></h2>
+      <div class="ledger">
+        <div class="ledger__row reveal">
+          <h3>Elevator traction motors</h3>
+          <p>Hard starts at 6 to 8x running current wear the motor out early, with ADA exposure while the cab is down.</p>
+          <p class="cost">$50K to $150K per cab<sup class="fn"><a href="#notes">1</a></sup></p>
+        </div>
+        <div class="ledger__row reveal" style="--ri:1">
+          <h3>HVAC and RTU fleet</h3>
+          <p>Runs around the clock under constant electrical stress that ages an entire fleet years too early.</p>
+          <p class="cost">$260K to $480K per property<sup class="fn"><a href="#notes">1</a></sup></p>
+        </div>
+        <div class="ledger__row reveal" style="--ri:2">
+          <h3>Pump, spa, and laundry drives</h3>
+          <p>Fail the same way, and a peak-season failure turns straight into review damage.</p>
+          <p class="cost">$8K to $25K per pump<sup class="fn"><a href="#notes">1</a></sup></p>
+        </div>
+      </div>
+      <p class="prose reveal" style="margin-top: var(--space-3)"><strong>None of this appears in a standard energy audit.</strong> It survives for years, until someone measures it at the panel.</p>
+    </div>
+  </section>
+
+  <!-- CH 9 · SUCCESS + TEAM -->
+  <section class="sect" id="team" aria-labelledby="success-title">
+    <div class="container">
+      <h2 id="success-title" class="reveal">A smaller bill is the least of it.</h2>
+      <ul class="authority">
+        <li class="reveal"><span class="m">BILL</span> a lower bill, proven on your own bill, not promised on a brochure<sup class="fn"><a href="#notes">1</a></sup></li>
+        <li class="reveal" style="--ri:1"><span class="m">LIFESPAN</span> equipment that lasts years longer and costs less to maintain<sup class="fn"><a href="#notes">12</a></sup></li>
+        <li class="reveal" style="--ri:2"><span class="m">YOUR&nbsp;SIDE</span> someone at the table whose only job is your best return</li>
+      </ul>
+      <p class="prose reveal" style="margin-top: var(--space-3)">We carry the complexity so you never have to. That was the whole idea.</p>
+
+      <div style="margin-top: var(--space-4)">
+        <details class="gate">
+          <summary>The people behind the numbers <span class="plus" aria-hidden="true">+</span></summary>
+          <div class="gate__body">
+            <div class="team-grid">
+              <div class="member">
+                <img src="assets/img/ronson.jpeg" alt="Ronson Provido" loading="lazy">
+                <div><h3>Ronson Provido</h3><p class="role">Principal Engineering Advisor</p><p>20+ years in electrical engineering: design, commissioning, R&amp;D, and project management. Portfolio includes LAX and multi-state commercial and hospitality projects. Licensed PE, Title 24 and LEED qualified.</p></div>
+              </div>
+              <div class="member">
+                <img src="assets/img/daniel.jpeg" alt="Daniel Gutierrez" loading="lazy">
+                <div><h3>Daniel Gutierrez</h3><p class="role">CEO + Founder</p><p>19 years connecting people, capital, and opportunity across 14+ industries and 70+ specialized markets. Former director of FDA-registered clinical trials. Works fee-for-performance, and is committed to deploying profits toward American infrastructure.</p></div>
+              </div>
+              <div class="member">
+                <img src="assets/img/cj.jpeg" alt="CJ Metz" loading="lazy">
+                <div><h3>CJ Metz</h3><p class="role">Strategic Account Manager</p><p>23+ years in technology leadership, sales, and consulting. Air Force veteran who has led major initiatives for Fortune 500 firms across business, technology, and community.</p></div>
+              </div>
+              <div class="member">
+                <img src="assets/img/pepper.jpeg" alt="Pepper J. Matanga" loading="lazy">
+                <div><h3>Pepper J. Matanga</h3><p class="role">Partnerships &amp; Business Development</p><p>25+ years leading P.E.P. &amp; Associates, a marketing, sales, and project-development firm. Partnerships span Fortune 100 names like AT&amp;T, Boeing, Motorola, and NASA to federal agencies including the US Marine Corps, Navy, and CIA. A former collegiate and pro football coach who has raised over $3M for national and local causes.</p></div>
+              </div>
+              <div class="member">
+                <img src="assets/img/raul.jpeg" alt="Raul Solis" loading="lazy">
+                <div><h3>Raul Solis</h3><p class="role">International Market Development</p><p>A seasoned business consultant who has spearheaded Energy Plus's expansion into Mexican and South American markets, opening retail, commercial, and government channels over the past decade.</p></div>
+              </div>
+            </div>
+          </div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- CLOSE -->
+  <section class="close-echo" aria-label="Book a call">
+    <div class="container">
+      <h2 class="reveal reveal--mask">That's the whole method. <span style="color: var(--muted)">The next step is 15 minutes.</span></h2>
+      <div class="cta-block">
+        <div class="cta-row reveal" style="--ri:1">
+          <button type="button" class="pill pill--lg" data-cal-namespace="15min" data-cal-link="dan-knows-a-gut/15min" data-cal-config='{"layout":"month_view","theme":"light"}'>Book the 15-minute fit call <span class="arrow" aria-hidden="true">&rarr;</span></button>
+          <button type="button" class="ghostlink js-tf-toggle" aria-expanded="false">Just text the founder</button>
+        </div>
+        <div class="tf-panel" role="group" aria-label="Text the founder">
+          <p class="tf-panel__to">To Dan &middot; (864) 777-0688</p>
+          <textarea rows="4" spellcheck="false" aria-label="Message to Dan">Hi Dan, I run a commercial building and I'd like to see what real energy savings could look like at my property, without the sales song and dance. What does it take to qualify?</textarea>
+          <div class="tf-panel__foot">
+            <span class="tf-panel__hint">Opens in your messages, ready to send.</span>
+            <a class="pill js-tf-send" href="#" data-phone="+18647770688">Send message</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-foot">
+  <div class="container">
+    <img src="assets/img/energy-plus-logo.png" alt="Energy Plus" width="108" height="31">
+    <p class="tagline">Independent energy partner to commercial buildings. We don't sell the box. We diagnose the property and verify the savings.</p>
+    <nav class="foot-nav" aria-label="Footer">
+      <a href="#problem">The problem</a>
+      <a href="#method">The method</a>
+      <a href="how-it-works.html">How it works</a>
+      <a href="#proof">Proof</a>
+      <a href="#calculator">Calculator</a>
+      <a href="#team">Team</a>
+    </nav>
+
+    <div class="foot-notes" id="notes">
+      <p><strong>How to read this page.</strong> Energy Plus is an independent energy solutions partner. We do not manufacture equipment. We diagnose each property and procure, size, and integrate the right technologies from our stack for that specific building. The numbered notes below apply to the marked figures and statements throughout this page.</p>
+      <ul>
+        <li><span class="n">1</span><span><strong>Savings and performance figures.</strong> All savings, bill-reduction, equipment-life, maintenance, and payback figures shown (including ranges such as 8 to 14% and the HVAC savings ranges) are illustrative estimates or results achieved at specific facilities under their own conditions. They are not predictions or guarantees of your results. Your actual results depend on your building, climate, occupancy, equipment condition, and utility rates, which is exactly why we prove your savings on site before you commit. Modeled numbers are directional estimates, not quotes.</span></li>
+        <li><span class="n">2</span><span><strong>Program terms and eligibility.</strong> Our done-for-you program, including negotiation, pricing, and contract terms, is offered case-by-case and depends on factors such as the number of facilities in your portfolio and the size of your electricity bills. Properties that do not qualify for the done-for-you program may instead be offered self-directed options, which carry different terms, pricing, and responsibilities. "No cost," "the diagnosis is on us," and "nothing owed" describe the diagnosis and pilot phase for qualifying properties; they do not describe the cost of any installed solution. Eligibility, scheduling, and availability are determined during the application and diagnosis process.</span></li>
+        <li><span class="n">3</span><span><strong>Tax incentives.</strong> Any tax figures shown are potential amounts based on current federal rules and assumptions; they are not tax advice. Actual deductions depend on your building, the work performed, and your tax situation. Consult a qualified tax advisor.</span></li>
+        <li><span class="n">4</span><span><strong>Utility and incentive programs.</strong> Utility-program coverage varies by state, utility, and program, and is subject to program availability, funding, and qualification. Amounts shown are illustrative and are not guaranteed.</span></li>
+        <li><span class="n">5</span><span><strong>Professional history and credentials.</strong> Biographical and credential statements reflect documented professional history. Supporting documentation is available for verification on request.</span></li>
+      </ul>
+    </div>
+
+    <details class="disclosures" id="disclosures-terms">
+      <summary>Important Disclosures and Terms <span class="plus" aria-hidden="true">+</span></summary>
+      <div class="disclosures__body">
+        <p><em>Effective date: February 4, 2026.</em> These disclosures apply to Energy Plus marketing and informational materials, including videos, presentations, web pages, and printed materials. They explain the basis for the statements, figures, and offers presented in those materials. By viewing or relying on those materials, you acknowledge these disclosures. Where a signed agreement exists, that agreement governs.</p>
+        <h4>1. General</h4>
+        <p>This content is provided for general informational purposes only. It is not an offer, warranty, guarantee, or professional advice. All figures are estimates, are illustrative, and are subject to change without notice. The only binding commitments between you and Energy Plus are those set out in a signed written agreement. Results vary by facility.</p>
+        <h4>2. Performance figures</h4>
+        <p>Stated efficiency and savings ranges, including but not limited to 15 to 30 percent, 30 to 50 percent, up to 36 percent, up to 33 percent, an IEER of 31, a COP of 6, and more than 10 degrees, reflect results observed under specific conditions or reported in specific studies. Actual performance depends on factors including equipment type, equipment age, baseline efficiency, climate, occupancy, usage patterns, maintenance, and installation quality. Your actual results may differ from, and may fall below, the ranges shown.</p>
+        <h4>3. System and technical statements</h4>
+        <p>Descriptions of how heating and cooling systems operate, including any statement that the compressor accounts for a majority or a stated share of system energy use, are typical or representative rather than universal. Actual values vary by system design, configuration, and operation.</p>
+        <h4>4. Savings and return on investment</h4>
+        <p>Any savings, payback period, or return on investment figure is an estimate based on assumptions that may not reflect the conditions at your facility. It is not a guarantee of any specific financial outcome. Modeled results and prior results do not predict future performance.</p>
+        <h4>5. Cash flow and program cost</h4>
+        <p>Statements that a project can be cash-flow positive from day one, or that incentives can cover the entire program, describe outcomes that are achievable only under certain financing structures, utility rates, program eligibility, and tax positions. These outcomes are not available in all cases and are not promised for any particular customer.</p>
+        <h4>6. Tax credits, deductions, and rebates</h4>
+        <p>The availability, amounts, and eligibility requirements of tax deductions, tax credits, and utility rebates depend on jurisdiction, current law, program funding, and your individual tax situation. Programs change and may end without notice. Energy Plus does not provide tax, accounting, or legal advice and does not guarantee that any incentive will be approved or received. Consult your own qualified advisor regarding your specific circumstances.</p>
+        <h4>7. Best-return and finder's-fee offer</h4>
+        <p>Any offer to pay a finder's fee in connection with a demonstrably better return is subject to separate written terms and conditions. Such an offer requires a like-for-like comparison on equivalent scope, equipment, and methodology, and is subject to verification by Energy Plus. Energy Plus reserves the right to verify, interpret, and administer the offer, and to modify or withdraw it at any time. The offer is void where prohibited by law.</p>
+        <h4>8. Measurement and verification</h4>
+        <p>Independent measurement and verification of results, including under recognized protocols such as the International Performance Measurement and Verification Protocol (IPMVP) Option C and ASHRAE Guideline 14, is available upon request on qualifying projects. Where performed, verification confirms measured results for that specific project only and does not guarantee future results or results at any other site.</p>
+        <h4>9. Third-party evaluations and named organizations</h4>
+        <p>References to NASA, Durham College, named utilities, and other organizations reflect publicly available reports and evaluations concerning the underlying technologies that Energy Plus deploys. They do not refer to Energy Plus itself. Such references are provided for identification and descriptive purposes only and do not constitute or imply endorsement, sponsorship, certification, or affiliation by those organizations with Energy Plus, unless expressly stated in writing.</p>
+        <h4>10. Case studies and references</h4>
+        <p>Case studies, study counts, and climate or geographic references reflect specific installations completed under specific conditions. They are illustrative and are not predictive of the results you will achieve at your facility.</p>
+        <h4>11. Third-party products and trademarks</h4>
+        <p>Certain technologies referenced are manufactured or supplied by third parties. All product names, logos, and trademarks are the property of their respective owners. Specifications are subject to change without notice.</p>
+        <h4>12. Equipment life and maintenance</h4>
+        <p>Statements regarding extended equipment life, reduced maintenance, improved humidity control, and single-application or long-lasting benefits assume proper installation, operation, and maintenance. They are not a warranty, and actual outcomes will vary. Warranty terms, if any, are provided separately in writing.</p>
+        <h4>13. Forward-looking statements</h4>
+        <p>Statements about future benefits, savings, performance, and outcomes are forward-looking and inherently uncertain. Actual results may differ materially from those expressed or implied.</p>
+        <h4>14. Not professional advice; assessment required</h4>
+        <p>The information presented is general and educational in nature. It is not engineering, financial, tax, or legal advice for your specific situation. A formal assessment of your facility is required before any specific recommendation, scope, or projected result can be provided.</p>
+        <h4>15. Analogies</h4>
+        <p>References to diagnosis, examinations, prescriptions, or disease are analogies used to describe the energy assessment process. They are not medical statements and are not intended to convey any medical meaning.</p>
+        <p><strong>Questions.</strong> For questions about these disclosures or any statement in our materials, contact Energy Plus at <a href="mailto:dan@yourenergyplus.com">dan@yourenergyplus.com</a> or <a href="tel:+18647770688">(864) 777-0688</a>. Energy Plus. Your Energy Partner.</p>
+      </div>
+    </details>
+
+    <div class="foot-meta">
+      <span>&copy; 2026 Energy Plus</span>
+      <span>Independent Energy Solutions Partner</span>
+    </div>
+  </div>
+</footer>
+
+<div class="sticky-cta" id="sticky-cta">
+  <div class="container sticky-cta__in">
+    <span class="sticky-cta__label">Ready when you are.</span>
+    <button type="button" class="pill" data-cal-namespace="15min" data-cal-link="dan-knows-a-gut/15min" data-cal-config='{"layout":"month_view","theme":"light"}'>Book the 15-minute fit call</button>
+    <button type="button" class="sticky-cta__close" aria-label="Dismiss">&times;</button>
+  </div>
+</div>
+
+<dialog class="film-modal" id="film-modal" aria-label="Energy Plus film">
+  <button type="button" class="film-modal__close" aria-label="Close film">&times;</button>
+  <div class="film-modal__frame"></div>
+</dialog>
+
+<script src="assets/vendor/gsap.min.js" defer></script>
+<script src="assets/vendor/ScrollTrigger.min.js" defer></script>
+<script src="assets/main.js" defer></script>
+<script src="assets/choreo.js" defer></script>
+</body>
+</html>
