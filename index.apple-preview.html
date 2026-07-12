@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Energy Plus — verified energy savings for commercial buildings</title>
+<meta name="description" content="We find the waste in your building, prove the savings on your own bill, and you pay nothing until you've seen them.">
+<meta name="color-scheme" content="dark light">
+<link rel="icon" href="assets/img/energy-plus-logo.png">
+<link rel="stylesheet" href="assets/fonts/fonts.css">
+<style>
+:root{
+  --bg:#f7f6f2; --ink:#1b1e24; --body:#3f444c; --muted:#6a7078; --line:#e2ded4;
+  --verd:#2f8079; --verd-bright:#5fc7b7; --heat:#c56a3a;
+  --cinema:#14181d; --dusk-a:#272d37; --dusk-b:#151920; --verd-deep-a:#123430; --verd-deep-b:#0a1917;
+  --warm:#f0ece4;
+  --c-ink:#f2f4f5; --c-body:#c4ccd4; --c-muted:#9aa2ab;
+  --paper:#f8f6f0; --paper-ink:#1e2127; --paper-mut:#5c6167; --paper-line:#ddd9cf;
+  --seg-hvac:#d98a4e; --seg-saved:#2f8079; --seg-light:#b0a893; --seg-plug:#c7c2b4; --seg-other:#dbd7cc;
+  --sans:"Switzer",system-ui,-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;
+  --ease:cubic-bezier(.22,1,.36,1);
+  --pad:clamp(24px,6vw,120px);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;}
+body{font-family:var(--sans);background:var(--bg);color:var(--body);font-size:19px;line-height:1.6;
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;letter-spacing:-.011em;}
+h1,h2,h3{color:var(--ink);font-weight:600;line-height:1.05;letter-spacing:-.032em;text-wrap:balance;}
+a{color:var(--verd);text-underline-offset:3px;}
+strong{color:var(--ink);font-weight:600;}
+.wrap{max-width:1180px;margin-inline:auto;padding-inline:var(--pad);}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);}
+
+/* header */
+.head{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;align-items:center;justify-content:space-between;
+  padding:16px var(--pad);transition:background .4s var(--ease),box-shadow .4s var(--ease),color .4s var(--ease);}
+.head img{height:26px;display:block;}
+.head.solid{background:rgba(247,246,242,.86);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);box-shadow:0 1px 0 var(--line);}
+.head .cta-mini{font-size:15px;font-weight:600;padding:10px 18px;border-radius:100px;background:var(--ink);color:var(--bg);text-decoration:none;transition:transform .3s var(--ease);}
+.head.on-dark:not(.solid){color:#fff;}
+.head.on-dark:not(.solid) .cta-mini{background:#fff;color:var(--cinema);}
+.head .cta-mini:hover{transform:translateY(-1px);}
+
+/* buttons */
+.pill{display:inline-flex;align-items:center;gap:10px;font-size:18px;font-weight:600;padding:16px 30px;border-radius:100px;
+  background:var(--ink);color:var(--bg);text-decoration:none;border:none;cursor:pointer;transition:transform .3s var(--ease),box-shadow .3s var(--ease);}
+.pill:hover{transform:translateY(-2px);box-shadow:0 14px 30px -12px rgba(0,0,0,.5);}
+.pill .arr{transition:transform .3s var(--ease);}
+.pill:hover .arr{transform:translateX(4px);}
+.ghost{display:inline-flex;align-items:center;font-size:18px;font-weight:500;color:inherit;text-decoration:none;padding:16px 8px;opacity:.85;}
+.ghost:hover{opacity:1;}
+.on-dark .pill{background:#fff;color:var(--cinema);}
+.cta-row{display:flex;flex-wrap:wrap;gap:12px 22px;align-items:center;}
+
+/* section scaffolding */
+section{position:relative;}
+.band{padding-block:clamp(90px,13vh,180px);}
+.eyebrow{font-size:16px;font-weight:600;color:var(--verd);margin-bottom:20px;}
+.on-dark .eyebrow{color:var(--verd-bright);}
+.lede{font-size:clamp(1.25rem,1.05rem+.7vw,1.6rem);line-height:1.45;color:var(--body);max-width:26ch;}
+.on-dark{color:var(--c-body);}
+.on-dark h1,.on-dark h2,.on-dark h3{color:var(--c-ink);}
+.on-dark strong{color:var(--c-ink);}
+.on-dark .lede{color:var(--c-body);}
+
+/* reveal */
+.rv{opacity:0;transform:translateY(22px);transition:opacity .8s var(--ease),transform .8s var(--ease);}
+.rv.in{opacity:1;transform:none;}
+.rv.d1{transition-delay:.08s}.rv.d2{transition-delay:.16s}.rv.d3{transition-delay:.24s}
+
+/* atmosphere ground + field */
+.ground{position:relative;isolation:isolate;overflow:hidden;}
+.ground>*{position:relative;z-index:2;}
+.g-dusk{background:radial-gradient(118% 86% at 50% 12%,var(--dusk-a),var(--dusk-b) 62%,#0f1319);}
+.g-verd{background:radial-gradient(120% 104% at 50% 10%,var(--verd-deep-a),var(--verd-deep-b));}
+.g-cinema{background:var(--cinema);}
+.g-warm{background:var(--warm);}
+.ground .field{position:absolute;inset:0;z-index:0;pointer-events:none;opacity:.85;}
+.ground .field svg{width:100%;height:100%;display:block;}
+.ground .w{fill:none;stroke-width:1.1;}
+.w.verd{stroke:var(--verd-bright);opacity:.13;}
+.w.heat{stroke:var(--heat);opacity:.11;}
+.w.cool{stroke:#7fb6bf;opacity:.12;}
+.ground .glow{position:absolute;left:50%;top:-24%;width:120%;height:74%;transform:translateX(-50%);z-index:0;pointer-events:none;}
+.g-dusk .glow{background:radial-gradient(closest-side,rgba(150,182,192,.14),transparent 70%);}
+.g-verd .glow{background:radial-gradient(closest-side,rgba(72,184,168,.16),transparent 70%);}
+.ground .vig{position:absolute;inset:0;z-index:1;pointer-events:none;box-shadow:inset 0 0 160px 40px rgba(4,10,9,.5);}
+.drift-a{animation:drift-a linear infinite;}
+.drift-b{animation:drift-b linear infinite;}
+@keyframes drift-a{from{transform:translateX(0)}to{transform:translateX(-190px)}}
+@keyframes drift-b{from{transform:translateX(-190px)}to{transform:translateX(0)}}
+
+/* monument */
+.fig{font-weight:300;letter-spacing:-.04em;line-height:.86;font-size:clamp(4.5rem,2rem+11vw,10rem);color:var(--ink);}
+.on-dark .fig{color:var(--c-ink);}
+.fig.verd{color:var(--verd);}
+.on-dark .fig.verd{color:var(--verd-bright);}
+.fig.heat{color:var(--heat);}
+.fig-cap{font-size:clamp(1.15rem,1rem+.5vw,1.45rem);color:var(--muted);max-width:30ch;margin-top:22px;}
+.on-dark .fig-cap{color:var(--c-body);}
+
+/* HERO */
+.hero{position:relative;min-height:100svh;display:flex;align-items:flex-end;overflow:hidden;background:var(--cinema);color:#fff;}
+.hero__media{position:absolute;inset:0;z-index:0;}
+.hero__media img{width:100%;height:100%;object-fit:cover;opacity:.5;}
+.hero__media::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,14,18,.5) 0%,rgba(10,14,18,.2) 40%,rgba(12,16,20,.9) 100%);}
+.hero__in{position:relative;z-index:2;width:100%;padding-bottom:clamp(60px,10vh,120px);padding-top:140px;}
+.hero h1{font-size:clamp(2.6rem,1.4rem+5.4vw,5.6rem);max-width:15ch;color:#fff;}
+.hero .lede{color:#d6dbe0;margin-top:26px;max-width:40ch;font-size:clamp(1.2rem,1rem+.7vw,1.55rem);}
+.hero .cta-row{margin-top:40px;}
+.hero .ghost{color:#fff;}
+.hero__quiet{margin-top:26px;font-size:16px;color:#aeb6be;}
+.hero__quiet a{color:#cfd5db;}
+.signal{position:absolute;left:0;right:0;bottom:0;z-index:1;width:100%;height:60px;}
+.signal path{fill:none;stroke-width:2;}
+
+/* pinned bill */
+.spine{position:relative;height:560vh;background:var(--cinema);}
+.spine .pin{position:sticky;top:0;height:100svh;overflow:hidden;display:grid;place-items:center;
+  background:radial-gradient(120% 104% at 50% 10%,var(--verd-deep-a),var(--verd-deep-b));}
+.spine .grid{position:relative;z-index:3;width:100%;max-width:1200px;display:grid;grid-template-columns:1fr 1fr;
+  gap:clamp(24px,5vw,80px);align-items:center;padding-inline:var(--pad);}
+.beats{position:relative;min-height:400px;}
+.beat{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;opacity:0;transform:translateY(14px);
+  transition:opacity .5s var(--ease),transform .5s var(--ease);pointer-events:none;}
+.beat.on{opacity:1;transform:none;}
+.beat .tag{font-size:16px;font-weight:500;color:var(--c-muted);margin-bottom:16px;}
+.beat h2{font-size:clamp(1.9rem,1.2rem+2.7vw,3.1rem);color:var(--c-ink);max-width:17ch;}
+.beat .sub{font-size:clamp(1.15rem,1rem+.5vw,1.4rem);color:var(--c-body);margin-top:20px;max-width:34ch;line-height:1.5;}
+.beat .bfig{font-weight:300;letter-spacing:-.045em;line-height:.9;font-size:clamp(4rem,2rem+8vw,8rem);display:block;margin-bottom:4px;}
+.beat .bfig.heat{color:#eaa877;}.beat .bfig.verd{color:var(--verd-bright);}
+.beat .subnum{font-size:16px;color:var(--c-muted);margin-bottom:20px;}
+
+.bill{background:var(--paper);color:var(--paper-ink);border-radius:16px;padding:clamp(24px,2.6vw,34px);
+  box-shadow:0 50px 100px -34px rgba(0,0,0,.75),0 2px 0 rgba(255,255,255,.5) inset;max-width:520px;width:100%;justify-self:center;}
+.bill__head{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:1px solid var(--paper-line);padding-bottom:16px;}
+.bill__co{font-weight:600;font-size:19px;letter-spacing:-.02em;}
+.bill__co small{display:block;font-weight:400;font-size:13.5px;color:var(--paper-mut);margin-top:4px;}
+.bill__meta{font-size:13px;color:var(--paper-mut);text-align:right;line-height:1.7;font-variant-numeric:tabular-nums;}
+.lines{list-style:none;}
+.line{display:flex;justify-content:space-between;align-items:baseline;gap:16px;padding:16px 12px;margin:0 -12px;border-radius:10px;
+  transition:background .5s var(--ease);position:relative;}
+.line .lbl{font-size:17.5px;color:var(--paper-ink);}
+.line .lsub{display:block;font-size:13px;color:var(--paper-mut);margin-top:3px;font-variant-numeric:tabular-nums;}
+.line .amt{font-size:17.5px;font-weight:500;font-variant-numeric:tabular-nums;white-space:nowrap;text-align:right;}
+.line .cut{display:block;font-size:13.5px;font-weight:500;color:var(--verd);margin-top:4px;opacity:0;transition:opacity .4s var(--ease);}
+.line.flag{background:rgba(197,106,58,.15);}
+.line.flag .lbl,.line.flag .amt{color:#9c4a12;}
+.line.cutx{background:rgba(47,128,121,.12);}
+.line.cutx .amt.orig{color:var(--paper-mut);text-decoration:line-through;}
+.line.cutx .cut{opacity:1;}
+.bill__total{display:flex;justify-content:space-between;align-items:baseline;border-top:2px solid var(--paper-ink);margin-top:8px;padding-top:16px;}
+.bill__total .lbl{font-weight:600;font-size:17.5px;}
+.bill__total .amt{font-size:28px;font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:-.02em;transition:color .5s var(--ease);}
+.bill.after .bill__total .amt{color:var(--verd);}
+.usage{margin-top:20px;padding-top:16px;border-top:1px solid var(--paper-line);opacity:.4;transition:opacity .5s var(--ease);}
+.bill.lit .usage{opacity:1;}
+.usage__cap{display:flex;justify-content:space-between;font-size:13.5px;font-weight:500;color:var(--paper-mut);margin-bottom:9px;}
+.usage__cap b{color:var(--paper-ink);font-variant-numeric:tabular-nums;}
+.usage__bar{display:flex;height:42px;border-radius:9px;overflow:hidden;background:var(--paper-line);}
+.seg{display:flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;
+  transition:width .75s var(--ease),background .5s var(--ease);border-right:1.5px solid var(--paper);}
+.seg:last-child{border-right:0;}
+.seg.hvac{background:var(--seg-hvac);width:50%;}
+.bill.lit .seg.hvac{box-shadow:inset 0 0 0 2px rgba(255,255,255,.3);}
+.seg.saved{background:var(--seg-saved);width:0;font-variant-numeric:tabular-nums;}
+.seg.light{background:var(--seg-light);width:22%;color:#403d36;}
+.seg.plug{background:var(--seg-plug);width:15%;color:#403d36;}
+.seg.other{background:var(--seg-other);width:13%;color:#403d36;}
+.bill.after .seg.hvac{width:35%;}
+.bill.after .seg.saved{width:15%;}
+.usage__note{font-size:13.5px;color:var(--paper-mut);margin-top:10px;text-align:center;transition:color .4s var(--ease);}
+.bill.after .usage__note{color:var(--verd);font-weight:500;}
+
+/* proof cards */
+.proof-head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:20px;margin-bottom:48px;}
+.proof-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px;}
+.pcard{background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.11);border-radius:14px;padding:26px 24px;
+  box-shadow:0 1px 30px rgba(0,0,0,.28);-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px);}
+.pcard .ptype{font-size:13px;font-weight:600;letter-spacing:.02em;color:var(--verd-bright);text-transform:uppercase;}
+.pcard .pname{font-size:16px;color:var(--c-ink);margin-top:6px;font-weight:500;}
+.pcard .pfig{font-size:clamp(2.4rem,1.6rem+2vw,3.2rem);font-weight:300;letter-spacing:-.03em;color:#fff;margin-top:16px;line-height:1;}
+.pcard .punit{font-size:14px;color:var(--c-muted);margin-top:8px;line-height:1.4;}
+
+/* two-input exam */
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:clamp(20px,4vw,56px);margin-top:56px;}
+.inp{border-top:2px solid var(--ink);padding-top:22px;}
+.inp h3{font-size:clamp(1.5rem,1.1rem+1.6vw,2.1rem);}
+.inp p{margin-top:12px;color:var(--body);font-size:17px;max-width:34ch;}
+.inp .n{font-size:15px;font-weight:600;color:var(--verd);margin-bottom:14px;}
+
+/* floor / guarantee band */
+.floor{background:radial-gradient(120% 130% at 50% 0%,var(--verd-deep-a),var(--verd-deep-b));color:var(--c-body);text-align:center;}
+.floor h2{font-size:clamp(2rem,1.3rem+3vw,3.4rem);max-width:20ch;margin-inline:auto;color:var(--c-ink);}
+.floor .lede{margin:24px auto 0;max-width:40ch;color:var(--c-body);}
+.floor .seal{display:inline-block;margin-bottom:26px;font-size:15px;font-weight:600;letter-spacing:.02em;color:var(--verd-bright);
+  border:1px solid rgba(95,199,183,.4);border-radius:100px;padding:9px 20px;}
+
+/* calculator cta */
+.calc{background:var(--warm);text-align:center;}
+.calc h2{font-size:clamp(1.9rem,1.3rem+2.6vw,3rem);max-width:18ch;margin-inline:auto;}
+.calc .lede{margin:22px auto 34px;max-width:38ch;}
+
+/* close */
+.close{background:var(--cinema);color:#fff;text-align:center;}
+.close h2{font-size:clamp(2.2rem,1.4rem+3.4vw,4rem);max-width:16ch;margin-inline:auto;color:#fff;}
+.close .cta-row{justify-content:center;margin-top:40px;}
+.close .ghost{color:#fff;}
+
+/* footer */
+.foot{background:var(--cinema);color:var(--c-muted);padding-block:56px;border-top:1px solid rgba(255,255,255,.08);}
+.foot img{height:26px;opacity:.9;}
+.foot p{font-size:15px;max-width:60ch;margin-top:16px;line-height:1.6;}
+.foot a{color:var(--c-body);}
+
+@media (max-width:840px){
+  body{font-size:18px;}
+  .spine{height:auto;}
+  .spine .pin{position:static;height:auto;padding-block:14vh;}
+  .spine .grid{grid-template-columns:1fr;gap:30px;}
+  .beats{position:static;min-height:0;}
+  .beat{position:static;opacity:0;height:0;overflow:hidden;transition:none;}
+  .beat.on{opacity:1;height:auto;}
+  .bill{max-width:460px;order:-1;justify-self:stretch;}
+  .duo{grid-template-columns:1fr;gap:32px;}
+}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto;}
+  .rv{opacity:1;transform:none;transition:none;}
+  .w{animation:none!important;}
+  .spine{height:auto;}
+  .spine .pin{position:static;height:auto;padding-block:14vh;}
+  .beat{position:static;opacity:1;height:auto;overflow:visible;margin-bottom:9vh;}
+}
+</style>
+</head>
+<body>
+<a href="#main" class="sr">Skip to content</a>
+
+<header class="head on-dark" id="head">
+  <a href="#top" aria-label="Energy Plus home"><img src="assets/img/energy-plus-logo.png" alt="Energy Plus"></a>
+  <a class="cta-mini" href="https://cal.com/dan-knows-a-gut/15min">Book the 15-minute fit call</a>
+</header>
+
+<main id="main">
+
+  <!-- HERO -->
+  <section class="hero" id="top">
+    <div class="hero__media" aria-hidden="true"><img src="assets/img/hero-building.png" alt=""></div>
+    <svg class="signal" viewBox="0 0 1200 60" preserveAspectRatio="none" aria-hidden="true">
+      <path id="sig" d=""/>
+    </svg>
+    <div class="wrap hero__in">
+      <h1>Cut your energy bill without the guesswork.</h1>
+      <p class="lede">We find the waste in your building, prove the savings on your own bill, and you pay nothing until you've seen them.</p>
+      <div class="cta-row">
+        <a class="pill" href="https://cal.com/dan-knows-a-gut/15min">Book the 15-minute fit call <span class="arr" aria-hidden="true">&rarr;</span></a>
+        <a class="ghost" href="sms:+18647770688">Just text the founder</a>
+      </div>
+      <p class="hero__quiet"><a href="#proof">200+ results, proven on the bill.</a> The diagnosis is on us.</p>
+    </div>
+  </section>
+
+  <!-- PROBLEM -->
+  <section class="band ground g-dusk on-dark" id="problem">
+    <div class="glow"></div><div class="field" data-field="waste" aria-hidden="true"></div><div class="vig"></div>
+    <div class="wrap">
+      <p class="fig heat rv">~30%</p>
+      <p class="fig-cap rv d1">of the energy a commercial building buys is wasted. It never shows up as a line item, so no one goes looking for it.</p>
+    </div>
+  </section>
+
+  <!-- PINNED BILL SPINE -->
+  <section class="spine" id="bill" aria-label="How the savings show up on the bill">
+    <div class="pin">
+      <div class="field" data-field="clean" aria-hidden="true"></div><div class="glow"></div><div class="vig"></div>
+      <div class="grid">
+        <div class="beats" id="beats">
+          <div class="beat" data-b="0">
+            <p class="tag">55,000 sq ft store &middot; California</p>
+            <h2>One big-box store. One July electric bill.</h2>
+            <p class="sub">$18,000 for the month. A normal California-summer bill for a store this size.</p>
+          </div>
+          <div class="beat" data-b="1">
+            <span class="bfig heat">~50%</span>
+            <p class="subnum">about $9,000 of this one bill</p>
+            <h2>Half of it heats and cools that big open floor.</h2>
+            <p class="sub">Conditioning 55,000 square feet is about half of everything a store like this spends on power.</p>
+          </div>
+          <div class="beat" data-b="2">
+            <h2>And that same HVAC sets your peak-demand charge.</h2>
+            <p class="sub">The rooftop units' hardest afternoon, in California's steep demand rates, is exactly what that line bills you for.</p>
+          </div>
+          <div class="beat" data-b="3">
+            <span class="bfig verd">20&ndash;40%</span>
+            <p class="subnum">less HVAC energy, same comfort on the floor</p>
+            <h2>We cut the heating and cooling load, not the shopping.</h2>
+            <p class="sub">Because HVAC is half the bill and drives the peak, shrinking it moves the whole number, on both lines at once.</p>
+          </div>
+          <div class="beat" data-b="4">
+            <span class="bfig verd">&minus;$2,700</span>
+            <p class="subnum">this month &middot; about 15% of the entire bill</p>
+            <h2>From HVAC alone. Proven on your own statement.</h2>
+            <p class="sub">Tens of thousands a year, on the one document your accountant already trusts.</p>
+          </div>
+        </div>
+
+        <div class="bill" id="billcard" role="img" aria-label="A July Southern California Edison bill for a big-box store: HVAC is about half of it; cutting the cooling load 20 to 40% drops the total from $18,000 to $15,300.">
+          <div class="bill__head">
+            <span class="bill__co">Southern California Edison<small>Commercial service &middot; California</small></span>
+            <span class="bill__meta">ACCT 30&ndash;114&ndash;5528<br>Billing period &middot; July</span>
+          </div>
+          <ul class="lines">
+            <li class="line" data-line="energy"><span class="lbl">Energy charge<span class="lsub">74,000 kWh</span></span><span class="amt orig">$12,900<span class="cut">&minus;$1,940 HVAC</span></span></li>
+            <li class="line" data-line="demand"><span class="lbl">Peak demand charge<span class="lsub">190 kW &middot; set 4:15 PM</span></span><span class="amt orig">$4,180<span class="cut">&minus;$760 HVAC</span></span></li>
+            <li class="line" data-line="pf"><span class="lbl">Power factor &amp; fixed charges</span><span class="amt orig">$920</span></li>
+          </ul>
+          <div class="bill__total"><span class="lbl">Total due</span><span class="amt" id="total">$18,000</span></div>
+          <div class="usage">
+            <div class="usage__cap"><span>Where your power goes</span><span id="upct"><b>HVAC 50%</b></span></div>
+            <div class="usage__bar">
+              <span class="seg hvac">HVAC</span><span class="seg saved" id="usaved"></span><span class="seg light">Lighting</span><span class="seg plug">Plug</span><span class="seg other">Other</span>
+            </div>
+            <p class="usage__note" id="unote">Heating and cooling is about half the load.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- AUTHORITY BEAT -->
+  <section class="band ground g-dusk on-dark" id="guide">
+    <div class="glow"></div><div class="vig"></div>
+    <div class="wrap">
+      <p class="eyebrow rv">Who runs your exam</p>
+      <h2 class="rv d1" style="font-size:clamp(1.9rem,1.2rem+2.8vw,3.2rem);max-width:20ch">When the labs that can't afford to guess need an answer, they call the engineer we hired.</h2>
+      <p class="lede rv d2" style="max-width:44ch;margin-top:26px">National labs and federal facilities brought him in when a budget could not be wasted on a wrong prescription. That is who reads your building, before anyone quotes you anything.</p>
+    </div>
+  </section>
+
+  <!-- PROOF -->
+  <section class="band ground g-verd on-dark" id="proof">
+    <div class="glow"></div><div class="field" data-field="clean" aria-hidden="true"></div><div class="vig"></div>
+    <div class="wrap">
+      <div class="proof-head">
+        <div>
+          <h2 class="rv" style="font-size:clamp(1.9rem,1.2rem+2.8vw,3.2rem)">Verified results. Not case studies. Bills.</h2>
+          <p class="lede rv d1" style="margin-top:18px;max-width:40ch">Measured on the bills of named facilities running the technologies we deploy.</p>
+        </div>
+        <p class="fig verd rv d1" style="font-size:clamp(3.5rem,2rem+5vw,6rem)">200+</p>
+      </div>
+      <div class="proof-cards">
+        <div class="pcard rv"><p class="ptype">Auto dealership</p><p class="pname">AZ Ford Dealership</p><p class="pfig">49.2%</p><p class="punit">annual energy cut, full-stack program</p></div>
+        <div class="pcard rv d1"><p class="ptype">Government</p><p class="pname">NASA Jet Propulsion Lab</p><p class="pfig">23.6%</p><p class="punit">HVAC reduction, 7-day before/after</p></div>
+        <div class="pcard rv d2"><p class="ptype">Retail</p><p class="pname">Simon Property Group</p><p class="pfig">21.1%</p><p class="punit">kWh cut, 12-month payback</p></div>
+        <div class="pcard rv d3"><p class="ptype">Municipal</p><p class="pname">City of Rainsville</p><p class="pfig">27%</p><p class="punit">average across city facilities, year one</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- THE EXAM: two inputs -->
+  <section class="band" id="exam">
+    <div class="wrap">
+      <p class="eyebrow rv">The exam</p>
+      <h2 class="rv d1" style="font-size:clamp(2rem,1.3rem+3vw,3.4rem);max-width:18ch">It takes two inputs. Neither one is a sales pitch.</h2>
+      <div class="duo">
+        <div class="inp rv d1"><p class="n">01</p><h3>Your bill.</h3><p>We deconstruct where the money actually goes, line by line, including the penalties you were never shown.</p></div>
+        <div class="inp rv d2"><p class="n">02</p><h3>Your building.</h3><p>We read the equipment and the envelope on site, so the fix is yours, not a case study from someone else's property.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- THE FLOOR -->
+  <section class="band floor" id="floor">
+    <div class="wrap">
+      <p class="seal rv">The Floor</p>
+      <h2 class="rv d1">We prove the number on your own bill before you install anything.</h2>
+      <p class="lede rv d2">The diagnosis is on us. You see the savings on your statement first. A smaller bill is the least of it; the point is certainty you can defend.</p>
+    </div>
+  </section>
+
+  <!-- CALCULATOR CTA -->
+  <section class="band calc" id="calculator">
+    <div class="wrap">
+      <h2 class="rv">See your own number in about a minute.</h2>
+      <p class="lede rv d1">Rough your building's waste before you ever talk to us.</p>
+      <div class="cta-row rv d2" style="justify-content:center">
+        <a class="pill" href="how-it-works.html">Open the calculator <span class="arr" aria-hidden="true">&rarr;</span></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- CLOSE -->
+  <section class="band close" id="book">
+    <div class="wrap">
+      <h2 class="rv">The next step is 15 minutes.</h2>
+      <div class="cta-row rv d1">
+        <a class="pill" href="https://cal.com/dan-knows-a-gut/15min">Book the 15-minute fit call <span class="arr" aria-hidden="true">&rarr;</span></a>
+        <a class="ghost" href="sms:+18647770688">Just text the founder</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <img src="assets/img/energy-plus-logo.png" alt="Energy Plus">
+    <p>Independent energy partner to commercial buildings. We don't sell the box. We diagnose the property and verify the savings. Figures on this page are illustrative examples, not quotes; your results depend on your building, climate, and utility rates.</p>
+  </div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+  var reduced=matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* reveals */
+  var rvs=document.querySelectorAll(".rv");
+  if("IntersectionObserver" in window && !reduced){
+    var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target);}});},{rootMargin:"0px 0px -10% 0px",threshold:.12});
+    rvs.forEach(function(el){io.observe(el);});
+    setTimeout(function(){rvs.forEach(function(el){var r=el.getBoundingClientRect();if(r.top<innerHeight&&r.bottom>0)el.classList.add("in");});},1500);
+  } else { rvs.forEach(function(el){el.classList.add("in");}); }
+
+  /* header state over dark sections */
+  var head=document.getElementById("head");
+  var darks=[document.querySelector(".hero"),document.getElementById("bill"),document.getElementById("guide"),document.getElementById("proof"),document.getElementById("floor"),document.getElementById("book")];
+  function syncHead(){
+    var y=scrollY, solid=y>40; head.classList.toggle("solid",solid);
+    var onDark=false, hb=64;
+    darks.forEach(function(s){ if(!s)return; var r=s.getBoundingClientRect(); if(r.top<=hb && r.bottom>=hb) onDark=true; });
+    head.classList.toggle("on-dark",onDark && !solid);
+  }
+  syncHead(); addEventListener("scroll",syncHead,{passive:true}); addEventListener("resize",syncHead,{passive:true});
+
+  /* energy fields */
+  var TAU=Math.PI*2,X0=-220,X1=1620,STEP=10;
+  function wave(y,a,wl,ph){var d="M"+X0+" "+(y+a*Math.sin((X0/wl)*TAU+ph)).toFixed(1)+" ";for(var x=X0+STEP;x<=X1;x+=STEP){d+="L"+x+" "+(y+a*Math.sin((x/wl)*TAU+ph)).toFixed(1)+" ";}return d.trim();}
+  var CLEAN=[[150,34,320,0,"verd","a",26],[250,26,240,1.2,"verd","b",34],[335,40,380,2.4,"verd","a",41],[415,22,210,.6,"verd","b",30]];
+  var WASTE=[[140,30,260,0,"cool","a",19],[230,40,320,1.1,"cool","b",27],[300,24,200,2.2,"heat","a",23],[382,34,300,.6,"heat","b",31],[446,20,180,3,"cool","a",34]];
+  document.querySelectorAll("[data-field]").forEach(function(host){
+    var spec=host.getAttribute("data-field")==="clean"?CLEAN:WASTE;
+    var svg=document.createElementNS("http://www.w3.org/2000/svg","svg");
+    svg.setAttribute("viewBox","0 0 1200 500");svg.setAttribute("preserveAspectRatio","xMidYMid slice");svg.setAttribute("aria-hidden","true");
+    spec.forEach(function(w){var p=document.createElementNS("http://www.w3.org/2000/svg","path");p.setAttribute("d",wave(w[0],w[1],w[2],w[3]));p.setAttribute("class","w "+w[4]+" drift-"+w[5]);p.style.animationDuration=w[6]+"s";svg.appendChild(p);});
+    host.appendChild(svg);
+  });
+
+  /* hero signal: distorted -> clean */
+  var sig=document.getElementById("sig");
+  if(sig){
+    var N=90,W=1200,MID=30,AMP=18;
+    function h(i){var s=Math.sin(i*12.9898)*43758.5453;return (s-Math.floor(s))*2-1;}
+    var xs=[],dirty=[],clean=[];
+    for(var i=0;i<=N;i++){xs.push(i/N*W);dirty.push(Math.max(6,Math.min(54,MID+AMP*h(i))));clean.push(MID+AMP*Math.sin(i/N*Math.PI*2*8));}
+    function build(t){var d="";for(var i=0;i<=N;i++){var y=dirty[i]+(clean[i]-dirty[i])*t;d+=(i?"L":"M")+xs[i].toFixed(1)+" "+y.toFixed(1)+" ";}return d.trim();}
+    sig.setAttribute("d",build(0));sig.setAttribute("stroke","#c56a3a");
+    if(!reduced){var t=0,start=null;var dur=1900;
+      function step(ts){if(!start)start=ts;var p=Math.min((ts-start)/dur,1);sig.setAttribute("d",build(p));
+        sig.setAttribute("stroke", p<1? "#c56a3a" : "#5fc7b7");
+        if(p<1)requestAnimationFrame(step);else sig.setAttribute("stroke","#5fc7b7");}
+      setTimeout(function(){requestAnimationFrame(step);},400);
+    } else { sig.setAttribute("d",build(1));sig.setAttribute("stroke","#5fc7b7"); }
+  }
+
+  /* pinned bill */
+  var stage=document.getElementById("bill");
+  var beats=[].slice.call(document.querySelectorAll(".beat"));
+  var bill=document.getElementById("billcard");
+  var L={};document.querySelectorAll(".line").forEach(function(l){L[l.getAttribute("data-line")]=l;});
+  var total=document.getElementById("total"),upct=document.getElementById("upct"),unote=document.getElementById("unote"),usaved=document.getElementById("usaved");
+  var WIN=[[0,.15],[.15,.36],[.36,.54],[.54,.76],[.76,1.01]];
+  function ab(p){for(var i=WIN.length-1;i>=0;i--){if(p>=WIN[i][0])return i;}return 0;}
+  function renderBill(p){
+    var b=ab(p);
+    beats.forEach(function(el,i){el.classList.toggle("on",i===b);});
+    bill.classList.toggle("lit",b>=1);
+    L.demand.classList.toggle("flag",b===2);
+    var cut=b>=3;
+    L.energy.classList.toggle("cutx",cut);L.demand.classList.toggle("cutx",cut);
+    if(cut)L.demand.classList.remove("flag");
+    bill.classList.toggle("after",cut);
+    total.textContent=cut?"$15,300":"$18,000";
+    upct.innerHTML=cut?"<b>HVAC 35%</b>":"<b>HVAC 50%</b>";
+    usaved.textContent=cut?"−$2,700":"";
+    unote.textContent=cut?"−15% off the whole bill, carved out of HVAC.":"Heating and cooling is about half the load.";
+  }
+  var tick=false;
+  function prog(){var r=stage.getBoundingClientRect();var t=r.height-innerHeight;return t>0?Math.max(0,Math.min(1,(-r.top)/t)):0;}
+  function onScroll(){if(tick)return;tick=true;requestAnimationFrame(function(){renderBill(prog());tick=false;});}
+  if(reduced){beats.forEach(function(el){el.classList.add("on");});L.energy.classList.add("cutx");L.demand.classList.add("cutx");bill.classList.add("lit","after");total.textContent="$15,300";upct.innerHTML="<b>HVAC 35%</b>";usaved.textContent="−$2,700";unote.textContent="−15% off the whole bill, carved out of HVAC.";}
+  else{renderBill(0);addEventListener("scroll",onScroll,{passive:true});addEventListener("resize",onScroll,{passive:true});}
+  window.__render=renderBill;
+})();
+</script>
+</body>
+</html>
