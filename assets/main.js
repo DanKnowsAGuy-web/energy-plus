@@ -219,4 +219,107 @@
     else if (e.data && typeof e.data === "object" && typeof e.data.height === "number") h = e.data.height;
     if (h && h > 300 && h < 4000) frame.style.height = h + "px";
   });
+
+  /* ---------- carousel: auto-advancing project cards ----------
+     Left on its own it advances every 5s. The moment the visitor takes the
+     wheel (an arrow or a dot), it holds the slide they landed on for 15s, then
+     falls back to the 5s cadence. Autoplay only runs while the enclosing gate
+     is open, and never under reduced motion. */
+  document.querySelectorAll("[data-carousel]").forEach((root) => {
+    const track = root.querySelector("[data-carousel-track]");
+    const slides = Array.from(root.querySelectorAll(".carousel__slide"));
+    const dotsWrap = root.querySelector("[data-carousel-dots]");
+    const prevBtn = root.querySelector("[data-carousel-prev]");
+    const nextBtn = root.querySelector("[data-carousel-next]");
+    if (!track || slides.length < 2) return;
+    const AUTO = 5000, DWELL = 15000;
+    let index = 0, timer = null;
+
+    const dots = slides.map((_, i) => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "carousel__dot";
+      b.setAttribute("aria-label", "Go to project " + (i + 1));
+      b.addEventListener("click", () => { go(i); bump(); });
+      if (dotsWrap) dotsWrap.appendChild(b);
+      return b;
+    });
+
+    const render = () => {
+      track.style.transform = "translateX(" + (-index * 100) + "%)";
+      slides.forEach((s, i) => s.setAttribute("aria-hidden", String(i !== index)));
+      dots.forEach((d, i) => d.classList.toggle("is-active", i === index));
+    };
+    const go = (i) => { index = (i + slides.length) % slides.length; render(); };
+    const schedule = (delay) => {
+      clearTimeout(timer);
+      if (reduced) return;
+      timer = setTimeout(() => { go(index + 1); schedule(AUTO); }, delay);
+    };
+    const bump = () => schedule(DWELL); // a manual touch buys a longer read
+
+    if (prevBtn) prevBtn.addEventListener("click", () => { go(index - 1); bump(); });
+    if (nextBtn) nextBtn.addEventListener("click", () => { go(index + 1); bump(); });
+    root.addEventListener("mouseenter", () => clearTimeout(timer));
+    root.addEventListener("mouseleave", () => schedule(AUTO));
+    root.addEventListener("focusin", () => clearTimeout(timer));
+    root.addEventListener("focusout", () => schedule(AUTO));
+
+    render();
+    const gate = root.closest("details.gate");
+    if (gate) {
+      gate.addEventListener("toggle", () => { if (gate.open) schedule(AUTO); else clearTimeout(timer); });
+      if (gate.open) schedule(AUTO);
+    } else {
+      schedule(AUTO);
+    }
+  });
+
+  /* ---------- proof: the full-record sheet ---------- */
+  (() => {
+    const btn = document.getElementById("proof-seeall");
+    const sheet = document.getElementById("proof-sheet");
+    const closeBtn = document.getElementById("proof-sheet-close");
+    if (!btn || !sheet || !closeBtn) return;
+    const sheetBody = sheet.querySelector(".proof-sheet__body");
+    let lastFocus = null;
+
+    const open = () => {
+      lastFocus = document.activeElement;
+      sheet.hidden = false;
+      void sheet.offsetWidth; // reflow so the opacity transition runs (rAF is paused when hidden)
+      sheet.classList.add("is-open");
+      document.documentElement.classList.add("proof-sheet-open");
+      btn.setAttribute("aria-expanded", "true");
+      if (sheetBody) sheetBody.scrollTop = 0;
+      closeBtn.focus();
+    };
+    const close = () => {
+      sheet.classList.remove("is-open");
+      document.documentElement.classList.remove("proof-sheet-open");
+      btn.setAttribute("aria-expanded", "false");
+      const finish = () => { sheet.hidden = true; };
+      if (reduced) finish();
+      else {
+        let done = false;
+        const onEnd = () => { if (done) return; done = true; sheet.removeEventListener("transitionend", onEnd); finish(); };
+        sheet.addEventListener("transitionend", onEnd);
+        setTimeout(onEnd, 400);
+      }
+      if (lastFocus && lastFocus.focus) lastFocus.focus();
+    };
+
+    btn.addEventListener("click", open);
+    closeBtn.addEventListener("click", close);
+    sheet.addEventListener("click", (e) => { if (e.target === sheet) close(); });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !sheet.hidden) close(); });
+    sheet.addEventListener("keydown", (e) => {
+      if (e.key !== "Tab") return;
+      const f = sheet.querySelectorAll('button, a[href], [tabindex]:not([tabindex="-1"])');
+      if (!f.length) return;
+      const first = f[0], last = f[f.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    });
+  })();
 })();
