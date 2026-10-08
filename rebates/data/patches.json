@@ -1,0 +1,24 @@
+[
+  {
+    "abbrev": "VA",
+    "set": {
+      "commercial.typical_rebate_range": "Dominion VA custom: $0.12/kWh (HVAC eligible); prescriptive tune-up $50-60/ton, duct sealing $75-90/ton, rebates capped at 75% of invoice. APCo (2026 guide): unitary AC $27/ton, smart thermostats $24-60 each, dual-enthalpy economizers $36-100/control, VFD $150/HP; caps $100k non-lighting / $200k total, up to 30% of project cost",
+      "commercial.time_to_payment": "Dominion: up to 90 days after complete application (submit within 45 days of service); APCo: not published"
+    },
+    "add_sources": [
+      {"url": "https://www.dominionenergy.com/virginia/save-energy/general-products-and-services", "supports": "Dominion VA custom program $0.12/kWh incl. HVAC (patch round)"},
+      {"url": "https://takechargeva.com/resources/docs/2026.04_Appalachian%20Power_VA%20BES%20Incentive%20Guide_Limited%20Time%20Offer.pdf", "supports": "APCo VA 2026 prescriptive rates: AC $27/ton, thermostats $24-60, economizers, VFD $150/HP (patch round)"},
+      {"url": "https://takechargeva.com/programs/for-your-business/business-energy-solutions", "supports": "APCo caps $100k/$200k, 30% of project cost (patch round)"}
+    ]
+  },
+  {
+    "abbrev": "OR",
+    "set": {
+      "commercial.high_eff_rtu_path": "deemed",
+      "commercial.notes": "Patch round: Energy Trust Form 120HVAC v2026.2 — high-efficiency RTU replacement is deemed ONLY as a heat-pump replacement (ducted HP $350/ton; single-package HP CEE Tier 1 $200/ton; electric-resistance-to-HP retrofit $1,250-2,500/ton). A straight AC-to-AC RTU swap has no prescriptive line and routes to custom. Our Frontier heat-pump-class RTU fits the deemed HP-replacement measure. ARC $200-300/ton and smart thermostat $200-400/unit confirmed. Payment: 6-8 weeks after complete application; submit within 90 days of install."
+    },
+    "add_sources": [
+      {"url": "https://www.energytrust.org/wp-content/uploads/2025/01/BE_FM0120HVAC.pdf", "supports": "Energy Trust 2026 prescriptive HVAC incentive list incl. HP RTU replacement $350/ton, ARC $200-300/ton (patch round)"}
+    ]
+  }
+]
