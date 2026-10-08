@@ -1,0 +1,434 @@
+<title>Utility Rebate Master List</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Albert+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a working reference. Summary tiles and a state map on top, then one master table that opens a full-record panel, then the program, peak-demand and federal layers as their own tables. */
+:root{
+  --ground:#F7F8F6; --surface:#FFFFFF; --surface2:#EFF2EF; --border:#DCE2DE; --border-strong:#BFC9C3;
+  --ink:#172019; --ink2:#4E5B54; --ink3:#7A867F;
+  --accent:#2F7F6E; --accent-deep:#215E51; --accent-wash:#E4F0EC;
+  --peak:#B9681A; --peak-deep:#8E4D0F; --peak-wash:#F8ECDD;
+  --s0:#ECF1EE; --s1:#C6DED5; --s2:#95C4B5; --s3:#5FA38F; --s4:#2F7F6E; --s5:#1F5B4D;
+  --p0:#F1EEE9; --p1:#F3DFC4; --p2:#E9BE8A; --p3:#D08F45; --p4:#B9681A;
+  --tile-dark:#172019; --tile-light:#FFFFFF;
+  --shadow:0 10px 30px rgba(23,32,25,.14);
+  --font-sans:"Albert Sans","Segoe UI",system-ui,-apple-system,sans-serif;
+  --font-mono:"DM Mono","Cascadia Mono",Consolas,ui-monospace,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --ground:#111816; --surface:#17201C; --surface2:#1E2924; --border:#28342E; --border-strong:#3B4A42;
+  --ink:#E6ECE8; --ink2:#A7B3AC; --ink3:#73807A;
+  --accent:#6DB8A3; --accent-deep:#95D3C0; --accent-wash:#1B2C26;
+  --peak:#E0A262; --peak-deep:#F0C08C; --peak-wash:#2E2318;
+  --s0:#1A2420; --s1:#25423A; --s2:#2F6256; --s3:#478B79; --s4:#6DB8A3; --s5:#95D3C0;
+  --p0:#221E19; --p1:#3A2B18; --p2:#5B411F; --p3:#9A6428; --p4:#E0A262;
+  --tile-dark:#E6ECE8; --tile-light:#0F1A16;
+  --shadow:0 10px 30px rgba(0,0,0,.55); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --ground:#111816; --surface:#17201C; --surface2:#1E2924; --border:#28342E; --border-strong:#3B4A42;
+  --ink:#E6ECE8; --ink2:#A7B3AC; --ink3:#73807A;
+  --accent:#6DB8A3; --accent-deep:#95D3C0; --accent-wash:#1B2C26;
+  --peak:#E0A262; --peak-deep:#F0C08C; --peak-wash:#2E2318;
+  --s0:#1A2420; --s1:#25423A; --s2:#2F6256; --s3:#478B79; --s4:#6DB8A3; --s5:#95D3C0;
+  --p0:#221E19; --p1:#3A2B18; --p2:#5B411F; --p3:#9A6428; --p4:#E0A262;
+  --tile-dark:#E6ECE8; --tile-light:#0F1A16;
+  --shadow:0 10px 30px rgba(0,0,0,.55); color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--font-sans);font-size:15px;line-height:1.5}
+.wrap{max-width:1240px;margin:0 auto;padding-block:28px 90px;padding-inline:20px}
+.mono{font-family:var(--font-mono)}
+header{display:flex;flex-wrap:wrap;gap:18px 32px;align-items:flex-end;justify-content:space-between;border-bottom:2px solid var(--ink);padding-bottom:18px;margin-bottom:22px}
+.eyebrow{font-family:var(--font-mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin:0 0 6px}
+h1{font-size:clamp(26px,3.6vw,38px);line-height:1.08;margin:0;font-weight:700;letter-spacing:-.01em;text-wrap:balance}
+.sub{color:var(--ink2);margin:10px 0 0;max-width:70ch}
+.sub b{color:var(--ink)}
+nav.jump{display:flex;flex-wrap:wrap;gap:6px}
+nav.jump a{font-size:12.5px;font-weight:600;color:var(--ink2);text-decoration:none;border:1px solid var(--border-strong);border-radius:999px;padding:6px 12px;background:var(--surface)}
+nav.jump a:hover{color:var(--ink);border-color:var(--ink)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:0 0 26px}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:13px 15px;min-width:0}
+.stat b{display:block;font-size:26px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.1}
+.stat span{font-size:12.5px;color:var(--ink2)}
+.stat.peak b{color:var(--peak-deep)}
+h2{font-family:var(--font-mono);font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink3);font-weight:500;margin:38px 0 6px}
+h2 + p.lead{margin:0 0 14px;color:var(--ink2);max-width:80ch}
+.layerbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:0 0 12px}
+.toggle{display:inline-flex;border:1px solid var(--border-strong);border-radius:8px;overflow:hidden}
+.toggle button{border:0;background:var(--surface);color:var(--ink2);padding:8px 16px;font:inherit;font-weight:600;cursor:pointer}
+.toggle button.on{background:var(--ink);color:var(--ground)}
+.toggle button.on.peak{background:var(--peak);color:#fff}
+button:focus-visible,.tile:focus-visible,tr.row:focus-visible,input:focus-visible,select:focus-visible,.closex:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.map{overflow-x:auto;padding-bottom:6px;scrollbar-width:thin}
+.grid{display:grid;grid-template-columns:repeat(11,minmax(54px,1fr));gap:5px;min-width:660px}
+.tile{border:1px solid var(--border);border-radius:7px;aspect-ratio:1/.9;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:1px;cursor:pointer;background:var(--s0);padding:2px;font:inherit;transition:transform .12s ease,box-shadow .12s ease}
+@media (prefers-reduced-motion: reduce){.tile{transition:none}aside{transition:none}}
+.tile:hover{transform:translateY(-2px);box-shadow:var(--shadow);z-index:2}
+.tile.sel{border:2px solid var(--ink)}
+.tile .ab{font-weight:700;font-size:14px;letter-spacing:.02em}
+.tile .sc{font-size:11.5px;font-variant-numeric:tabular-nums;opacity:.85;font-family:var(--font-mono)}
+.legend{display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin-top:12px;font-size:12.5px;color:var(--ink2)}
+.legend .sw{display:inline-block;width:14px;height:14px;border-radius:4px;border:1px solid var(--border);vertical-align:-2px;margin-right:5px}
+.tools{display:flex;gap:10px;align-items:center;margin:0 0 12px;flex-wrap:wrap}
+input[type=search],select{background:var(--surface);border:1px solid var(--border-strong);border-radius:8px;color:var(--ink);padding:8px 12px;font:inherit}
+input[type=search]{width:min(260px,100%)}
+.count{color:var(--ink3);font-size:12.5px}
+.tblwrap{overflow-x:auto;border:1px solid var(--border);border-radius:10px;background:var(--surface);scrollbar-width:thin;-webkit-overflow-scrolling:touch}
+table{border-collapse:separate;border-spacing:0;width:100%;min-width:980px}
+th{font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);text-align:left;padding:10px 12px;border-bottom:1px solid var(--border-strong);white-space:nowrap;background:var(--surface);font-weight:600;position:sticky;top:0;z-index:4}
+th.sortable{cursor:pointer}
+th.sortable:hover{color:var(--ink)}
+th .arrow{font-family:var(--font-mono);opacity:.7;margin-left:4px}
+td{padding:9px 12px;border-bottom:1px solid var(--border);vertical-align:top;font-size:13.5px}
+tbody tr{background:var(--surface)}
+tr.row{cursor:pointer}
+tr.row:hover{background:var(--accent-wash)}
+tr.row:last-child td{border-bottom:0}
+td.num{font-variant-numeric:tabular-nums;font-family:var(--font-mono);font-size:13px;white-space:nowrap}
+td.state b{white-space:nowrap}
+.bar{display:inline-block;height:4px;border-radius:4px;background:var(--accent);vertical-align:3px;margin-left:8px}
+.bar.peak{background:var(--peak)}
+.chip{display:inline-block;font-size:11.5px;font-weight:600;border-radius:6px;padding:2px 8px;border:1px solid var(--border-strong);color:var(--ink2);white-space:nowrap;line-height:1.5}
+.chip.deemed,.chip.midstream,.chip.yes{background:var(--accent-wash);border-color:var(--accent);color:var(--accent-deep)}
+.chip.strong{background:var(--peak-wash);border-color:var(--peak);color:var(--peak-deep)}
+.chip.available{border-color:var(--peak);color:var(--peak-deep)}
+.chip.pilot{border-style:dashed;color:var(--peak-deep);border-color:var(--peak)}
+.chip.none,.chip.thin,.chip.not_found,.chip.unscreened,.chip.not_screened{color:var(--ink3)}
+.chip.ver{border:0;background:none;padding:0}
+.chip.ver.confirmed{color:var(--accent-deep)}
+.chip.ver.corrected{color:var(--ink2)}
+.range{max-width:340px;font-size:13px;color:var(--ink2)}
+.range.wide{max-width:460px}
+td .u{font-weight:600;color:var(--ink)}
+td .t{display:block;font-size:11.5px;color:var(--ink3);font-family:var(--font-mono)}
+.scrim{position:fixed;inset:0;background:rgba(10,14,12,.4);opacity:0;pointer-events:none;transition:opacity .2s ease;z-index:9}
+.scrim.on{opacity:1;pointer-events:auto}
+aside{position:fixed;top:env(safe-area-inset-top,0px);right:0;bottom:0;width:min(560px,100vw);background:var(--surface);border-left:1px solid var(--border-strong);box-shadow:var(--shadow);transform:translateX(102%);transition:transform .2s ease;overflow-y:auto;z-index:10;padding:24px 24px 48px}
+aside.open{transform:none}
+.closex{float:right;border:1px solid var(--border-strong);background:var(--surface);color:var(--ink2);border-radius:7px;width:34px;height:34px;font-size:16px;cursor:pointer}
+aside h3{margin:2px 0 2px;font-size:24px;letter-spacing:-.01em}
+.scoreline{display:flex;gap:18px;margin:14px 0 4px;flex-wrap:wrap}
+.scoreline div b{font-size:26px;font-variant-numeric:tabular-nums;font-family:var(--font-mono);font-weight:500}
+.scoreline div span{display:block;font-size:11px;color:var(--ink3);text-transform:uppercase;letter-spacing:.08em}
+.scoreline div.peak b{color:var(--peak-deep)}
+.layer{margin-top:22px;border-top:2px solid var(--border);padding-top:12px}
+.layer.peak{border-top-color:var(--peak)}
+.layer.agg{border-top-color:var(--ink3)}
+.layer h4{margin:0 0 4px;font-family:var(--font-mono);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink3);font-weight:500}
+.layer.peak h4{color:var(--peak-deep)}
+.layer p.when{margin:0 0 6px;font-size:12px;color:var(--ink3)}
+dl{margin:0}
+dt{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);margin-top:12px;font-family:var(--font-mono)}
+dd{margin:3px 0 0;font-size:13.5px;overflow-wrap:anywhere}
+.paths{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;align-items:center}
+.srcs a{color:var(--accent-deep);word-break:break-all;font-size:12.5px;display:block;margin-top:5px}
+.prog{border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-top:8px;background:var(--surface2)}
+.prog b{display:block}
+.prog .meta{font-size:12px;color:var(--ink3);font-family:var(--font-mono);margin:2px 0 6px}
+.prog p{margin:4px 0;font-size:13px}
+.prog p span{color:var(--ink3)}
+ul.flags{margin:4px 0 0;padding-left:18px;font-size:13px}
+ul.flags li{margin:3px 0}
+.fed{display:grid;gap:10px}
+.fedcard{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px;min-width:0}
+.fedcard h3{margin:0 0 4px;font-size:16px}
+.fedcard .st{font-size:13px;color:var(--ink2);margin:0 0 6px}
+.fedcard .act{font-size:13.5px;margin:6px 0 0}
+.fedcard .act b{color:var(--ink)}
+.fedcard details{margin-top:6px;font-size:13px}
+.fedcard summary{cursor:pointer;color:var(--accent-deep);font-weight:600}
+.fedcard .dates{font-size:12.5px;color:var(--ink3);margin-top:6px}
+.status{display:inline-block;font-family:var(--font-mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;border-radius:5px;padding:2px 7px;border:1px solid var(--border-strong);color:var(--ink2);margin-right:6px}
+.status.live{border-color:var(--accent);color:var(--accent-deep)}
+.status.dead{border-color:var(--border);color:var(--ink3);text-decoration:line-through}
+.status.warn{border-color:var(--peak);color:var(--peak-deep)}
+.prov{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
+.provcard{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px;min-width:0}
+.provcard h3{margin:0;font-size:15px}
+.provcard .when{font-family:var(--font-mono);font-size:11.5px;color:var(--ink3);margin:2px 0 8px}
+.provcard ul{margin:0;padding-left:18px;font-size:13px}
+.provcard li{margin:3px 0}
+.provcard code{font-family:var(--font-mono);font-size:12px;background:var(--surface2);padding:1px 5px;border-radius:4px}
+footer{margin-top:46px;border-top:1px solid var(--border);padding-top:16px;color:var(--ink3);font-size:12.5px;max-width:84ch}
+footer b{color:var(--ink2)}
+@media (max-width:700px){td,th{padding:8px 10px}.range{max-width:240px}aside{padding:18px 16px 40px}}
+</style>
+
+<div class="wrap">
+<header>
+  <div>
+    <p class="eyebrow">Energy Plus · Rebate Intelligence · consolidated October 2026</p>
+    <h1>Utility Rebate Master List</h1>
+    <p class="sub">Every jurisdiction's utility money for our measures, in one record per state: the <b>rebate layer</b> (deemed, custom M&amp;V, midstream; 200 utility and administrator programs, verified July 2026), the <b>peak-demand layer</b> (ISO/RTO and utility demand-response programs that pay the customer, screened September 2026), the <b>aggregator layer</b> (pay-for-performance and NMEC programs, archetype D) and the <b>federal layer</b>. Blank means not published, never guessed.</p>
+  </div>
+  <nav class="jump" aria-label="Sections">
+    <a href="#states">States</a><a href="#programs">Programs</a><a href="#peak">Peak demand</a><a href="#federal">Federal</a><a href="#sources">Sources</a>
+  </nav>
+</header>
+
+<div class="stats" id="stats"></div>
+
+<h2 id="map-title">Map</h2>
+<p class="lead">Tiles show the commercial rebate value score (0 to 100). Switch to the peak-demand layer to see where a demand-response or curtailment program with a published payment exists.</p>
+<div class="layerbar">
+  <div class="toggle" role="tablist" aria-label="Map layer">
+    <button id="btnRebate" class="on" role="tab" aria-selected="true">Rebate score</button>
+    <button id="btnPeak" role="tab" aria-selected="false">Peak-demand layer</button>
+  </div>
+</div>
+<div class="map"><div class="grid" id="grid"></div></div>
+<div class="legend" id="legend"></div>
+
+<h2 id="states">State master table</h2>
+<p class="lead">One row per state. Click a row for the full record: how we apply, every mapped program, the demand-response path, the aggregator screen, residential, flags and sources.</p>
+<div class="tools">
+  <input type="search" id="q" placeholder="Filter states…" aria-label="Filter states">
+  <select id="fPath" aria-label="Optimizer path"><option value="">Any optimizer path</option><option value="deemed">deemed</option><option value="streamlined_custom">streamlined custom</option><option value="full_custom_mv">full custom M&amp;V</option><option value="none">none</option></select>
+  <select id="fDr" aria-label="Peak-demand readiness"><option value="">Any peak-demand readiness</option><option value="strong">strong (payment published)</option><option value="available">available</option><option value="thin">thin</option><option value="none">none</option></select>
+  <span class="count" id="count"></span>
+</div>
+<div class="tblwrap"><table id="tbl">
+  <thead><tr>
+    <th class="sortable" data-k="cr">Rank<span class="arrow"></span></th>
+    <th>State</th>
+    <th class="sortable" data-k="cs">Rebate score<span class="arrow"></span></th>
+    <th>Optimizer path</th>
+    <th>Typical commercial rebate</th>
+    <th>Peak-demand path</th>
+    <th>Aggregator / P4P</th>
+    <th>Verified</th>
+  </tr></thead>
+  <tbody></tbody>
+</table></div>
+
+<h2 id="programs">Program directory</h2>
+<p class="lead">All 200 utility and administrator programs from the July 2026 sweep, one row each. Filter by state, utility type or any word in the row.</p>
+<div class="tools">
+  <input type="search" id="pq" placeholder="Search programs, utilities, measures…" aria-label="Search programs">
+  <select id="pState" aria-label="State"><option value="">All states</option></select>
+  <select id="pType" aria-label="Utility type"><option value="">All utility types</option></select>
+  <select id="pPre" aria-label="Pre-approval"><option value="">Any pre-approval rule</option><option value="no">no pre-approval</option><option value="above_threshold">above threshold</option><option value="yes">yes</option><option value="unknown">unknown</option></select>
+  <span class="count" id="pcount"></span>
+</div>
+<div class="tblwrap"><table id="ptbl">
+  <thead><tr><th>State</th><th>Utility / administrator</th><th>Program</th><th>How to apply</th><th>Pre-approval</th><th>Trade ally</th><th>Custom rate</th><th>Prescriptive HVAC</th><th>Payment</th></tr></thead>
+  <tbody></tbody>
+</table></div>
+
+<h2 id="peak">Peak-demand layer</h2>
+<p class="lead">Where a utility or grid operator pays the customer for shaving or shifting peak load, which is the revenue line a compressor-cycling optimizer or a controls retrofit can earn beyond the one-time rebate. Wholesale rows are the ISO/RTO market; utility rows are the local tariff or branded program. Screened September 22, 2026.</p>
+<div class="tools">
+  <input type="search" id="dq" placeholder="Filter by state, ISO, utility, aggregator…" aria-label="Filter peak-demand rows">
+  <span class="count" id="dcount"></span>
+</div>
+<div class="tblwrap"><table id="dtbl">
+  <thead><tr><th>State</th><th>Readiness</th><th>ISO / RTO</th><th>Wholesale DR</th><th>Utility DR program</th><th>Payment</th><th>Min kW</th><th>Aggregators</th><th>Conf.</th></tr></thead>
+  <tbody></tbody>
+</table></div>
+
+<h2 id="federal">Federal layer</h2>
+<p class="lead">Federal mechanisms that stack on top of a utility rebate, with their status after the One Big Beautiful Bill Act. Verified September 22, 2026.</p>
+<div class="fed" id="fed"></div>
+
+<h2 id="sources">Sources and provenance</h2>
+<p class="lead">Where each layer came from, so a figure can be traced to its sweep. The underlying files live in the Energy Plus Ops folder on Google Drive and in the repository alongside this page.</p>
+<div class="prov">
+  <div class="provcard"><h3>Rebate layer (archetypes A, B, C)</h3><p class="when">July 19, 2026 · 51 jurisdiction sweeps, adversarially fact-checked (36 confirmed, 15 corrected)</p>
+    <ul><li><code>rebate-states.csv</code> ranked jurisdictions with value scores</li><li><code>rebate-programs.csv</code> 200 utility and administrator programs</li><li><code>corrections.txt</code> every correction, old to new with source</li><li><code>UTILITY-REBATE-MASTER-PLAN.md</code> tiering, trade-ally sequence, SOPs</li><li><code>REBATE-AUTOMATION-SOFTWARE-SPEC.md</code> routing table and packet generators</li><li><code>ARC-BUNDLE-ANALYSIS.md</code> bundling the optimizer up to the ARC definition</li></ul></div>
+  <div class="provcard"><h3>Peak-demand and aggregator layers</h3><p class="when">September 22, 2026 · incentive-stack phase 0</p>
+    <ul><li><code>dr-by-state.csv</code> ISO/RTO and utility demand response by state</li><li><code>archetype-d-screen.csv</code> pay-for-performance and NMEC programs; 20 states recorded as not screened</li><li><code>archetype-d-notes.md</code> method, ranked list, California in depth</li><li><code>INCENTIVE-STACK-PLAN.md</code> the data model for every money mechanism per jurisdiction</li></ul></div>
+  <div class="provcard"><h3>Federal and calculator research</h3><p class="when">September 9 and 22, 2026</p>
+    <ul><li><code>federal-mechanisms.csv</code> and <code>federal-notes.md</code> post-OBBBA status of 179D, 48 and 48E, bonus depreciation, REAP, SBA 504, GGRF, EECBG, SEP, FERC Order 2222</li><li><code>09-incentives-master-list.md</code> trigger table for the savings calculator (FL, TX, SC, GA, CA, NY utilities)</li><li><code>04-demand-and-battery.md</code> demand charges and peak shaving constants</li></ul></div>
+</div>
+
+<footer>
+  <b>Method.</b> Rebate score = 25% deemed-measure availability for our stack + 25% incentive generosity + 20% admin ease + 15% speed to payment + 15% program stability, each scored 0 to 5 from primary sources and scaled to 100. Peak-demand readiness is derived here from the September layer: <b>strong</b> when a program is confirmed with a published payment or the row is high confidence, <b>available</b> when the state sits in an organized wholesale market or a named utility program exists at medium confidence, <b>thin</b> when programs are known but unverified, <b>none</b> when no program was found. Program years roll over and funds exhaust; re-verify tier-1 states each program year and before any proposal cites a number older than six months.
+</footer>
+</div>
+
+<div class="scrim" id="scrim"></div>
+<aside id="panel" aria-label="State detail">
+  <button class="closex" id="closex" aria-label="Close">✕</button>
+  <div id="panelBody"></div>
+</aside>
+
+<script>
+const DATA = __DATA__;
+const STATES = DATA.states, FED = DATA.federal;
+const POS = {AK:[0,0],ME:[10,0],VT:[9,1],NH:[10,1],
+WA:[0,2],ID:[1,2],MT:[2,2],ND:[3,2],MN:[4,2],WI:[5,2],MI:[7,2],NY:[8,2],MA:[9,2],RI:[10,2],
+OR:[0,3],NV:[1,3],WY:[2,3],SD:[3,3],IA:[4,3],IL:[5,3],IN:[6,3],OH:[7,3],PA:[8,3],NJ:[9,3],CT:[10,3],
+CA:[0,4],UT:[1,4],CO:[2,4],NE:[3,4],MO:[4,4],KY:[5,4],WV:[6,4],VA:[7,4],MD:[8,4],DE:[9,4],
+AZ:[1,5],NM:[2,5],KS:[3,5],AR:[4,5],TN:[5,5],NC:[6,5],SC:[7,5],DC:[8,5],
+OK:[2,6],LA:[3,6],MS:[4,6],AL:[5,6],GA:[6,6],
+HI:[0,7],TX:[3,7],FL:[7,7]};
+const BINS=[[80,'--s5',1],[70,'--s4',1],[60,'--s3',0],[45,'--s2',0],[30,'--s1',0],[-1,'--s0',0]];
+const BINLABELS=['80+','70–79','60–69','45–59','30–44','< 30'];
+const TIERS={strong:['--p4',1,'strong: payment published'],available:['--p3',1,'available: market or named program'],thin:['--p1',0,'thin: unverified'],none:['--p0',0,'none found'],unscreened:['--p0',0,'not screened']};
+let layer='rebate', selected=null, sortKey='cr', sortDir=1;
+const $=id=>document.getElementById(id);
+const esc=s=>(s==null?'':String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const chip=(v,cls)=>'<span class="chip '+esc(cls||v||'')+'">'+esc((v||'unknown').replace(/_/g,' '))+'</span>';
+const tierOf=s=>(s.dr&&s.dr.tier)||'unscreened';
+const dOf=s=>(s.d&&s.d.exists)||'not_screened';
+function short(s,n){s=s||'';if(s.length<=n)return s;const cut=s.slice(0,n);const i=cut.lastIndexOf(' ');return (i>n*0.6?cut.slice(0,i):cut)+'…'}
+function drSummary(s){
+  if(!s.dr) return 'not screened';
+  const d=s.dr; const parts=[];
+  const iso=d.iso.replace(/\s*\(.*?\)\s*/g,'').trim();
+  if(iso && !/^none/i.test(iso)) parts.push(iso);
+  const u=d.utility; if(u && !/^not published/i.test(u)) parts.push(short(u,90));
+  const pay=d.utility_pay; if(pay && /\$\s?\d/.test(pay)) parts.push(short(pay,70));
+  else if(d.wholesale_pay && /\$\s?\d/.test(d.wholesale_pay)) parts.push(short(d.wholesale_pay,70));
+  return parts.length?parts.join(' · '):'no program found';
+}
+function renderStats(){
+  const deemed=STATES.filter(s=>s.op==='deemed'||s.op==='midstream').length;
+  const programs=STATES.reduce((n,s)=>n+s.programs.length,0);
+  const strong=STATES.filter(s=>tierOf(s)==='strong').length;
+  const avail=STATES.filter(s=>['strong','available'].includes(tierOf(s))).length;
+  const dyes=STATES.filter(s=>['yes','pilot'].includes(dOf(s))).length;
+  const top=[...STATES].sort((a,b)=>b.cs-a.cs)[0];
+  $('stats').innerHTML=
+    '<div class="stat"><b>'+esc(top.state)+'</b><span>#1 commercial rebate market</span></div>'+
+    '<div class="stat"><b>'+deemed+'</b><span>states with a deemed or midstream optimizer path</span></div>'+
+    '<div class="stat"><b>'+programs+'</b><span>utility and administrator programs mapped</span></div>'+
+    '<div class="stat peak"><b>'+strong+' / '+avail+'</b><span>states with a published peak-demand payment / any DR path</span></div>'+
+    '<div class="stat"><b>'+dyes+'</b><span>states with a live or pilot aggregator (P4P / NMEC) program</span></div>'+
+    '<div class="stat"><b>'+FED.length+'</b><span>federal mechanisms tracked post-OBBBA</span></div>';
+}
+function renderMap(){
+  $('btnRebate').className=layer==='rebate'?'on':'';$('btnPeak').className=layer==='peak'?'on peak':'';
+  $('btnRebate').setAttribute('aria-selected',layer==='rebate');$('btnPeak').setAttribute('aria-selected',layer==='peak');
+  $('map-title').textContent=layer==='rebate'?'Commercial rebate score by state':'Peak-demand readiness by state';
+  const g=$('grid');g.innerHTML='';
+  STATES.forEach(s=>{const p=POS[s.a];if(!p)return;
+    const t=document.createElement('button');t.className='tile'+(selected===s.a?' sel':'');t.type='button';
+    t.style.gridColumn=p[0]+1;t.style.gridRow=p[1]+1;
+    let bg,light,label;
+    if(layer==='rebate'){const b=BINS.find(b=>s.cs>=b[0]);bg=b[1];light=b[2];label=s.cs}
+    else{const tr=TIERS[tierOf(s)];bg=tr[0];light=tr[1];label=tierOf(s)==='strong'?'$':tierOf(s)==='available'?'DR':'–'}
+    t.style.background='var('+bg+')';t.style.color=light?'var(--tile-light)':'var(--tile-dark)';
+    t.innerHTML='<span class="ab">'+s.a+'</span><span class="sc">'+label+'</span>';
+    t.title=s.state+(layer==='rebate'?' · score '+s.cs+', rank #'+s.cr:' · '+TIERS[tierOf(s)][2]);
+    t.onclick=()=>open(s.a);g.appendChild(t)});
+  $('legend').innerHTML=(layer==='rebate'
+    ? 'Score: '+BINS.map((b,i)=>'<span><span class="sw" style="background:var('+b[1]+')"></span>'+BINLABELS[i]+'</span>').reverse().join('')
+    : 'Readiness: '+['strong','available','thin','none'].map(k=>'<span><span class="sw" style="background:var('+TIERS[k][0]+')"></span>'+TIERS[k][2]+'</span>').join(''))
+    +'<span style="margin-left:auto">click a state for the full record</span>';
+}
+function stateRows(){
+  const q=$('q').value.trim().toLowerCase(), fp=$('fPath').value, fd=$('fDr').value;
+  let rows=STATES.filter(s=>(!q||s.state.toLowerCase().includes(q)||s.a.toLowerCase()===q)&&(!fp||s.op===fp)&&(!fd||tierOf(s)===fd));
+  rows.sort((a,b)=>((a[sortKey]??999)-(b[sortKey]??999))*sortDir);
+  return rows;
+}
+function renderTable(){
+  const rows=stateRows();
+  $('count').textContent=rows.length+' of '+STATES.length;
+  document.querySelectorAll('#tbl th.sortable').forEach(th=>{th.querySelector('.arrow').textContent=th.dataset.k===sortKey?(sortDir>0?'↑':'↓'):''});
+  $('tbl').tBodies[0].innerHTML=rows.map(s=>'<tr class="row" tabindex="0" data-a="'+s.a+'">'+
+    '<td class="num">'+s.cr+'</td>'+
+    '<td class="state"><b>'+esc(s.state)+'</b><span class="t">'+s.programs.length+' programs · '+esc(s.cd||'')+' difficulty</span></td>'+
+    '<td class="num">'+s.cs+'<span class="bar" style="width:'+Math.max(3,s.cs*0.8)+'px"></span></td>'+
+    '<td>'+chip(s.op)+'</td>'+
+    '<td class="range">'+esc(short(s.rebate_c,170)||'not published')+'</td>'+
+    '<td class="range wide">'+chip(tierOf(s))+' <span style="display:block;margin-top:4px">'+esc(drSummary(s))+'</span></td>'+
+    '<td>'+chip(dOf(s))+'</td>'+
+    '<td><span class="chip ver '+esc(s.ver)+'">'+(s.ver==='confirmed'?'✓ confirmed':'✎ corrected')+'</span></td></tr>').join('');
+  [...$('tbl').tBodies[0].rows].forEach(r=>{r.onclick=()=>open(r.dataset.a);r.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();open(r.dataset.a)}}});
+}
+const ALLP=[];STATES.forEach(s=>s.programs.forEach(p=>ALLP.push(Object.assign({a:s.a,state:s.state},p))));
+function initProgramFilters(){
+  const st=$('pState');[...STATES].sort((a,b)=>a.state.localeCompare(b.state)).forEach(s=>{const o=document.createElement('option');o.value=s.a;o.textContent=s.state;st.appendChild(o)});
+  const types=[...new Set(ALLP.map(p=>p.t))].sort();const ty=$('pType');types.forEach(t=>{const o=document.createElement('option');o.value=t;o.textContent=t;ty.appendChild(o)});
+}
+function progRow(p,withState){
+  return '<tr>'+(withState?'<td class="state"><b>'+esc(p.a)+'</b></td>':'')+
+    '<td><span class="u">'+esc(p.u)+'</span><span class="t">'+esc(p.t)+'</span></td>'+
+    '<td class="range">'+esc(p.name||'not named')+'</td>'+
+    '<td class="range wide">'+esc(short(p.how,220))+'</td>'+
+    '<td>'+chip(p.pre)+'</td><td>'+chip(p.ally)+'</td>'+
+    '<td class="range">'+esc(short(p.custom,160)||'not published')+'</td>'+
+    '<td class="range">'+esc(short(p.presc,160)||'not published')+'</td>'+
+    '<td class="range">'+esc(short(p.pay,110)||'not published')+'</td></tr>';
+}
+function renderPrograms(){
+  const q=$('pq').value.trim().toLowerCase(), st=$('pState').value, ty=$('pType').value, pre=$('pPre').value;
+  const rows=ALLP.filter(p=>(!st||p.a===st)&&(!ty||p.t===ty)&&(!pre||p.pre===pre)&&(!q||[p.state,p.u,p.name,p.how,p.custom,p.presc,p.pay,p.mv,p.budget].join(' ').toLowerCase().includes(q)));
+  $('pcount').textContent=rows.length+' of '+ALLP.length;
+  $('ptbl').tBodies[0].innerHTML=rows.map(p=>progRow(p,true)).join('');
+}
+function renderDR(){
+  const q=$('dq').value.trim().toLowerCase();
+  const rows=[...STATES].filter(s=>s.dr).sort((a,b)=>{const o={strong:0,available:1,thin:2,none:3,unscreened:4};return (o[tierOf(a)]-o[tierOf(b)])||a.state.localeCompare(b.state)})
+    .filter(s=>!q||[s.state,s.a,s.dr.iso,s.dr.wholesale,s.dr.utility,s.dr.utility_pay,s.dr.agg].join(' ').toLowerCase().includes(q));
+  $('dcount').textContent=rows.length+' of '+STATES.filter(s=>s.dr).length;
+  $('dtbl').tBodies[0].innerHTML=rows.map(s=>{const d=s.dr;const pay=(d.utility_pay&&!/^not published$/i.test(d.utility_pay))?d.utility_pay:d.wholesale_pay;
+    return '<tr class="row" tabindex="0" data-a="'+s.a+'"><td class="state"><b>'+esc(s.state)+'</b></td><td>'+chip(tierOf(s))+'</td>'+
+    '<td class="range">'+esc(d.iso)+'</td><td class="range">'+esc(short(d.wholesale,140))+'</td>'+
+    '<td class="range wide">'+esc(short(d.utility,220))+'</td><td class="range wide">'+esc(short(pay,220)||'not published')+'</td>'+
+    '<td class="range">'+esc(short(d.utility_min!=='not published'?d.utility_min:d.wholesale_min,90))+'</td>'+
+    '<td class="range">'+esc(short(d.agg,110))+'</td><td>'+chip(d.conf)+'</td></tr>'}).join('');
+  [...$('dtbl').tBodies[0].rows].forEach(r=>{r.onclick=()=>open(r.dataset.a);r.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();open(r.dataset.a)}}});
+}
+function fedStatus(st){const s=st.toLowerCase();
+  if(/^terminated/.test(s)) return ['dead','terminated'];
+  if(/^paused/.test(s)) return ['warn','paused'];
+  if(/^unclear/.test(s)) return ['warn','unclear'];
+  if(/sunsetting/.test(s)) return ['warn','sunsetting'];
+  if(/^active/.test(s)) return ['live','active'];
+  return ['','context'];}
+function renderFed(){
+  $('fed').innerHTML=FED.map(f=>{const [cls,lab]=fedStatus(f.status);
+    return '<div class="fedcard"><h3><span class="status '+cls+'">'+lab+'</span>'+esc(f.m)+'</h3>'+
+    '<p class="st">'+esc(short(f.status,320))+'</p>'+
+    '<p class="act"><b>For Energy Plus:</b> '+esc(short(f.action,360))+'</p>'+
+    '<details><summary>Value, dates, measures and sources</summary>'+
+    '<dl><dt>Value</dt><dd>'+esc(f.value)+'</dd><dt>Key dates</dt><dd>'+esc(f.dates)+'</dd><dt>Eligible measures</dt><dd>'+esc(f.measures.replace(/\|/g,', '))+'</dd><dt>Sector</dt><dd>'+esc(f.sector)+'</dd><dt>Stacks with utility rebate</dt><dd>'+esc(f.stack)+'</dd><dt>Statute / program</dt><dd>'+esc(f.statute)+'</dd><dt>Sources</dt><dd class="srcs">'+f.src.map(u=>'<a href="'+esc(u)+'" target="_blank" rel="noopener">'+esc(u)+'</a>').join('')+'</dd></dl></details>'+
+    '<p class="dates">verified '+esc(f.verified)+'</p></div>'}).join('');
+}
+function dd(label,val){return '<dt>'+label+'</dt><dd>'+esc(val||'—')+'</dd>'}
+function srcs(list){return list&&list.length?'<dd class="srcs">'+list.map(u=>'<a href="'+esc(u)+'" target="_blank" rel="noopener">'+esc(u)+'</a>').join('')+'</dd>':'<dd>—</dd>'}
+function open(a){
+  selected=a;const s=STATES.find(x=>x.a===a);const d=s.dr,x=s.d;
+  let h='<p class="eyebrow">'+s.a+' · commercial #'+s.cr+' · residential #'+s.rr+'</p><h3>'+esc(s.state)+'</h3>'+
+  '<div class="scoreline"><div><b>'+s.cs+'</b><span>Rebate score</span></div><div><b>'+s.rs+'</b><span>Residential</span></div>'+
+  '<div class="peak"><b>'+esc(tierOf(s))+'</b><span>Peak demand</span></div><div><b>'+esc(s.conf)+'</b><span>Confidence</span></div></div>';
+  h+='<div class="layer"><h4>Rebate layer</h4><p class="when">verified July 2026 · '+(s.ver==='confirmed'?'confirmed clean by fact-check':'corrected by fact-check')+'</p><dl>'+
+    dd('How we apply (commercial)',s.apply_c)+
+    '<dt>Measure pathways</dt><dd class="paths">Optimizer '+chip(s.op)+' CryoGenX4 '+chip(s.cp)+' High-eff RTU '+chip(s.hp)+'</dd>'+
+    dd('RTU controls deemed in state TRM',s.trm_rtu||'unknown')+dd('Technical reference manual',s.trm||'not identified')+
+    dd('Typical commercial rebate',s.rebate_c||'not published')+dd('Time to payment',s.pay||'not published')+
+    '<dt>Score dimensions (generosity · ease · deemed · speed · stability)</dt><dd class="mono">'+s.dims_c.join(' · ')+'</dd>'+
+    dd('Commercial notes',s.notes_c)+'</dl>';
+  if(s.flags.length) h+='<dt class="mono" style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);margin-top:12px">Flags</dt><ul class="flags">'+s.flags.map(f=>'<li>'+esc(f)+'</li>').join('')+'</ul>';
+  h+='<dl><dt>Programs mapped ('+s.programs.length+')</dt></dl>'+s.programs.map(p=>'<div class="prog"><b>'+esc(p.u)+'</b><div class="meta">'+esc(p.t)+(p.name?' · '+esc(p.name):'')+'</div>'+
+    '<p><span>Apply:</span> '+esc(p.how||'—')+'</p>'+(p.custom?'<p><span>Custom rate:</span> '+esc(p.custom)+'</p>':'')+(p.presc?'<p><span>Prescriptive HVAC:</span> '+esc(p.presc)+'</p>':'')+
+    (p.mv?'<p><span>M&amp;V:</span> '+esc(p.mv)+'</p>':'')+'<p><span>Pre-approval:</span> '+esc(p.pre)+' · <span>Trade ally:</span> '+esc(p.ally)+(p.pay?' · <span>Payment:</span> '+esc(p.pay):'')+(p.budget?' · <span>Budget cycle:</span> '+esc(p.budget):'')+'</p>'+
+    (p.urls.length?'<div class="srcs">'+p.urls.map(u=>'<a href="'+esc(u)+'" target="_blank" rel="noopener">'+esc(u)+'</a>').join('')+'</div>':'')+'</div>').join('');
+  h+='<dl><dt>Key sources</dt>'+srcs(s.src)+'</dl></div>';
+  h+='<div class="layer peak"><h4>Peak-demand layer</h4><p class="when">screened September 22, 2026</p>';
+  if(d){h+='<dl>'+'<dt>Readiness</dt><dd>'+chip(tierOf(s))+' <span style="color:var(--ink3);font-size:12.5px">'+esc(TIERS[tierOf(s)][2])+'</span></dd>'+
+    dd('ISO / RTO',d.iso)+dd('Wholesale DR programs',d.wholesale)+dd('Wholesale payment basis',d.wholesale_pay)+dd('Wholesale minimum',d.wholesale_min)+
+    dd('Utility DR programs',d.utility)+dd('Utility DR payment',d.utility_pay)+dd('Utility minimum kW',d.utility_min)+dd('Aggregators active',d.agg)+dd('Confidence',d.conf)+dd('Notes',d.notes)+'<dt>Sources</dt>'+srcs(d.src)+'</dl>'}
+  else h+='<p>Not screened.</p>';
+  h+='</div><div class="layer agg"><h4>Aggregator layer (archetype D: pay-for-performance / NMEC)</h4><p class="when">screened September 22, 2026</p>';
+  if(x){h+='<dl><dt>Program exists</dt><dd>'+chip(x.exists)+'</dd>'+dd('Programs',x.programs)+dd('Administrator',x.admin)+dd('Implementer model',x.model)+dd('M&V basis',x.mv)+dd('Minimum savings threshold',x.min)+
+    dd('Incentive recipient',x.recipient)+dd('Assignment permitted',x.assign)+dd('Payment basis',x.pay)+dd('Who bears cost',x.cost)+dd('Enrollment path',x.enroll)+dd('Fit for our measures',x.fit)+dd('Status',x.status)+dd('Confidence',x.conf)+dd('Notes',x.notes)+'<dt>Sources</dt>'+srcs(x.src)+'</dl>'}
+  else h+='<p>Not screened.</p>';
+  h+='</div><div class="layer"><h4>Residential overlay</h4><p class="when">verified July 2026 · for the future residential motion only</p><dl>'+
+    dd('How we apply (residential)',s.apply_r)+dd('Typical residential rebate',s.rebate_r||'not published')+dd('Instant / midstream design',s.res_instant)+dd('Contractor registration required',s.res_reg)+dd('IRA HOMES / HEAR status',s.ira)+dd('Residential notes',s.notes_r)+'</dl></div>';
+  $('panelBody').innerHTML=h;
+  $('panel').classList.add('open');$('scrim').classList.add('on');$('panel').scrollTop=0;$('closex').focus();
+  renderMap();
+}
+function close(){$('panel').classList.remove('open');$('scrim').classList.remove('on');selected=null;renderMap()}
+$('closex').onclick=close;$('scrim').onclick=close;
+document.addEventListener('keydown',e=>{if(e.key==='Escape')close()});
+$('btnRebate').onclick=()=>{layer='rebate';renderMap()};$('btnPeak').onclick=()=>{layer='peak';renderMap()};
+['q','fPath','fDr'].forEach(id=>$(id).addEventListener('input',renderTable));
+document.querySelectorAll('#tbl th.sortable').forEach(th=>th.onclick=()=>{const k=th.dataset.k;if(sortKey===k)sortDir=-sortDir;else{sortKey=k;sortDir=k==='cs'?-1:1}renderTable()});
+['pq','pState','pType','pPre'].forEach(id=>$(id).addEventListener('input',renderPrograms));
+$('dq').addEventListener('input',renderDR);
+renderStats();renderMap();renderTable();initProgramFilters();renderPrograms();renderDR();renderFed();
+if(location.hash){const a=location.hash.slice(1).toUpperCase();if(STATES.some(s=>s.a===a))open(a)}
+</script>
