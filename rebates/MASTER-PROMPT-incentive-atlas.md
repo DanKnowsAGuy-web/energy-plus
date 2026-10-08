@@ -180,7 +180,9 @@ All under `incentive-atlas/`, committed and pushed on the designated branch:
 - `index.html`: self-contained page with a territory map or list, the ranking table with all input columns and a method switcher that reads the config, a program directory with the quoted criteria and native-unit incentive tables, a DR and tariff view, a sources view with retrieval dates, and an unknowns view. Light and dark themes. Works at phone width.
 - `README.md`: what was built, the evidence standard, the schema, how to rebuild, the model, confidence and unknown statistics per territory, Phase 5 pass rates, and the items that need a human phone call.
 
-## 11. Product inputs (fill before starting)
+## 11. Product inputs
+
+These are the only estimates allowed anywhere in the project, and they come from the user, not from research. Savings are given as ranges. The model computes every dollar figure at the low, mid and high point of each range and reports all three. Null values make every dependent output report `unknown`. Per-ton and per-unit rebates compute from tonnage alone and do not depend on the savings ranges.
 
 ```json
 {
@@ -189,16 +191,17 @@ All under `incentive-atlas/`, committed and pushed on the designated branch:
       "tons": 10,
       "units": 1,
       "installed_price_usd": null,
-      "kwh_savings_pct": null,
-      "peak_kw_reduction_pct": null,
+      "kwh_savings_pct": {"low": 15, "mid": 22.5, "high": 30},
+      "peak_kw_reduction_pct": {"low": 15, "mid": 22.5, "high": 30, "assumption": "set equal to the kWh range until measured peak data is supplied"},
       "notes": "Compressor-cycling controller on one packaged RTU"
     },
     "cryogenx4": {
       "tons": 10,
       "units": 1,
       "installed_price_usd": null,
-      "kwh_savings_pct": null,
-      "peak_kw_reduction_pct": null
+      "kwh_savings_pct": {"low": 15, "mid": 20, "high": 25},
+      "peak_kw_reduction_pct": {"low": 15, "mid": 20, "high": 25, "assumption": "set equal to the kWh range until measured peak data is supplied"},
+      "notes": "Refrigerant-side treatment on existing cooling equipment"
     },
     "rtu_replacement": {
       "tons": 10,
@@ -207,24 +210,27 @@ All under `incentive-atlas/`, committed and pushed on the designated branch:
       "new_unit_ieer": null,
       "baseline_ieer": null,
       "kwh_savings_pct": null,
-      "peak_kw_reduction_pct": null
+      "peak_kw_reduction_pct": null,
+      "notes": "No savings range supplied yet; dollar outputs for this measure report unknown except per-ton and per-unit rebates"
     },
     "solar_thermal": {
       "tons": 10,
       "units": 1,
       "installed_price_usd": null,
       "storage_hours": null,
-      "kwh_savings_pct": null,
-      "peak_kw_reduction_pct": null,
+      "kwh_savings_pct": {"low": 30, "mid": 37.5, "high": 45},
+      "peak_kw_reduction_pct": {"low": 30, "mid": 37.5, "high": 45, "assumption": "set equal to the kWh range until measured peak data is supplied"},
       "notes": "All-in-one system with thermal storage over one hour"
     }
   },
   "baseline_rtu_kw_per_ton": 1.2,
-  "notes": "Null values mean the model reports unknown for every output that depends on them. Researchers never fill these."
+  "notes": "Researchers never fill or change these. If a program pays on installed cost and installed_price_usd is null, that program's dollar figure is unknown and the unknown is counted."
 }
 ```
 
 ## 12. Reporting and checkpoints
+
+**Running across sessions.** This build will not fit in one session. Run Phase 0 and Phase 1 in the first session. Run Phase 2 in batches of five territories, committing and pushing after each territory locks. Run Phases 3 to 6 in a final session. A new session started with this same prompt first reads `incentive-atlas/README.md`, `decisions.jsonl` and the lock status of each territory, then continues from the first unfinished step. The quarantine in Section 1 applies to `rebates/` and to Drive, never to `incentive-atlas/`, which is this project's own output. A territory that is locked is not reopened unless Phase 5 fails it.
 
 Stop and ask the user only at Checkpoint 1 (schema and inputs), Checkpoint 2 (top 20 confirmation), and at the end. Everything else is autonomous. Commit after every phase with a message naming the phase.
 
