@@ -1,5 +1,5 @@
 seg*.mp4
 segs.txt
 video.mp4
-ad-audio-raw.wav
+ad-audio*-raw.wav
 node_modules/

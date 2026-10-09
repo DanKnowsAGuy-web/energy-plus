@@ -16,7 +16,7 @@ const [, , mode, ...args] = process.argv;
   const page = await browser.newPage({ viewport: { width: 1080, height: 1920 }, deviceScaleFactor: 1 });
   page.on("pageerror", e => { console.error("PAGE ERROR:", e.message); process.exitCode = 1; });
   page.on("console", m => { if (m.type() === "error") console.error("console:", m.text()); });
-  await page.goto("file://" + path.resolve(__dirname, "index.html") + "?render=1");
+  await page.goto("file://" + path.resolve(__dirname, process.env.PAGE || "index.html") + "?render=1");
   await page.waitForFunction(() => window.__ready === true, null, { timeout: 30000 });
 
   if (mode === "stills") {
