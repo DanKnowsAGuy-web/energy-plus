@@ -1,0 +1,1522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Energy Plus: verified energy savings for commercial buildings</title>
+<meta name="description" content="We find the waste in your building, prove the savings with your own numbers, and you pay nothing until you've seen them.">
+<meta property="og:title" content="Energy Plus: verified energy savings for commercial buildings">
+<meta property="og:description" content="We find the waste in your building, prove the savings with your own numbers, and you pay nothing until you've seen them.">
+<meta property="og:type" content="website">
+<meta name="color-scheme" content="light">
+<meta name="theme-color" content="#fbfbfa">
+<link rel="icon" href="assets/img/energy-plus-logo.png">
+<link rel="stylesheet" href="assets/fonts/fonts.css">
+<link rel="stylesheet" href="assets/fonts/display.css">
+<link rel="stylesheet" href="assets/styles.css">
+<link rel="stylesheet" href="assets/atmosphere.css">
+<link rel="stylesheet" href="assets/apple-pass.css">
+<link rel="stylesheet" href="assets/pinned-bill.css">
+<link rel="stylesheet" href="assets/motion/building.css">
+<link rel="stylesheet" href="assets/motion/scrub.css">
+<script>
+  /* Arm the page-load overture before first paint, so there is no flash.
+     Only on the first visit of a session, never with reduced motion, and
+     never without JS (this script is the only thing that shows it). */
+  (function () {
+    try {
+      var reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if (!reduce && !sessionStorage.getItem("ep-overture")) {
+        document.documentElement.classList.add("overture-on");
+        sessionStorage.setItem("ep-overture", "1");
+      }
+    } catch (e) {}
+  })();
+</script>
+</head>
+<body>
+<a href="#main" class="skip-link">Skip to content</a>
+<div class="overture" aria-hidden="true"><span class="overture__mark"><img src="assets/img/energy-plus-logo.png" alt=""></span></div>
+
+<header class="site-head">
+  <div class="container site-head__in">
+    <a href="#top" aria-label="Energy Plus, home"><img src="assets/img/energy-plus-logo.png" alt="Energy Plus" width="108" height="31"></a>
+    <nav class="site-nav" aria-label="Primary">
+      <a href="#problem">The problem</a>
+      <a href="#method">The method</a>
+      <a href="#proof">Proof</a>
+      <a href="#calculator">Calculator</a>
+      <button type="button" class="pill" data-cal-namespace="15min" data-cal-link="dan-knows-a-gut/15min" data-cal-config='{"layout":"month_view","theme":"light"}'>Book the 15-minute fit call</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+
+  <!-- CH 0 · HERO (cinema cold-open) -->
+  <section class="hero cinema" id="top" aria-labelledby="hero-title">
+    <div class="hero__media" aria-hidden="true">
+      <img id="hero-plate" src="assets/img/hero-building.png" alt="" loading="eager" fetchpriority="high">
+      <div class="hero__scrim"></div>
+      <div class="grain"></div>
+    </div>
+    <div class="container hero__inner">
+      <h1 id="hero-title" data-split>Cut your energy bill without the guesswork.</h1>
+      <p class="hero__lede" data-rise>We find the waste in your building, prove the savings with your own numbers, and you pay nothing until you've seen them.<sup class="fn"><a href="#notes" aria-label="See note 2">2</a></sup></p>
+      <div class="hero__ctas cta-block" data-rise id="hero-cta">
+        <div class="cta-row">
+          <button type="button" class="pill pill--lg" data-cal-namespace="15min" data-cal-link="dan-knows-a-gut/15min" data-cal-config='{"layout":"month_view","theme":"light"}'>Book the 15-minute fit call <span class="arrow" aria-hidden="true">&rarr;</span></button>
+          <button type="button" class="ghostlink js-tf-toggle" aria-expanded="false">Just text the founder</button>
+        </div>
+        <div class="tf-panel" role="group" aria-label="Text the founder">
+          <p class="tf-panel__to">To Dan &middot; (864) 777-0688</p>
+          <textarea rows="4" spellcheck="false" aria-label="Message to Dan">Hi Dan, I run a commercial building and I'd like to see what real energy savings could look like at my property, without the sales song and dance. What does it take to qualify?</textarea>
+          <div class="tf-panel__foot">
+            <span class="tf-panel__hint">Opens in your messages, ready to send.</span>
+            <a class="pill js-tf-send" href="#" data-phone="+18647770688">Send message</a>
+          </div>
+        </div>
+        <p class="hero__quiet">More cash flow, fewer headaches, and you don't pay until your bill proves it.<sup class="fn"><a href="#notes">1, 2</a></sup></p>
+      </div>
+
+      <svg class="signal hero__signal" data-rise viewBox="0 0 1200 46" preserveAspectRatio="none" aria-hidden="true">
+        <path class="sig-dirty" d="M0 23 L30 12 L55 34 L80 18 L110 30 L135 8 L160 27 L190 15 L215 36 L245 20 L270 29 L300 10 L330 25 L355 33 L385 14 L410 28 L440 19 L465 35 L495 11 L520 24 L550 31 L575 16 L600 26 L630 9 L655 30 L685 17 L710 34 L740 21 L765 12 L795 28 L820 23 L850 33 L875 13 L905 25 L930 36 L960 15 L985 27 L1015 10 L1040 30 L1070 18 L1095 32 L1125 14 L1150 26 L1180 20 L1200 23"/>
+        <path class="sig-clean" d="M0 23 C 25 5, 50 5, 75 23 S 125 41, 150 23 S 200 5, 225 23 S 275 41, 300 23 S 350 5, 375 23 S 425 41, 450 23 S 500 5, 525 23 S 575 41, 600 23 S 650 5, 675 23 S 725 41, 750 23 S 800 5, 825 23 S 875 41, 900 23 S 950 5, 975 23 S 1025 41, 1050 23 S 1100 5, 1125 23 S 1175 41, 1200 23"/>
+      </svg>
+
+    </div>
+    <a class="hero__cue" href="#problem" aria-label="Scroll to the problem">
+      <span>See how</span>
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 4v14M6 12l6 6 6-6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
+  </section>
+
+  <!-- CH 1 · THE PROBLEM -->
+  <section class="sect cinema atmo-dusk atmo-field-waste" id="problem" aria-labelledby="problem-title" style="padding-top: var(--space-chapter)">
+    <div class="container">
+      <div class="duo">
+        <div>
+          <p class="monument reveal"><span data-countup="30" data-prefix="~" data-suffix="%">~30%</span></p>
+          <p class="monument__cap reveal" style="--ri:1">The EPA's figure for how much energy the average commercial building wastes.<sup class="fn"><a href="#notes">1</a></sup></p>
+        </div>
+        <div class="prose">
+          <h2 id="problem-title" class="reveal">A third of the energy you buy is wasted. <span class="beat">None of it shows up as a line item.</span></h2>
+          <p class="lede reveal" style="--ri:1"><strong>Most owners have never had anyone qualified find out where theirs goes.</strong></p>
+          <p class="reveal" style="--ri:2">You've heard savings pitches before: a box, a brochure, a payback chart built before anyone read your bill or looked at your building. <strong>You were right not to believe them.</strong></p>
+          <p class="reveal" style="--ri:3">You shouldn't pay, month after month, for energy that does nothing. And left alone, the waste doesn't just sit on the bill; it shortens the life of the equipment paying for it.</p>
+          <div style="margin-top: var(--space-3)">
+            <details class="gate">
+              <summary>Why upgrades keep failing <span class="plus" aria-hidden="true">+</span></summary>
+              <div class="gate__body prose">
+                <p>A vendor's case study is someone else's prescription: what worked in their building, sold to yours before anyone read your bill or looked at your building. Most energy vendors carry one product, so every building gets the same answer.</p>
+                <p>The waste survives because nobody is paid to run the exam first. That is the entire difference between us and them: we start with your bill and your building, and we don't carry a box.</p>
+              </div>
+            </details>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CH 2 · THE GUIDE -->
+  <section class="sect" id="guide" aria-labelledby="guide-title">
+    <div class="container">
+      <div class="prose">
+        <h2 id="guide-title" class="reveal">You've been pitched before. <span class="beat">That's exactly why we measure first.</span></h2>
+        <p class="lede reveal" style="--ri:1"><strong>Skepticism is the qualification here.</strong> The operators we work best with are the ones who stopped believing vendor math years ago.</p>
+        <p class="reveal" style="--ri:2">We don't manufacture anything and we don't sell equipment. <strong>We diagnose your building and we work for you, not the vendor.</strong></p>
+      </div>
+      <ul class="authority reveal" style="--ri:3">
+        <li><span class="m">200+</span> verified results from the technologies we deploy: cold storage, hospitals, hotels, municipalities<sup class="fn"><a href="#notes">1</a></sup></li>
+        <li><span class="m">EXAM</span> your diagnosis is led by the engineer national labs called first<sup class="fn"><a href="#notes">5</a></sup></li>
+        <li><span class="m">3RD&nbsp;PARTY</span> every proposal can be independently verified for ROI, on request<sup class="fn"><a href="#notes">2</a></sup></li>
+      </ul>
+      <blockquote class="pull" data-scrub-words>"Every other vendor has one to move. We don't."</blockquote>
+
+      <div class="guide-turn reveal" style="margin-top: var(--space-5)">
+        <p class="guide-turn__eyebrow">So we ended the guessing.</p>
+        <h3 class="guide-turn__h">When the best couldn't afford to waste a budget, this is the engineer they called.</h3>
+        <p class="guide-turn__lede">The DOE, the DOD, and Sandia National Laboratories don't get to guess with a budget. When a measurement had to be right the first time, they brought in Cliff Suljak. He runs your exam now, on your side of the table.<sup class="fn"><a href="#notes">5</a></sup></p>
+      </div>
+
+      <div style="margin-top: var(--space-3)">
+        <details class="gate">
+          <summary>The engineer running your exam <span class="plus" aria-hidden="true">+</span></summary>
+          <div class="gate__body">
+            <div class="member member--feature">
+              <img src="assets/img/cliff.jpeg" alt="Cliff Suljak, Chief Materials Engineer" loading="lazy">
+              <div>
+                <h3>Cliff Suljak</h3>
+                <p class="role">Chief Materials Engineer</p>
+                <p>For four decades, institutions that couldn't afford a wrong decision brought Cliff in to protect their capital budgets. Energy savings is a measurement problem before it is an equipment problem, and forty years of failure analysis and materials measurement is exactly the discipline your exam runs on. Now he runs it on your building, on your behalf, not the vendor's.<sup class="fn"><a href="#notes">5</a></sup></p>
+              </div>
+            </div>
+            <ul class="cred-tiles">
+              <li><span class="big">Sole source</span><p>22-person team across four DOE and DOD facilities, Sandia National Laboratories</p></li>
+              <li><span class="big">$600M+</span><p>in projects at the Salt River Project</p></li>
+              <li><span class="big">ASTM</span><p>co-wrote the national standards other engineers are tested against</p></li>
+              <li><span class="big">UAE grid</span><p>consulted Dubai, Abu Dhabi, and Sharjah on national grid reliability</p></li>
+            </ul>
+
+            <div class="carousel" data-carousel aria-roledescription="carousel" aria-label="Selected work">
+              <p class="carousel__eyebrow">The individual projects</p>
+              <div class="carousel__viewport" data-carousel-viewport>
+                <ul class="carousel__track" data-carousel-track>
+                  <li class="carousel__slide" role="group" aria-roledescription="slide">
+                    <article class="record-card">
+                      <p class="tag">Sandia National Laboratories &middot; DOE / DOD</p>
+                      <h4>Sole-source. Five years. Twenty-two engineers. Four national facilities.</h4>
+                      <p>Sandia didn't put this contract out to bid. They awarded it directly to Cliff, then watched him assemble and direct a 22-person engineering team across facilities in Albuquerque, Livermore, Tonopah, and Kauai. Hundreds of task orders completed under Star Wars Program infrastructure.</p>
+                    </article>
+                  </li>
+                  <li class="carousel__slide" role="group" aria-roledescription="slide">
+                    <article class="record-card">
+                      <p class="tag">Salt River Project &middot; Arizona</p>
+                      <h4>He built the quality control system from scratch. The industry copied it.</h4>
+                      <p>As Manager of the Materials and Quality Services Division, Cliff created a complete quality control infrastructure for one of the Southwest's largest utilities: metallurgical lab, nondestructive testing, failure analysis, predictive vibration monitoring. Innovations introduced on projects exceeding $600M were later adopted by utilities across the country.</p>
+                    </article>
+                  </li>
+                  <li class="carousel__slide" role="group" aria-roledescription="slide">
+                    <article class="record-card">
+                      <p class="tag">York International &middot; LA County Courts</p>
+                      <h4>Northridge earthquake. County engineers on the other side. He won.</h4>
+                      <p>After the Northridge earthquake threatened the world's largest thermal storage system, York International hired Cliff sole-source to fix it. He performed the seismic stability analysis, delivered litigation testimony against the county's own engineers, and prevailed. Then he designed and personally oversaw installation of the custom seismic restraint system.</p>
+                    </article>
+                  </li>
+                  <li class="carousel__slide" role="group" aria-roledescription="slide">
+                    <article class="record-card">
+                      <p class="tag">UAE National Power Grid</p>
+                      <h4>Three emirates. One grid. They called him in to assess all of it.</h4>
+                      <p>What began as a reactive power loss engagement across Dubai, Abu Dhabi, and Sharjah grew into a full operational assessment of the UAE's entire power grid, consulting directly to utility authorities on sustainability and grid reliability.</p>
+                    </article>
+                  </li>
+                  <li class="carousel__slide" role="group" aria-roledescription="slide">
+                    <article class="record-card">
+                      <p class="tag">ASTM &middot; Standards Committee</p>
+                      <h4>Eight years helping write the ASTM standards.</h4>
+                      <p>Eight years on the ASTM committee developing test methods for leading-edge materials science diagnostic equipment: advanced composites and ultra-high-strength metals in extreme temperature environments. The methods he helped develop became national industry acceptance criteria for utility procurement.</p>
+                    </article>
+                  </li>
+                </ul>
+              </div>
+              <div class="carousel__bar">
+                <button type="button" class="carousel__arrow" data-carousel-prev aria-label="Previous project">
+                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15 5l-7 7 7 7" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+                <div class="carousel__dots" data-carousel-dots></div>
+                <button type="button" class="carousel__arrow" data-carousel-next aria-label="Next project">
+                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M9 5l7 7-7 7" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- chapter break -->
+  <div class="chapter container" aria-hidden="true">
+    <p class="chapter__line" data-scrub-words>Diagnose first. <span class="dim">Commit after.</span></p>
+  </div>
+
+  <!-- CH 3 · THE PLAN -->
+  <section class="sect" id="plan" aria-labelledby="plan-title">
+    <div class="container">
+      <div class="exam-viz reveal" role="img" aria-label="The Exam reads two things: your bill and your building, and connects a charge to the equipment that causes it.">
+        <svg viewBox="0 0 820 240" fill="none">
+          <g class="xv-ink">
+            <rect x="70" y="40" width="220" height="160" rx="4"/>
+            <line x1="70" y1="72" x2="290" y2="72"/>
+            <line x1="92" y1="98" x2="230" y2="98"/>
+            <line x1="92" y1="122" x2="250" y2="122"/>
+            <line x1="92" y1="176" x2="200" y2="176"/>
+          </g>
+          <rect class="xv-heat" x="80" y="112" width="210" height="20" rx="3"/>
+          <line class="xv-heatline" x1="92" y1="122" x2="250" y2="122"/>
+          <text class="xv-label" x="180" y="224" text-anchor="middle">YOUR BILL</text>
+          <g class="xv-ink">
+            <rect x="530" y="72" width="220" height="128" rx="4"/>
+            <line x1="530" y1="72" x2="750" y2="72"/>
+            <rect x="560" y="48" width="46" height="26" rx="3"/>
+            <rect x="640" y="48" width="46" height="26" rx="3"/>
+            <line x1="530" y1="112" x2="750" y2="112"/>
+            <line x1="530" y1="152" x2="750" y2="152"/>
+            <line x1="600" y1="72" x2="600" y2="200"/>
+            <line x1="680" y1="72" x2="680" y2="200"/>
+          </g>
+          <text class="xv-label" x="640" y="224" text-anchor="middle">YOUR BUILDING</text>
+          <path class="xv-link" d="M290 122 C 380 122, 470 61, 583 61"/>
+          <circle class="xv-node" cx="583" cy="61" r="4.5"/>
+          <text class="xv-exam" x="437" y="40" text-anchor="middle">THE EXAM</text>
+        </svg>
+      </div>
+      <h2 id="plan-title" class="reveal">Three steps. <span class="beat">You see the number before you spend a dollar.</span></h2>
+      <ol class="plan-steps">
+        <li class="plan-step reveal">
+          <div>
+            <h3>We run The Exam, on us.</h3>
+            <p>Two things tell us where your money leaks: <strong>your bill and your building.</strong> The Exam reads both. A $750 diagnosis at no cost, a written report yours to keep either way.<sup class="fn"><a href="#notes">2</a></sup></p>
+            <ul class="sub">
+              <li>Your bill: how you are charged, what you are penalized for, where the leverage is</li>
+              <li>Your building: the equipment you actually run and how hard it works</li>
+              <li>The overlap: where what you run collides with how you are billed</li>
+            </ul>
+          </div>
+        </li>
+        <li class="plan-step reveal" style="--ri:1">
+          <div>
+            <h3>We prove it on your bill.</h3>
+            <p>Not a projection, not a vendor claim. <strong>Your own bill, before and after.</strong><sup class="fn"><a href="#notes">1, 2</a></sup></p>
+          </div>
+        </li>
+        <li class="plan-step reveal" style="--ri:2">
+          <div>
+            <h3>You decide.</h3>
+            <p>If the number isn't worth your time, you walk away owing nothing.<sup class="fn"><a href="#notes">2</a></sup></p>
+          </div>
+        </li>
+      </ol>
+      <div class="zero-row reveal">
+        <p class="monument monument--verd">$0</p>
+        <p class="monument__cap">Your cost to find out.<sup class="fn"><a href="#notes">2</a></sup></p>
+      </div>
+      <div class="guarantee reveal">
+        <h3>We only install what pays for itself.</h3>
+        <p><strong>We go hunting for the front-end fixes that return inside two years, or run cash-flow positive from day one, because we solve every part of your bill at once.</strong> If a fix can't clear that bar on your own numbers, it doesn't go in and you owe nothing.<sup class="fn"><a href="#notes">2</a></sup></p>
+      </div>
+      <div style="margin-top: var(--space-3)">
+        <details class="gate">
+          <summary>What the diagnosis covers <span class="plus" aria-hidden="true">+</span></summary>
+          <div class="gate__body prose">
+            <p>The pilot covers heating and cooling efficiency matched from more than four dozen solutions, conditioning the power your equipment draws, and a plan to flatten your peak demand charges. We also review every utility program and tax incentive your project qualifies for, and we file the paperwork ourselves.<sup class="fn"><a href="#notes">3, 4</a></sup></p>
+            <p>The 15-minute call is a fit check, not a pitch: building type, bill size, and whether your property qualifies for the no-cost diagnosis.<sup class="fn"><a href="#notes">2</a></sup></p>
+          </div>
+        </details>
+      </div>
+      <div class="cta-block" style="margin-top: var(--space-4)">
+        <div class="cta-row reveal">
+          <button type="button" class="pill pill--lg" data-cal-namespace="15min" data-cal-link="dan-knows-a-gut/15min" data-cal-config='{"layout":"month_view","theme":"light"}'>Book the 15-minute fit call <span class="arrow" aria-hidden="true">&rarr;</span></button>
+          <button type="button" class="ghostlink js-tf-toggle" aria-expanded="false">Just text the founder</button>
+        </div>
+        <div class="tf-panel" role="group" aria-label="Text the founder">
+          <p class="tf-panel__to">To Dan &middot; (864) 777-0688</p>
+          <textarea rows="4" spellcheck="false" aria-label="Message to Dan">Hi Dan, I run a commercial building and I'd like to see what real energy savings could look like at my property, without the sales song and dance. What does it take to qualify?</textarea>
+          <div class="tf-panel__foot">
+            <span class="tf-panel__hint">Opens in your messages, ready to send.</span>
+            <a class="pill js-tf-send" href="#" data-phone="+18647770688">Send message</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- chapter break -->
+  <div class="chapter container" aria-hidden="true">
+    <p class="chapter__line" data-scrub-words>Proven on the bill. <span class="dim">Paid for by the waste.</span></p>
+  </div>
+
+  <!-- CH 3.5 · DECONSTRUCT THE BILL (the exam starts here) -->
+  <section class="sect money-spine" id="money" aria-labelledby="money-title">
+    <div class="ms-stage" id="ms-stage">
+      <div class="ms-pin">
+        <div class="ms-field" aria-hidden="true"></div>
+        <div class="ms-glow" aria-hidden="true"></div>
+        <div class="ms-vig" aria-hidden="true"></div>
+        <div class="ms-grid">
+          <div class="ms-beats" id="ms-beats">
+            <div class="ms-beat" data-b="0">
+              <p class="tag">The exam, step one &middot; a 55,000 sq ft store in California</p>
+              <h2 id="money-title">Before we touch the building, we take your bill apart.</h2>
+              <p class="sub">$18,000 for the month. A normal California-summer bill for a store this size.</p>
+            </div>
+            <div class="ms-beat" data-b="1">
+              <span class="bfig heat">~50%</span>
+              <p class="subnum">about $9,000 of this one bill</p>
+              <h2>Half of it heats and cools that big open floor.</h2>
+              <p class="sub">Conditioning 55,000 square feet is about half of everything a store like this spends on power.</p>
+            </div>
+            <div class="ms-beat" data-b="2">
+              <h2>And that same HVAC sets your peak-demand charge.</h2>
+              <p class="sub">Up to half your bill can be this one charge, billed on your single worst fifteen minutes: the afternoon your rooftop units all pull at once.</p>
+            </div>
+            <div class="ms-beat" data-b="3">
+              <span class="bfig verd">20&ndash;40%</span>
+              <p class="subnum">less HVAC energy, same comfort on the floor</p>
+              <h2>We cut the cooling load, and the peak drops with it.</h2>
+              <p class="sub">Because HVAC is half the bill and drives the peak, shrinking it moves the most expensive dollars first, on two lines at once.</p>
+            </div>
+            <div class="ms-beat" data-b="4">
+              <span class="bfig verd">&minus;$2,700</span>
+              <p class="subnum">this month &middot; about 15% of the entire bill</p>
+              <h2>Same building. More cash flow. Proven on your statement.</h2>
+              <p class="sub">Tens of thousands a year, on the one document your accountant already trusts.<sup class="fn"><a href="#notes">1</a></sup></p>
+            </div>
+          </div>
+
+          <div class="ms-bill" id="ms-bill" role="img" aria-label="A July Southern California Edison bill for a big-box store: HVAC is about half of it; cutting the cooling load 20 to 40% drops the total from $18,000 to $15,300.">
+            <div class="msb-head">
+              <span class="msb-co">Southern California Edison<small>Commercial service &middot; California</small></span>
+              <span class="msb-meta">ACCT 30&ndash;114&ndash;5528<br>Billing period &middot; July</span>
+            </div>
+            <ul class="msb-lines">
+              <li class="msb-line" data-line="energy"><span class="lbl">Energy charge<span class="lsub">74,000 kWh</span></span><span class="amt orig">$12,900<span class="cut">&minus;$1,940 HVAC</span></span></li>
+              <li class="msb-line" data-line="demand"><span class="lbl">Peak demand charge<span class="lsub">190 kW &middot; set 4:15 PM</span></span><span class="amt orig">$4,180<span class="cut">&minus;$760 HVAC</span></span></li>
+              <li class="msb-line" data-line="pf"><span class="lbl">Power factor &amp; fixed charges</span><span class="amt orig">$920</span></li>
+            </ul>
+            <div class="msb-total"><span class="lbl">Total due</span><span class="amt" id="msb-total">$18,000</span></div>
+            <div class="msb-usage">
+              <div class="msb-ucap"><span>Where your power goes</span><span id="msb-upct"><b>HVAC 50%</b></span></div>
+              <div class="msb-bar">
+                <span class="msb-seg hvac">HVAC</span><span class="msb-seg saved" id="msb-usaved"></span><span class="msb-seg light">Lighting</span><span class="msb-seg plug">Plug</span><span class="msb-seg other">Other</span>
+              </div>
+              <p class="msb-note" id="msb-unote">Heating and cooling is about half the load.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container ms-coda">
+      <div class="prose">
+        <p class="reveal"><strong>Cash flow positive from day one</strong> on qualifying projects, structured right, and it only improves from there. We read every line, then file every deduction, credit, and rebate you qualify for.<sup class="fn"><a href="#notes">2, 3, 4</a></sup></p>
+        <p class="reveal" style="--ri:1">And if you ever find a better verified return than ours, we pay a finder's fee; the terms are in the disclosures below, in plain English.<sup class="fn"><a href="#notes">7</a></sup></p>
+        <div style="margin-top: var(--space-3)">
+          <details class="gate">
+            <summary>How the finder's fee works <span class="plus" aria-hidden="true">+</span></summary>
+            <div class="gate__body prose">
+              <p>If you bring us a demonstrably better return on a like-for-like comparison (equivalent scope, equipment, and methodology), we verify it, and if it holds, we pay you a finder's fee. It's subject to separate written terms, and we administer the verification. The full language is in <a href="#disclosures-terms">the disclosures</a>, section 7.</p>
+            </div>
+          </details>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CH 4 · THE BUILDING (pinned, scroll-scrubbed; assets/motion/building.*)
+       The exam, step two. Three levers, mapped to the three charges the
+       partner pages use: cooling -> the meter, peak -> the demand charge,
+       distortion -> equipment life. data-facility: store | restaurant | tower -->
+  <section class="cinema bld" id="method" aria-labelledby="method-title" data-facility="store">
+    <div class="bld-stage" id="bld-stage">
+      <div class="bld-pin">
+        <div class="bld-vig" aria-hidden="true"></div>
+        <div class="bld-grid">
+          <div class="bld-beats">
+            <div class="bld-beat" data-b="0">
+              <p class="tag">The exam, step two</p>
+              <h2 id="method-title">Then we go into the building, and put a meter on it.</h2>
+              <p class="sub">The bill told us what you pay. The building tells us why. Three things drive almost every overpaid bill.</p>
+            </div>
+            <div class="bld-beat" data-b="1">
+              <p class="tag heat">Lever one &middot; the meter</p>
+              <h2>Cooling that works too hard.</h2>
+              <p class="sub">Compressors running after the air can't get colder, coils that lost their edge years ago, heat bleeding through the roof.</p>
+              <p class="fig">15% from a single fix. Past 50% when they stack.<sup class="fn"><a href="#notes">1</a></sup></p>
+            </div>
+            <div class="bld-beat" data-b="2">
+              <p class="tag heat">Lever two &middot; the demand charge</p>
+              <h2>One afternoon sets the peak.</h2>
+              <p class="sub">Your worst fifteen minutes, when every rooftop unit pulls at once, can set up to half the bill.</p>
+              <p class="fig">Cut the cooling load and the peak drops with it.<sup class="fn"><a href="#notes">1</a></sup></p>
+            </div>
+            <div class="bld-beat" data-b="3">
+              <p class="tag heat">Lever three &middot; equipment life</p>
+              <h2>Dirty power that wears it all out.</h2>
+              <p class="sub">Your equipment draws more than the work it does. You buy the difference, and it fails years early.</p>
+              <p class="fig">8 to 14% off the bill, plus years of equipment life.<sup class="fn"><a href="#notes">1, 12</a></sup></p>
+            </div>
+            <div class="bld-beat" data-b="4">
+              <p class="tag verd">The fix</p>
+              <h2>We take out all three. Only what pays for itself goes in.</h2>
+              <p class="sub">Most vendors sell a fix for one and never look at the other two. The Exam tells us which costs you most.</p>
+              <p class="fig">Proven on your own bill, before and after.<sup class="fn"><a href="#notes">1, 2</a></sup></p>
+            </div>
+          </div>
+
+          <figure class="bld-scene" aria-hidden="true">
+            <svg class="bld-svg" preserveAspectRatio="xMidYMid meet"></svg>
+            <canvas class="bld-fx"></canvas>
+            <div class="bld-hud">
+              <div class="row" data-hud="cool"><span class="dot"></span><span class="k">Cooling</span><span class="v">Not measured</span></div>
+              <div class="row" data-hud="peak"><span class="dot"></span><span class="k">Peak</span><span class="v">Not measured</span></div>
+              <div class="row" data-hud="dist"><span class="dot"></span><span class="k">Distortion</span><span class="v">Not measured</span></div>
+              <svg class="bld-sig" viewBox="0 0 240 28" preserveAspectRatio="none"><path d=""/></svg>
+              <span class="bld-sig-cap">Incoming power</span>
+            </div>
+          </figure>
+        </div>
+        <div class="bld-rail" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+      </div>
+    </div>
+
+    <div class="container bld-after">
+      <div class="beats">
+        <article class="beat reveal">
+          <p class="beat__n">Lever one</p>
+          <h3>Cooling: the energy you lose to heat</h3>
+          <ul class="beat__points">
+            <li>Compressors that keep running after the air cannot get any colder</li>
+            <li>Heat bleeding in through the roof your system then has to fight</li>
+            <li>Coils that quietly lost their efficiency years ago, with no one to flag it</li>
+          </ul>
+          <div class="beat__links">
+            <a class="pill" href="#film">Watch the film, 6 min</a>
+            <a class="ghostlink" href="how-it-works.html#heat">How it works &rarr;</a>
+          </div>
+        </article>
+        <article class="beat reveal" style="--ri:1">
+          <p class="beat__n">Lever two</p>
+          <h3>Peak: the charge set by fifteen minutes</h3>
+          <ul class="beat__points">
+            <li>Billed on your single worst fifteen minutes of the month</li>
+            <li>Usually the afternoon your rooftop units all pull at once</li>
+            <li>Shrink the cooling load first, then flatten what's left</li>
+          </ul>
+          <div class="beat__links">
+            <a class="ghostlink" href="#money">See it on the bill &uarr;</a>
+          </div>
+        </article>
+        <article class="beat reveal" style="--ri:2">
+          <p class="beat__n">Lever three</p>
+          <h3>Distortion: the energy you lose to wear</h3>
+          <ul class="beat__points">
+            <li>Motors and compressors that pull hard every time they start</li>
+            <li>A higher bill for the same work, month after month</li>
+            <li>Equipment aging years early, then failing at the worst possible time</li>
+          </ul>
+          <div class="beat__links">
+            <a class="ghostlink" href="how-it-works.html#wear">How it works &rarr;</a>
+            <span class="beat__soon">Film in production</span>
+          </div>
+        </article>
+      </div>
+      <p class="method-close reveal">The Exam finds all three. <strong>We fix all three.</strong></p>
+      <div class="cta-row reveal" style="margin-top: var(--space-3)">
+        <button type="button" class="ghostlink" data-cal-namespace="15min" data-cal-link="dan-knows-a-gut/15min" data-cal-config='{"layout":"month_view","theme":"light"}'>Convinced already? Book the 15-minute fit call &rarr;</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- CH 4.5 · THE FILM (inline, plays in place) -->
+  <section class="cinema film-band" id="film" aria-labelledby="film-title">
+    <div class="container">
+      <div class="film-band__head">
+        <p class="film-band__eyebrow reveal">The film</p>
+        <h2 id="film-title" class="reveal" style="--ri:1">See the whole method in six minutes.</h2>
+        <p class="lede reveal" style="--ri:2">How we find the waste, prove it on your own bill, and install only what pays for itself.</p>
+      </div>
+      <div class="film-player reveal" style="--ri:3">
+        <button type="button" class="film-player__facade" data-film-play aria-label="Play the six-minute film">
+          <img class="film-player__poster" src="assets/img/hero-building.png" alt="" loading="lazy">
+          <span class="film-player__scrim" aria-hidden="true"></span>
+          <span class="film-player__play" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13l11-6.5z"/></svg></span>
+          <span class="film-player__meta" aria-hidden="true">Energy Plus &middot; 6 min</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- CH 6 · THE PROOF -->
+  <section class="sect cinema atmo-verd atmo-field-clean" id="proof" aria-labelledby="proof-title">
+    <div class="container">
+      <h2 id="proof-title" class="reveal">Verified results. <span class="beat">Not case studies. Bills.</span></h2>
+      <p class="lede reveal" style="--ri:1">Measured on the bills of named facilities running the technologies we deploy.<sup class="fn"><a href="#notes">1, 9</a></sup></p>
+
+      <div class="proof-meta reveal" style="--ri:2">
+        <p class="proof-meta__stat"><span class="proof-meta__num">200+</span> measured results</p>
+        <p class="proof-meta__sub">11 countries &middot; 6 continents &middot; multiple utilities</p>
+        <ul class="proof-legend"><li class="proof-legend__item pw--whole"><span class="dot" aria-hidden="true"></span>Whole building</li><li class="proof-legend__item pw--hvac"><span class="dot" aria-hidden="true"></span>HVAC only</li><li class="proof-legend__item pw--harm"><span class="dot" aria-hidden="true"></span>Power quality</li></ul>
+      </div>
+
+      <div class="proof-wall reveal" style="--ri:3" aria-hidden="true">
+            <div class="proof-wall__col proof-wall__col--0">
+              <div class="proof-wall__track">
+                  <article class="pw-card pw--whole">
+                    <span class="pw-card__dot" aria-hidden="true"></span>
+                    <p class="pw-card__type">Auto Dealership</p>
+                    <p class="pw-card__name">AZ Ford Dealership</p>
+                    <p class="pw-card__fig">49.2%</p>
+                    <p class="pw-card__unit">annual energy cut, full-stack program</p>
+                  </article>
+                  <article class="pw-card pw--whole">
+                    <span class="pw-card__dot" aria-hidden="true"></span>
+                    <p class="pw-card__type">Municipal</p>
+                    <p class="pw-card__name">City of Rainsville</p>
+                    <p class="pw-card__fig">27%</p>
+                    <p class="pw-card__unit">average reduction across city facilities, year one</p>
+                  </article>
+                  <article class="pw-card pw--harm">
+                    <span class="pw-card__dot" aria-hidden="true"></span>
+                    <p class="pw-card__type">Hotel &amp; Resort</p>
+                    <p class="pw-card__name">Caribe Resort</p>
+                    <p class="pw-card__fig">14%</p>
+                    <p class="pw-card__unit">kWh reduction, monthly average over 12 months</p>
+                  </article>
+                  <article class="pw-card pw--hvac">
+                    <span class="pw-card__dot" aria-hidden="true"></span>
+                    <p class="pw-card__type">Distribution</p>
+                    <p class="pw-card__name">Anheuser-Busch, Mitchell Dist.</p>
+                    <p class="pw-card__fig">19.2%</p>
+                    <p class="pw-card__unit">RTU energy reduction, coil treatment</p>
+                  </article>
+                  <article class="pw-card pw--harm">
+                    <span class="pw-card__dot" aria-hidden="true"></span>
+                    <p class="pw-card__type">Office (historic)</p>
+                    <p class="pw-card__name">The Massey Building</p>
+                    <p class="pw-card__fig">9–19%</p>
+                    <p class="pw-card__unit">kWh reduction, metered floor by floor</p>
+                  </article>
+                  <article class="pw-card pw--whole">
+                    <span class="pw-card__dot" aria-hidden="true"></span>
+                    <p class="pw-card__type">Auto Dealership</p>
+                    <p class="pw-card__name">AZ Ford Dealership</p>
+                    <p class="pw-card__fig">49.2%</p>
+                    <p class="pw-card__unit">annual energy cut, full-stack program</p>
+                  </article>
+                  <article class="pw-card pw--whole">
+                    <span class="pw-card__dot" aria-hidden="true"></span>
+                    <p class="pw-card__type">Municipal</p>
+                    <p class="pw-card__name">City of Rainsville</p>
+                    <p class="pw-card__fig">27%</p>
+                    <p class="pw-card__unit">average reduction across city facilities, year one</p>
+                  </article>
+                  <article class="pw-card pw--harm">
+                    <span class="pw-card__dot" aria-hidden="true"></span>
+                    <p class="pw-card__type">Hotel &amp; Resort</p>
+                    <p class="pw-card__name">Caribe Resort</p>
+                    <p class="pw-card__fig">14%</p>
+                    <p class="pw-card__unit">kWh reduction, monthly average over 12 months</p>
+                  </article>
+                  <article class="pw-card pw--hvac">
+                    <span class="pw-card__dot" aria-hidden="true"></span>
+                    <p class="pw-card__type">Distribution</p>
+                    <p class="pw-card__name">Anheuser-Busch, Mitchell Dist.</p>
+                    <p class="pw-card__fig">19.2%</p>
+                    <p class="pw-card__unit">RTU energy reduction, coil treatment</p>
+                  </article>
+                  <article class="pw-card pw--harm">
+                    <span class="pw-card__dot" aria-hidden="true"></span>
+                    <p class="pw-card__type">Office (historic)</p>
+                    <p class="pw-card__name">The Massey Building</p>
+                    <p class="pw-card__fig">9–19%</p>
+                    <p class="pw-card__unit">kWh reduction, metered floor by floor</p>
+                  </article>
+              </div>
+            </div>
+            <div class="proof-wall__col proof-wall__col--1">
+              <div class="proof-wall__track">
+                  <article class="pw-card pw--whole">
+                    <span class="pw-card__dot" aria-hidden="true"></span>
+                    <p class="pw-card__type">Hospital</p>
+                    <p class="pw-card__name">Edward Hospital</p>
+                    <p class="pw-card__fig">24%</p>
+                    <p class="pw-card__unit">kWh reduction over 9 months, whole facility</p>
+                  </article>
+                  <article class="pw-card pw--harm">
+                    <span class="pw-card__dot" aria-hidden="true"></span>
+                    <p class="pw-card__type">Hospitality</p>
+                    <p class="pw-card__name">Hilton Garden Inn, Atlanta</p>
+                    <p class="pw-card__fig">13.51%</p>
+                    <p class="pw-card__unit">kWh reduction at the meter, 12 months</p>
+                  </article>
+                  <article class="pw-card pw--hvac">
+                    <span class="pw-card__dot" aria-hidden="true"></span>
+                    <p class="pw-card__type">Retail</p>
+                    <p class="pw-card__name">Simon Property Gr., Jersey Gardens</p>
+                    <p class="pw-card__fig">21.1%</p>
+                    <p class="pw-card__unit">kWh reduction, refrigerant-side efficiency</p>
+                  </article>
+                  <article class="pw-card pw--harm">
+                    <span class="pw-card__dot" aria-hidden="true"></span>
+                    <p class="pw-card__type">Hospitality</p>
+                    <p class="pw-card__name">Southpoint Hotel &amp; Casino</p>
+                    <p class="pw-card__fig">8.59%</p>
+                    <p class="pw-card__unit">kW demand reduction, metered panels</p>
+                  </article>
+                  <article class="pw-card pw--whole">
+                    <span class="pw-card__dot" aria-hidden="true"></span>
+                    <p class="pw-card__type">Hospital</p>
+                    <p class="pw-card__name">Edward Hospital</p>
+                    <p class="pw-card__fig">24%</p>
+                    <p class="pw-card__unit">kWh reduction over 9 months, whole facility</p>
+                  </article>
+                  <article class="pw-card pw--harm">
+                    <span class="pw-card__dot" aria-hidden="true"></span>
+                    <p class="pw-card__type">Hospitality</p>
+                    <p class="pw-card__name">Hilton Garden Inn, Atlanta</p>
+                    <p class="pw-card__fig">13.51%</p>
+                    <p class="pw-card__unit">kWh reduction at the meter, 12 months</p>
+                  </article>
+                  <article class="pw-card pw--hvac">
+                    <span class="pw-card__dot" aria-hidden="true"></span>
+                    <p class="pw-card__type">Retail</p>
+                    <p class="pw-card__name">Simon Property Gr., Jersey Gardens</p>
+                    <p class="pw-card__fig">21.1%</p>
+                    <p class="pw-card__unit">kWh reduction, refrigerant-side efficiency</p>
+                  </article>
+                  <article class="pw-card pw--harm">
+                    <span class="pw-card__dot" aria-hidden="true"></span>
+                    <p class="pw-card__type">Hospitality</p>
+                    <p class="pw-card__name">Southpoint Hotel &amp; Casino</p>
+                    <p class="pw-card__fig">8.59%</p>
+                    <p class="pw-card__unit">kW demand reduction, metered panels</p>
+                  </article>
+              </div>
+            </div>
+            <div class="proof-wall__col proof-wall__col--2">
+              <div class="proof-wall__track">
+                  <article class="pw-card pw--whole">
+                    <span class="pw-card__dot" aria-hidden="true"></span>
+                    <p class="pw-card__type">Manufacturing</p>
+                    <p class="pw-card__name">Commercial Bottling Plant</p>
+                    <p class="pw-card__fig">+50%</p>
+                    <p class="pw-card__unit">more output, energy cost up only 2%</p>
+                  </article>
+                  <article class="pw-card pw--hvac">
+                    <span class="pw-card__dot" aria-hidden="true"></span>
+                    <p class="pw-card__type">Hospitality</p>
+                    <p class="pw-card__name">Westfields Marriott, Dulles</p>
+                    <p class="pw-card__fig">13.26%</p>
+                    <p class="pw-card__unit">facility kWh reduction, coil treatment</p>
+                  </article>
+                  <article class="pw-card pw--harm">
+                    <span class="pw-card__dot" aria-hidden="true"></span>
+                    <p class="pw-card__type">Office + Warehouse</p>
+                    <p class="pw-card__name">Corey Center</p>
+                    <p class="pw-card__fig">14.8%</p>
+                    <p class="pw-card__unit">kWh reduction, four-year average</p>
+                  </article>
+                  <article class="pw-card pw--hvac">
+                    <span class="pw-card__dot" aria-hidden="true"></span>
+                    <p class="pw-card__type">Logistics</p>
+                    <p class="pw-card__name">DHL Refrigeration Plant</p>
+                    <p class="pw-card__fig">15%</p>
+                    <p class="pw-card__unit">compressor efficiency gain, ammonia system</p>
+                  </article>
+                  <article class="pw-card pw--whole">
+                    <span class="pw-card__dot" aria-hidden="true"></span>
+                    <p class="pw-card__type">Manufacturing</p>
+                    <p class="pw-card__name">Commercial Bottling Plant</p>
+                    <p class="pw-card__fig">+50%</p>
+                    <p class="pw-card__unit">more output, energy cost up only 2%</p>
+                  </article>
+                  <article class="pw-card pw--hvac">
+                    <span class="pw-card__dot" aria-hidden="true"></span>
+                    <p class="pw-card__type">Hospitality</p>
+                    <p class="pw-card__name">Westfields Marriott, Dulles</p>
+                    <p class="pw-card__fig">13.26%</p>
+                    <p class="pw-card__unit">facility kWh reduction, coil treatment</p>
+                  </article>
+                  <article class="pw-card pw--harm">
+                    <span class="pw-card__dot" aria-hidden="true"></span>
+                    <p class="pw-card__type">Office + Warehouse</p>
+                    <p class="pw-card__name">Corey Center</p>
+                    <p class="pw-card__fig">14.8%</p>
+                    <p class="pw-card__unit">kWh reduction, four-year average</p>
+                  </article>
+                  <article class="pw-card pw--hvac">
+                    <span class="pw-card__dot" aria-hidden="true"></span>
+                    <p class="pw-card__type">Logistics</p>
+                    <p class="pw-card__name">DHL Refrigeration Plant</p>
+                    <p class="pw-card__fig">15%</p>
+                    <p class="pw-card__unit">compressor efficiency gain, ammonia system</p>
+                  </article>
+              </div>
+            </div>
+      </div>
+
+      <div class="proof-seeall-wrap reveal">
+        <button class="proof-seeall" id="proof-seeall" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="proof-sheet">
+          See all 200+ measured results
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 8h16M4 12h16M4 16h16" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+
+      <p class="prose reveal" style="margin-top: var(--space-4)">Independent verification under recognized protocols (IPMVP Option C, ASHRAE Guideline 14) is available on qualifying projects. <strong>If a claim of ours can't survive your accountant, we don't make it.</strong><sup class="fn"><a href="#notes">8</a></sup></p>
+    </div>
+
+    <!-- full record sheet -->
+    <div class="proof-sheet" id="proof-sheet" role="dialog" aria-modal="true" aria-labelledby="proof-sheet-title" hidden>
+      <div class="proof-sheet__bar container">
+        <span class="proof-sheet__title" id="proof-sheet-title">The full record</span>
+        <ul class="proof-legend proof-legend--bar"><li class="proof-legend__item pw--whole"><span class="dot" aria-hidden="true"></span>Whole building</li><li class="proof-legend__item pw--hvac"><span class="dot" aria-hidden="true"></span>HVAC only</li><li class="proof-legend__item pw--harm"><span class="dot" aria-hidden="true"></span>Power quality</li></ul>
+        <button class="proof-sheet__close" id="proof-sheet-close" type="button" aria-label="Close the full record">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+      <div class="proof-sheet__body">
+        <div class="container">
+          <section class="rec-group pw--whole">
+            <h3 class="rec-group__title"><span class="rec-group__dot" aria-hidden="true"></span>Whole building examples<span class="rec-group__count">3</span></h3>
+            <ul class="rec-list">
+            <li class="rec-row">
+              <span class="rec-row__result">49.2%</span>
+              <span class="rec-row__main"><span class="rec-row__name">AZ Ford Dealership</span><span class="rec-row__meta">Auto dealership · Arizona</span></span>
+              <span class="rec-row__by">Documented project total (power quality + HVAC + lighting)</span>
+            </li>
+            <li class="rec-row">
+              <span class="rec-row__result">27% avg</span>
+              <span class="rec-row__main"><span class="rec-row__name">City of Rainsville</span><span class="rec-row__meta">Municipal · Alabama</span></span>
+              <span class="rec-row__by">First-year monitored, power conditioning + LED</span>
+            </li>
+            <li class="rec-row">
+              <span class="rec-row__result">+50% / +2%</span>
+              <span class="rec-row__main"><span class="rec-row__name">Commercial Bottling Plant</span><span class="rec-row__meta">Manufacturing · Upper Midwest</span></span>
+              <span class="rec-row__by">Growth-adjusted net cost study (50% more output, 2% more cost)</span>
+            </li>
+            </ul>
+          </section>
+          <section class="rec-group pw--hvac">
+            <h3 class="rec-group__title"><span class="rec-group__dot" aria-hidden="true"></span>HVAC only examples<span class="rec-group__count">67</span></h3>
+            <ul class="rec-list">
+            <li class="rec-row">
+              <span class="rec-row__result">33%</span>
+              <span class="rec-row__main"><span class="rec-row__name">Durham College</span><span class="rec-row__meta">Education / research · Oshawa, ON</span></span>
+              <span class="rec-row__by">16,851 data points; ANOVA / t-test</span>
+            </li>
+            <li class="rec-row">
+              <span class="rec-row__result">27.75% avg</span>
+              <span class="rec-row__main"><span class="rec-row__name">City of Windsor</span><span class="rec-row__meta">Municipal · Windsor, ON</span></span>
+              <span class="rec-row__by">Enwin Utilities verified; OPA approved</span>
+            </li>
+            <li class="rec-row">
+              <span class="rec-row__result">23.6%</span>
+              <span class="rec-row__main"><span class="rec-row__name">NASA Jet Propulsion Lab</span><span class="rec-row__meta">Government · Pasadena, CA</span></span>
+              <span class="rec-row__by">7-day before/after, Caltech / Emcor</span>
+            </li>
+            <li class="rec-row">
+              <span class="rec-row__result">21.1% kWh</span>
+              <span class="rec-row__main"><span class="rec-row__name">Simon Property Group</span><span class="rec-row__meta">Retail, Jersey Gardens mall · Elizabeth, NJ</span></span>
+              <span class="rec-row__by">IPMVP; $41,473/yr, 12-mo payback</span>
+            </li>
+            <li class="rec-row">
+              <span class="rec-row__result">19.2% RTU</span>
+              <span class="rec-row__main"><span class="rec-row__name">Anheuser-Busch (Mitchell Distributing)</span><span class="rec-row__meta">Distribution · United States</span></span>
+              <span class="rec-row__by">20-mo payback; 904% lifetime ROI</span>
+            </li>
+            <li class="rec-row">
+              <span class="rec-row__result">20–35%</span>
+              <span class="rec-row__main"><span class="rec-row__name">Trebor International</span><span class="rec-row__meta">Manufacturing · Windsor, ON</span></span>
+              <span class="rec-row__by">P.E. licensed in 6 jurisdictions</span>
+            </li>
+            <li class="rec-row">
+              <span class="rec-row__result">21–32%</span>
+              <span class="rec-row__main"><span class="rec-row__name">Kenya program</span><span class="rec-row__meta">Lab + field · Kenya Bureau of Standards; LECOL Mombasa</span></span>
+              <span class="rec-row__by">KEBS lab test vs BS EN 60335-1</span>
+            </li>
+            <li class="rec-row">
+              <span class="rec-row__result">27–30%</span>
+              <span class="rec-row__main"><span class="rec-row__name">Lebanon program</span><span class="rec-row__meta">2 sites · DALFA Beirut · HSZ Zgharta</span></span>
+              <span class="rec-row__by">ENISCOPE data, witnessed and co-signed</span>
+            </li>
+            <li class="rec-row">
+              <span class="rec-row__result">47.6% ΔT</span>
+              <span class="rec-row__main"><span class="rec-row__name">Electrolux</span><span class="rec-row__meta">Lab / OEM · United States</span></span>
+              <span class="rec-row__by">Tri-S ECM thermal report</span>
+            </li>
+            <li class="rec-row">
+              <span class="rec-row__result">284% ROI</span>
+              <span class="rec-row__main"><span class="rec-row__name">Men's Wearhouse (Tailored Brands)</span><span class="rec-row__meta">Retail · United States</span></span>
+              <span class="rec-row__by">Dual-RTU, 12.5-mo payback</span>
+            </li>
+            <li class="rec-row">
+              <span class="rec-row__result">24%+ / yr</span>
+              <span class="rec-row__main"><span class="rec-row__name">McDonald's franchisee</span><span class="rec-row__meta">Quick-serve · United States</span></span>
+              <span class="rec-row__by">Annual study</span>
+            </li>
+            <li class="rec-row">
+              <span class="rec-row__result">20% avg</span>
+              <span class="rec-row__main"><span class="rec-row__name">Bangladesh Ministry of Power</span><span class="rec-row__meta">Government pilot · Dhaka</span></span>
+              <span class="rec-row__by">Official certification issued</span>
+            </li>
+            <li class="rec-row">
+              <span class="rec-row__result">20% avg</span>
+              <span class="rec-row__main"><span class="rec-row__name">AT&amp;T Mobility / SDG&amp;E</span><span class="rec-row__meta">Telecom, 9 cell sites · San Diego, CA</span></span>
+              <span class="rec-row__by">HOBO loggers; utility-engineer co-authored</span>
+            </li>
+            <li class="rec-row">
+              <span class="rec-row__result">19.5–21.6%</span>
+              <span class="rec-row__main"><span class="rec-row__name">Verizon Network Services</span><span class="rec-row__meta">Telecom · Dallas, TX</span></span>
+              <span class="rec-row__by">P.E.-authored; approved for deployment</span>
+            </li>
+            <li class="rec-row">
+              <span class="rec-row__result">~21%</span>
+              <span class="rec-row__main"><span class="rec-row__name">DOE FEMP demonstration</span><span class="rec-row__meta">Government, gymnasium RTUs · United States</span></span>
+              <span class="rec-row__by">U.S. DOE / ORNL controlled study</span>
+            </li>
+            <li class="rec-row">
+              <span class="rec-row__result">22%</span>
+              <span class="rec-row__main"><span class="rec-row__name">Bashas' Supermarket</span><span class="rec-row__meta">Grocery · Gold Canyon, AZ</span></span>
+              <span class="rec-row__by">Grocery vertical study</span>
+            </li>
+            <li class="rec-row">
+              <span class="rec-row__result">19.4% / yr</span>
+              <span class="rec-row__main"><span class="rec-row__name">Domino's Store 6711</span><span class="rec-row__meta">Quick-serve · United States</span></span>
+              <span class="rec-row__by">2-year study</span>
+            </li>
+            <li class="rec-row">
+              <span class="rec-row__result">12–27%</span>
+              <span class="rec-row__main"><span class="rec-row__name">UAE program</span><span class="rec-row__meta">14 institutions · Sheraton Jumeirah · Sharjah FZ · Jotun · Flora Grand</span></span>
+              <span class="rec-row__by">14-institution deployment</span>
+            </li>
+            <li class="rec-row">
+              <span class="rec-row__result">15–39%</span>
+              <span class="rec-row__main"><span class="rec-row__name">Multi-country program</span><span class="rec-row__meta">South Africa · Pakistan · Indonesia · Puerto Rico · 4 countries</span></span>
+              <span class="rec-row__by">Field studies per country</span>
+            </li>
+            <li class="rec-row">
+              <span class="rec-row__result">15–21%</span>
+              <span class="rec-row__main"><span class="rec-row__name">Bangladesh enterprise</span><span class="rec-row__meta">56 units · GraphicPeople (WPP) · BEXIMCO · IDLC Finance</span></span>
+              <span class="rec-row__by">Enterprise deployment</span>
+            </li>
+            <li class="rec-row">
+              <span class="rec-row__result">15% eff.</span>
+              <span class="rec-row__main"><span class="rec-row__name">DHL (ammonia refrigeration)</span><span class="rec-row__meta">Logistics · United States</span></span>
+              <span class="rec-row__by">Compressor study, 13.8-mo payback</span>
+            </li>
+            <li class="rec-row">
+              <span class="rec-row__result">200 sites</span>
+              <span class="rec-row__main"><span class="rec-row__name">Airtel Bangladesh</span><span class="rec-row__meta">Telecom, 200 BTS sites · Nationwide</span></span>
+              <span class="rec-row__by">3-month pilot, no performance issues</span>
+            </li>
+            <li class="rec-row">
+              <span class="rec-row__result">5-mo payback</span>
+              <span class="rec-row__main"><span class="rec-row__name">Italgas Toscana</span><span class="rec-row__meta">Utility, heat pump · Italy</span></span>
+              <span class="rec-row__by">Field efficiency trial</span>
+            </li>
+            </ul>
+            <div class="rec-sub">
+              <h4 class="rec-sub__head">India · HVAC Optimizer program<span class="rec-group__count">44 sites</span></h4>
+              <ul class="rec-list">
+              <li class="rec-row">
+                <span class="rec-row__result">50%</span>
+                <span class="rec-row__main"><span class="rec-row__name">General Electric</span><span class="rec-row__meta">Voltas · 1.5 ton</span></span>
+                <span class="rec-row__by">India · HVAC Optimizer field test</span>
+              </li>
+              <li class="rec-row">
+                <span class="rec-row__result">45%</span>
+                <span class="rec-row__main"><span class="rec-row__name">IIT, Mumbai</span><span class="rec-row__meta">Voltas · 1.5 ton</span></span>
+                <span class="rec-row__by">India · HVAC Optimizer field test</span>
+              </li>
+              <li class="rec-row">
+                <span class="rec-row__result">44%</span>
+                <span class="rec-row__main"><span class="rec-row__name">Merrill Lynch</span><span class="rec-row__meta">Carrier · 2.0 ton</span></span>
+                <span class="rec-row__by">India · HVAC Optimizer field test</span>
+              </li>
+              <li class="rec-row">
+                <span class="rec-row__result">39%</span>
+                <span class="rec-row__main"><span class="rec-row__name">GTL</span><span class="rec-row__meta">Carrier · 1.5 ton</span></span>
+                <span class="rec-row__by">India · HVAC Optimizer field test</span>
+              </li>
+              <li class="rec-row">
+                <span class="rec-row__result">39%</span>
+                <span class="rec-row__main"><span class="rec-row__name">Premier Energy Transmission</span><span class="rec-row__meta">Commander · 1.5 ton</span></span>
+                <span class="rec-row__by">India · HVAC Optimizer field test</span>
+              </li>
+              <li class="rec-row">
+                <span class="rec-row__result">35%</span>
+                <span class="rec-row__main"><span class="rec-row__name">Reliance Communication</span><span class="rec-row__meta">Daikin · 2.0 ton</span></span>
+                <span class="rec-row__by">India · HVAC Optimizer field test</span>
+              </li>
+              <li class="rec-row">
+                <span class="rec-row__result">35%</span>
+                <span class="rec-row__main"><span class="rec-row__name">EPIC Energy</span><span class="rec-row__meta">LG · 1.5 ton</span></span>
+                <span class="rec-row__by">India · HVAC Optimizer field test</span>
+              </li>
+              <li class="rec-row">
+                <span class="rec-row__result">34%</span>
+                <span class="rec-row__main"><span class="rec-row__name">CTV</span><span class="rec-row__meta">National · 1.5 ton</span></span>
+                <span class="rec-row__by">India · HVAC Optimizer field test</span>
+              </li>
+              <li class="rec-row">
+                <span class="rec-row__result">33%</span>
+                <span class="rec-row__main"><span class="rec-row__name">Airtel</span><span class="rec-row__meta">Carrier · 8.5 ton</span></span>
+                <span class="rec-row__by">India · HVAC Optimizer field test</span>
+              </li>
+              <li class="rec-row">
+                <span class="rec-row__result">30%</span>
+                <span class="rec-row__main"><span class="rec-row__name">The Association Building Company (TATA)</span><span class="rec-row__meta">Voltas · 1.5 ton</span></span>
+                <span class="rec-row__by">India · HVAC Optimizer field test</span>
+              </li>
+              <li class="rec-row">
+                <span class="rec-row__result">29%</span>
+                <span class="rec-row__main"><span class="rec-row__name">Reliance Energy</span><span class="rec-row__meta">Videocon · 1.5 ton</span></span>
+                <span class="rec-row__by">India · HVAC Optimizer field test</span>
+              </li>
+              <li class="rec-row">
+                <span class="rec-row__result">28%</span>
+                <span class="rec-row__main"><span class="rec-row__name">Larsen &amp; Toubro</span><span class="rec-row__meta">Voltas · 1.5 ton</span></span>
+                <span class="rec-row__by">India · HVAC Optimizer field test</span>
+              </li>
+              <li class="rec-row">
+                <span class="rec-row__result">28%</span>
+                <span class="rec-row__main"><span class="rec-row__name">Agility Logistics</span><span class="rec-row__meta">LG · 1.5 ton</span></span>
+                <span class="rec-row__by">India · HVAC Optimizer field test</span>
+              </li>
+              <li class="rec-row">
+                <span class="rec-row__result">27%</span>
+                <span class="rec-row__main"><span class="rec-row__name">Indian School of Business</span><span class="rec-row__meta">Hitachi · 1.5 ton</span></span>
+                <span class="rec-row__by">India · HVAC Optimizer field test</span>
+              </li>
+              <li class="rec-row">
+                <span class="rec-row__result">27%</span>
+                <span class="rec-row__main"><span class="rec-row__name">ENAM Securities</span><span class="rec-row__meta">Videocon · 1.5 ton</span></span>
+                <span class="rec-row__by">India · HVAC Optimizer field test</span>
+              </li>
+              <li class="rec-row">
+                <span class="rec-row__result">27%</span>
+                <span class="rec-row__main"><span class="rec-row__name">India Independent Strategy and Research</span><span class="rec-row__meta">Mitsubishi · 2.0 ton</span></span>
+                <span class="rec-row__by">India · HVAC Optimizer field test</span>
+              </li>
+              <li class="rec-row">
+                <span class="rec-row__result">26%</span>
+                <span class="rec-row__main"><span class="rec-row__name">TATA Consultancy Services</span><span class="rec-row__meta">Blue Star · 11 ton</span></span>
+                <span class="rec-row__by">India · HVAC Optimizer field test</span>
+              </li>
+              <li class="rec-row">
+                <span class="rec-row__result">26%</span>
+                <span class="rec-row__main"><span class="rec-row__name">Hero Moto Corp</span><span class="rec-row__meta">Carrier · 2.0 ton</span></span>
+                <span class="rec-row__by">India · HVAC Optimizer field test</span>
+              </li>
+              <li class="rec-row">
+                <span class="rec-row__result">26%</span>
+                <span class="rec-row__main"><span class="rec-row__name">CCI Club, Mumbai</span><span class="rec-row__meta">O General · 2.0 ton</span></span>
+                <span class="rec-row__by">India · HVAC Optimizer field test</span>
+              </li>
+              <li class="rec-row">
+                <span class="rec-row__result">25%</span>
+                <span class="rec-row__main"><span class="rec-row__name">Daikin</span><span class="rec-row__meta">Daikin · 2.0 ton</span></span>
+                <span class="rec-row__by">India · HVAC Optimizer field test</span>
+              </li>
+              <li class="rec-row">
+                <span class="rec-row__result">25%</span>
+                <span class="rec-row__main"><span class="rec-row__name">Godrej</span><span class="rec-row__meta">Godrej · 2.0 ton</span></span>
+                <span class="rec-row__by">India · HVAC Optimizer field test</span>
+              </li>
+              <li class="rec-row">
+                <span class="rec-row__result">25%</span>
+                <span class="rec-row__main"><span class="rec-row__name">Infosys</span><span class="rec-row__meta">Toshiba · 1.8 ton</span></span>
+                <span class="rec-row__by">India · HVAC Optimizer field test</span>
+              </li>
+              <li class="rec-row">
+                <span class="rec-row__result">25%</span>
+                <span class="rec-row__main"><span class="rec-row__name">ICICI</span><span class="rec-row__meta">Videocon · 1.5 ton</span></span>
+                <span class="rec-row__by">India · HVAC Optimizer field test</span>
+              </li>
+              <li class="rec-row">
+                <span class="rec-row__result">25%</span>
+                <span class="rec-row__main"><span class="rec-row__name">ISPAT</span><span class="rec-row__meta">LG · 1.5 ton</span></span>
+                <span class="rec-row__by">India · HVAC Optimizer field test</span>
+              </li>
+              <li class="rec-row">
+                <span class="rec-row__result">25%</span>
+                <span class="rec-row__main"><span class="rec-row__name">Vinergy</span><span class="rec-row__meta">Mitsubishi · 1.0 ton</span></span>
+                <span class="rec-row__by">India · HVAC Optimizer field test</span>
+              </li>
+              <li class="rec-row">
+                <span class="rec-row__result">25%</span>
+                <span class="rec-row__main"><span class="rec-row__name">Raj Bhavan</span><span class="rec-row__meta">LG · 2.0 ton</span></span>
+                <span class="rec-row__by">India · HVAC Optimizer field test</span>
+              </li>
+              <li class="rec-row">
+                <span class="rec-row__result">25%</span>
+                <span class="rec-row__main"><span class="rec-row__name">Diners Business Service</span><span class="rec-row__meta">LG · 1.5 ton</span></span>
+                <span class="rec-row__by">India · HVAC Optimizer field test</span>
+              </li>
+              <li class="rec-row">
+                <span class="rec-row__result">25%</span>
+                <span class="rec-row__main"><span class="rec-row__name">Great Eastern Shipping Company</span><span class="rec-row__meta">Daikin · 2.0 ton</span></span>
+                <span class="rec-row__by">India · HVAC Optimizer field test</span>
+              </li>
+              <li class="rec-row">
+                <span class="rec-row__result">24%</span>
+                <span class="rec-row__main"><span class="rec-row__name">Blue Star</span><span class="rec-row__meta">Blue Star · 2.0 ton</span></span>
+                <span class="rec-row__by">India · HVAC Optimizer field test</span>
+              </li>
+              <li class="rec-row">
+                <span class="rec-row__result">24%</span>
+                <span class="rec-row__main"><span class="rec-row__name">TATA Tele</span><span class="rec-row__meta">Voltas · 2.0 ton</span></span>
+                <span class="rec-row__by">India · HVAC Optimizer field test</span>
+              </li>
+              <li class="rec-row">
+                <span class="rec-row__result">23%</span>
+                <span class="rec-row__main"><span class="rec-row__name">Reliance Web World</span><span class="rec-row__meta">Carrier · 1.5 ton</span></span>
+                <span class="rec-row__by">India · HVAC Optimizer field test</span>
+              </li>
+              <li class="rec-row">
+                <span class="rec-row__result">23%</span>
+                <span class="rec-row__main"><span class="rec-row__name">Tech Mahindra</span><span class="rec-row__meta">LG · 1.5 ton</span></span>
+                <span class="rec-row__by">India · HVAC Optimizer field test</span>
+              </li>
+              <li class="rec-row">
+                <span class="rec-row__result">23%</span>
+                <span class="rec-row__main"><span class="rec-row__name">Raymond Industries</span><span class="rec-row__meta">LG · 1.5 ton</span></span>
+                <span class="rec-row__by">India · HVAC Optimizer field test</span>
+              </li>
+              <li class="rec-row">
+                <span class="rec-row__result">22%</span>
+                <span class="rec-row__main"><span class="rec-row__name">Siemens</span><span class="rec-row__meta">Panasonic · 1.5 ton</span></span>
+                <span class="rec-row__by">India · HVAC Optimizer field test</span>
+              </li>
+              <li class="rec-row">
+                <span class="rec-row__result">21%</span>
+                <span class="rec-row__main"><span class="rec-row__name">TATA Motors</span><span class="rec-row__meta">Voltas · 1.5 ton</span></span>
+                <span class="rec-row__by">India · HVAC Optimizer field test</span>
+              </li>
+              <li class="rec-row">
+                <span class="rec-row__result">21%</span>
+                <span class="rec-row__main"><span class="rec-row__name">KPMG</span><span class="rec-row__meta">Carrier · 17 ton</span></span>
+                <span class="rec-row__by">India · HVAC Optimizer field test</span>
+              </li>
+              <li class="rec-row">
+                <span class="rec-row__result">20%</span>
+                <span class="rec-row__main"><span class="rec-row__name">Viom</span><span class="rec-row__meta">SpaceMaker · 3.5 ton</span></span>
+                <span class="rec-row__by">India · HVAC Optimizer field test</span>
+              </li>
+              <li class="rec-row">
+                <span class="rec-row__result">20%</span>
+                <span class="rec-row__main"><span class="rec-row__name">AT&amp;T Mobility</span><span class="rec-row__meta">LG · 2.0 ton</span></span>
+                <span class="rec-row__by">India · HVAC Optimizer field test</span>
+              </li>
+              <li class="rec-row">
+                <span class="rec-row__result">20%</span>
+                <span class="rec-row__main"><span class="rec-row__name">Veritas</span><span class="rec-row__meta">LG · 1.0 ton</span></span>
+                <span class="rec-row__by">India · HVAC Optimizer field test</span>
+              </li>
+              <li class="rec-row">
+                <span class="rec-row__result">20%</span>
+                <span class="rec-row__main"><span class="rec-row__name">Vitz Hotel</span><span class="rec-row__meta">Voltas · 3.0 ton</span></span>
+                <span class="rec-row__by">India · HVAC Optimizer field test</span>
+              </li>
+              <li class="rec-row">
+                <span class="rec-row__result">19%</span>
+                <span class="rec-row__main"><span class="rec-row__name">Mahindra &amp; Mahindra</span><span class="rec-row__meta">Blue Star · 2.0 ton</span></span>
+                <span class="rec-row__by">India · HVAC Optimizer field test</span>
+              </li>
+              <li class="rec-row">
+                <span class="rec-row__result">19%</span>
+                <span class="rec-row__main"><span class="rec-row__name">MTNL</span><span class="rec-row__meta">Voltas · 2.0 ton</span></span>
+                <span class="rec-row__by">India · HVAC Optimizer field test</span>
+              </li>
+              <li class="rec-row">
+                <span class="rec-row__result">19%</span>
+                <span class="rec-row__main"><span class="rec-row__name">Naval Dockyard</span><span class="rec-row__meta">Videocon · 1.5 ton</span></span>
+                <span class="rec-row__by">India · HVAC Optimizer field test</span>
+              </li>
+              <li class="rec-row">
+                <span class="rec-row__result">18%</span>
+                <span class="rec-row__main"><span class="rec-row__name">TATA Power</span><span class="rec-row__meta">Carrier · 8.5 ton</span></span>
+                <span class="rec-row__by">India · HVAC Optimizer field test</span>
+              </li>
+              </ul>
+            </div>
+          </section>
+          <section class="rec-group pw--harm">
+            <h3 class="rec-group__title"><span class="rec-group__dot" aria-hidden="true"></span>Power quality examples<span class="rec-group__count">25</span></h3>
+            <ul class="rec-list">
+            <li class="rec-row">
+              <span class="rec-row__result">24.0%</span>
+              <span class="rec-row__main"><span class="rec-row__name">Edward Hospital</span><span class="rec-row__meta">Hospital · Naperville, IL</span></span>
+              <span class="rec-row__by">Power factor + voltage conditioning + line reactors; metered, beat projection, $84,270 / 9 mo</span>
+            </li>
+            <li class="rec-row">
+              <span class="rec-row__result">20% avg</span>
+              <span class="rec-row__main"><span class="rec-row__name">Starnes Quarter Horses</span><span class="rec-row__meta">Agriculture · Alabama</span></span>
+              <span class="rec-row__by">Monthly bill comparison</span>
+            </li>
+            <li class="rec-row">
+              <span class="rec-row__result">16% kWh</span>
+              <span class="rec-row__main"><span class="rec-row__name">Team Wow (Domino's)</span><span class="rec-row__meta">Quick-serve · El Paso, TX</span></span>
+              <span class="rec-row__by">Weather-adjusted, U.S. DOE standards</span>
+            </li>
+            <li class="rec-row">
+              <span class="rec-row__result">15.0% kWh</span>
+              <span class="rec-row__main"><span class="rec-row__name">Buffalo Rock</span><span class="rec-row__meta">Manufacturing · Birmingham, AL</span></span>
+              <span class="rec-row__by">Noesis, 12-month study</span>
+            </li>
+            <li class="rec-row">
+              <span class="rec-row__result">15% kWh</span>
+              <span class="rec-row__main"><span class="rec-row__name">Henkel</span><span class="rec-row__meta">Manufacturing · Richmond, VA</span></span>
+              <span class="rec-row__by">Exceeded corporate sustainability goal</span>
+            </li>
+            <li class="rec-row">
+              <span class="rec-row__result">15% kWh</span>
+              <span class="rec-row__main"><span class="rec-row__name">Cowabunga (Domino's)</span><span class="rec-row__meta">Quick-serve · Georgia</span></span>
+              <span class="rec-row__by">Third-party metering, 7-store install</span>
+            </li>
+            <li class="rec-row">
+              <span class="rec-row__result">14.8% kWh</span>
+              <span class="rec-row__main"><span class="rec-row__name">Corey Center</span><span class="rec-row__meta">Office + warehouse · Atlanta, GA</span></span>
+              <span class="rec-row__by">Noesis, 4-year average</span>
+            </li>
+            <li class="rec-row">
+              <span class="rec-row__result">14% kWh</span>
+              <span class="rec-row__main"><span class="rec-row__name">Caribe Resort</span><span class="rec-row__meta">Hospitality · Orange Beach, AL</span></span>
+              <span class="rec-row__by">Facilities-director measured</span>
+            </li>
+            <li class="rec-row">
+              <span class="rec-row__result">up to 14%</span>
+              <span class="rec-row__main"><span class="rec-row__name">Serra Mazda</span><span class="rec-row__meta">Retail / auto · Trussville, AL</span></span>
+              <span class="rec-row__by">CHI Energy, 12-month study</span>
+            </li>
+            <li class="rec-row">
+              <span class="rec-row__result">13.5% kWh</span>
+              <span class="rec-row__main"><span class="rec-row__name">Hilton Garden Inn</span><span class="rec-row__meta">Hospitality · Marietta, GA</span></span>
+              <span class="rec-row__by">ABRAXAS, 12-month study</span>
+            </li>
+            <li class="rec-row">
+              <span class="rec-row__result">13.0% kWh</span>
+              <span class="rec-row__main"><span class="rec-row__name">Planet Fitness</span><span class="rec-row__meta">Fitness · Birmingham, AL</span></span>
+              <span class="rec-row__by">CHI Energy</span>
+            </li>
+            <li class="rec-row">
+              <span class="rec-row__result">12.9% kWh</span>
+              <span class="rec-row__main"><span class="rec-row__name">Hi-Noon (Sinclair)</span><span class="rec-row__meta">C-store / fuel · Missoula, MT</span></span>
+              <span class="rec-row__by">Verified by NorthWestern Energy</span>
+            </li>
+            <li class="rec-row">
+              <span class="rec-row__result">12.5% kWh</span>
+              <span class="rec-row__main"><span class="rec-row__name">RPM Pizza (Domino's)</span><span class="rec-row__meta">Quick-serve, 170+ stores · MS · LA · AL · IN · MI</span></span>
+              <span class="rec-row__by">Normalized; &gt;$100k/yr projected</span>
+            </li>
+            <li class="rec-row">
+              <span class="rec-row__result">12.5% kWh</span>
+              <span class="rec-row__main"><span class="rec-row__name">Wheeling University</span><span class="rec-row__meta">Education · Wheeling, WV</span></span>
+              <span class="rec-row__by">Engineering capstone study</span>
+            </li>
+            <li class="rec-row">
+              <span class="rec-row__result">12% kWh</span>
+              <span class="rec-row__main"><span class="rec-row__name">Pinnacle Center 4 (J&amp;J HQ)</span><span class="rec-row__meta">Office · Rogers, AR</span></span>
+              <span class="rec-row__by">Occupancy-adjusted baseline</span>
+            </li>
+            <li class="rec-row">
+              <span class="rec-row__result">9–19%</span>
+              <span class="rec-row__main"><span class="rec-row__name">The Massey Building</span><span class="rec-row__meta">Office (historic) · Birmingham, AL</span></span>
+              <span class="rec-row__by">Per-floor metering</span>
+            </li>
+            <li class="rec-row">
+              <span class="rec-row__result">9% kWh</span>
+              <span class="rec-row__main"><span class="rec-row__name">Popeyes</span><span class="rec-row__meta">Quick-serve, 25 locations · GA · AL · LA · MS · TN</span></span>
+              <span class="rec-row__by">ABRAXAS</span>
+            </li>
+            <li class="rec-row">
+              <span class="rec-row__result">9.7% delta</span>
+              <span class="rec-row__main"><span class="rec-row__name">Krystal</span><span class="rec-row__meta">Quick-serve · Georgia</span></span>
+              <span class="rec-row__by">Noesis, vs. control store</span>
+            </li>
+            <li class="rec-row">
+              <span class="rec-row__result">8.59% kW</span>
+              <span class="rec-row__main"><span class="rec-row__name">Las Vegas Hotel &amp; Casino</span><span class="rec-row__meta">Hospitality · Las Vegas, NV</span></span>
+              <span class="rec-row__by">Independent panel metering</span>
+            </li>
+            <li class="rec-row">
+              <span class="rec-row__result">~1 yr payback</span>
+              <span class="rec-row__main"><span class="rec-row__name">Pacific Steel</span><span class="rec-row__meta">Manufacturing · Montana</span></span>
+              <span class="rec-row__by">PE-sealed technoeconomic analysis</span>
+            </li>
+            <li class="rec-row">
+              <span class="rec-row__result">18% panel</span>
+              <span class="rec-row__main"><span class="rec-row__name">Haven Health</span><span class="rec-row__meta">Medical · United States</span></span>
+              <span class="rec-row__by">Industria Energy independent study</span>
+            </li>
+            <li class="rec-row">
+              <span class="rec-row__result">40% motor</span>
+              <span class="rec-row__main"><span class="rec-row__name">Sequoyah Elementary</span><span class="rec-row__meta">Education · Tennessee</span></span>
+              <span class="rec-row__by">Data-logged 14 days, 9.5-mo ROI</span>
+            </li>
+            <li class="rec-row">
+              <span class="rec-row__result">15.4% amps</span>
+              <span class="rec-row__main"><span class="rec-row__name">Arnie's Gas &amp; Tire</span><span class="rec-row__meta">C-store / fuel · Ronan, MT</span></span>
+              <span class="rec-row__by">Verified by electrical engineer</span>
+            </li>
+            <li class="rec-row">
+              <span class="rec-row__result">~$1,500 / store</span>
+              <span class="rec-row__main"><span class="rec-row__name">C-Store program (TeamSledd / Liberty)</span><span class="rec-row__meta">C-store / fuel, 12 stores · OH · WV · PA</span></span>
+              <span class="rec-row__by">3-year year-over-year study</span>
+            </li>
+            <li class="rec-row">
+              <span class="rec-row__result">THD −30 / −45%</span>
+              <span class="rec-row__main"><span class="rec-row__name">Off-grid solar residence</span><span class="rec-row__meta">Power-quality test · South Carolina</span></span>
+              <span class="rec-row__by">PowerSight 5000 metering</span>
+            </li>
+            </ul>
+          </section>
+          <p class="rec-note">Every result was measured at the named site under its own conditions; it is not a prediction for your building. Regional programs (India, the UAE, Bangladesh, and more) aggregate hundreds of additional sites into the 200-plus total.<sup class="fn"><a href="#notes">1, 9</a></sup></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CH 7 · YOUR NUMBER -->
+  <section class="sect atmo-warm" id="calculator" aria-labelledby="calc-title">
+    <div class="container">
+      <h2 id="calc-title" class="reveal">Run the numbers on your own building.</h2>
+      <p class="lede reveal" style="--ri:1">Your spend, your region, your facility type. About 2 minutes. <strong>A conservative model, not a quote; the pilot confirms the real figure.</strong><sup class="fn"><a href="#notes">1</a></sup></p>
+      <div class="calc-frame reveal" style="--ri:2">
+        <iframe id="ep-calc-frame" src="https://danknowsaguy-web.github.io/hvac-calculator/?v=2026-07-04-2" title="Energy savings calculator" loading="lazy"></iframe>
+      </div>
+    </div>
+  </section>
+
+  <!-- CH 8 · THE STAKES (animated equipment) -->
+  <section class="sect" id="stakes" aria-labelledby="stakes-title">
+    <div class="container">
+      <h2 id="stakes-title" class="reveal">The waste doesn't just inflate the bill. <span class="beat">It eats the equipment.</span></h2>
+      <p class="lede reveal" style="--ri:1">The same electrical stress that shows up on your bill runs through the machines behind it. Three loads carry almost every building.</p>
+      <div class="equip">
+
+        <article class="eq-card reveal">
+          <div class="eq-figure">
+            <svg class="eq-svg" viewBox="0 0 200 150" fill="none" role="img" aria-label="Rooftop HVAC unit with a turning fan">
+              <g class="eq-heat"><path d="M86 26 q6 -8 0 -16"/><path d="M100 24 q6 -8 0 -16"/><path d="M114 26 q6 -8 0 -16"/></g>
+              <g class="eq-ink">
+                <rect x="34" y="72" width="132" height="58" rx="4"/>
+                <line x1="34" y1="112" x2="166" y2="112"/>
+                <line x1="46" y1="120" x2="66" y2="120"/>
+                <line x1="46" y1="125" x2="80" y2="125"/>
+                <line x1="150" y1="118" x2="158" y2="118"/>
+                <rect x="70" y="36" width="60" height="36" rx="3"/>
+                <circle cx="100" cy="52" r="15"/>
+              </g>
+              <g class="eq-spin" style="transform-origin:100px 52px">
+                <g class="eq-ink">
+                  <line x1="100" y1="52" x2="114" y2="52"/>
+                  <line x1="100" y1="52" x2="107" y2="64"/>
+                  <line x1="100" y1="52" x2="93" y2="64"/>
+                  <line x1="100" y1="52" x2="86" y2="52"/>
+                  <line x1="100" y1="52" x2="93" y2="40"/>
+                  <line x1="100" y1="52" x2="107" y2="40"/>
+                </g>
+              </g>
+              <circle class="eq-hub" cx="100" cy="52" r="3"/>
+            </svg>
+          </div>
+          <h3>HVAC &amp; RTU fleet</h3>
+          <p>Rooftop units run around the clock. Constant electrical stress ages an entire fleet years before its time.</p>
+          <p class="eq-cost">$260K to $480K per property<sup class="fn"><a href="#notes">1</a></sup></p>
+        </article>
+
+        <article class="eq-card reveal" style="--ri:1">
+          <div class="eq-figure">
+            <svg class="eq-svg" viewBox="0 0 200 150" fill="none" role="img" aria-label="Electric motor with a turning rotor">
+              <g class="eq-heat"><path d="M96 44 q6 -8 0 -16"/><path d="M110 46 q6 -8 0 -16"/></g>
+              <g class="eq-ink">
+                <rect x="60" y="56" width="82" height="50" rx="11"/>
+                <line x1="76" y1="56" x2="76" y2="106"/>
+                <line x1="90" y1="56" x2="90" y2="106"/>
+                <line x1="104" y1="56" x2="104" y2="106"/>
+                <line x1="118" y1="56" x2="118" y2="106"/>
+                <line x1="132" y1="56" x2="132" y2="106"/>
+                <circle cx="60" cy="81" r="22"/>
+                <line x1="142" y1="81" x2="166" y2="81"/>
+                <rect x="72" y="106" width="12" height="9"/>
+                <rect x="118" y="106" width="12" height="9"/>
+              </g>
+              <g class="eq-spin" style="transform-origin:60px 81px">
+                <g class="eq-ink">
+                  <line x1="60" y1="81" x2="76" y2="81"/>
+                  <line x1="60" y1="81" x2="68" y2="95"/>
+                  <line x1="60" y1="81" x2="52" y2="95"/>
+                  <line x1="60" y1="81" x2="44" y2="81"/>
+                  <line x1="60" y1="81" x2="52" y2="67"/>
+                  <line x1="60" y1="81" x2="68" y2="67"/>
+                </g>
+              </g>
+              <circle class="eq-hub" cx="60" cy="81" r="3"/>
+            </svg>
+          </div>
+          <h3>Motors &amp; drives</h3>
+          <p>Every fan, elevator, and pump rides on a motor. Hard starts and harmonic heating wear them out early, and on an elevator the same failure runs into six figures.</p>
+          <p class="eq-cost">$2K to $20K per motor<sup class="fn"><a href="#notes">1</a></sup></p>
+        </article>
+
+        <article class="eq-card reveal" style="--ri:2">
+          <div class="eq-figure">
+            <svg class="eq-svg" viewBox="0 0 200 150" fill="none" role="img" aria-label="Centrifugal pump with a turning impeller">
+              <defs><path id="eq-blade" d="M95 85 C 101 75, 113 76, 119 84"/></defs>
+              <g class="eq-heat"><path d="M128 60 q6 -8 0 -16"/><path d="M140 62 q6 -8 0 -16"/></g>
+              <g class="eq-ink">
+                <circle cx="95" cy="85" r="38"/>
+                <rect x="84" y="18" width="26" height="32" rx="2"/>
+                <line x1="84" y1="34" x2="110" y2="34"/>
+                <rect x="26" y="72" width="30" height="26" rx="2"/>
+                <line x1="41" y1="72" x2="41" y2="98"/>
+                <rect x="58" y="122" width="74" height="10" rx="2"/>
+              </g>
+              <g class="eq-spin" style="transform-origin:95px 85px">
+                <g class="eq-ink">
+                  <use href="#eq-blade"/>
+                  <use href="#eq-blade" transform="rotate(60 95 85)"/>
+                  <use href="#eq-blade" transform="rotate(120 95 85)"/>
+                  <use href="#eq-blade" transform="rotate(180 95 85)"/>
+                  <use href="#eq-blade" transform="rotate(240 95 85)"/>
+                  <use href="#eq-blade" transform="rotate(300 95 85)"/>
+                </g>
+              </g>
+              <circle class="eq-hub" cx="95" cy="85" r="4"/>
+            </svg>
+          </div>
+          <h3>Pumps &amp; circulation</h3>
+          <p>Booster, chiller, and process pumps fail the same quiet way. A peak-season failure is the one that takes rooms, floors, or a production line down with it.</p>
+          <p class="eq-cost">$8K to $25K per pump<sup class="fn"><a href="#notes">1</a></sup></p>
+        </article>
+
+      </div>
+      <p class="prose reveal" style="margin-top: var(--space-4)"><strong>None of this appears in a standard energy audit.</strong> It survives for years, until someone measures it at the panel.</p>
+    </div>
+  </section>
+
+  <!-- CH 9 · SUCCESS + TEAM -->
+  <section class="sect" id="team" aria-labelledby="success-title">
+    <div class="container">
+      <h2 id="success-title" class="reveal">A smaller bill is the least of it.</h2>
+      <ul class="authority">
+        <li class="reveal"><span class="m">BILL</span> a lower bill, proven on your own bill, not promised on a brochure<sup class="fn"><a href="#notes">1</a></sup></li>
+        <li class="reveal" style="--ri:1"><span class="m">LIFESPAN</span> equipment that lasts years longer and costs less to maintain<sup class="fn"><a href="#notes">12</a></sup></li>
+        <li class="reveal" style="--ri:2"><span class="m">YOUR&nbsp;SIDE</span> someone at the table whose only job is your best return</li>
+      </ul>
+      <p class="prose reveal" style="margin-top: var(--space-3)">We carry the complexity so you never have to. That was the whole idea.</p>
+
+      <div style="margin-top: var(--space-4)">
+        <details class="gate">
+          <summary>The people behind the numbers <span class="plus" aria-hidden="true">+</span></summary>
+          <div class="gate__body">
+            <div class="team-grid">
+              <div class="member">
+                <img src="assets/img/daniel.jpeg" alt="Daniel Gutierrez" loading="lazy">
+                <div><h3>Daniel Gutierrez</h3><p class="role">CEO + Founder</p><p>19 years connecting people, capital, and opportunity across 14+ industries and 70+ specialized markets. Former director of FDA-registered clinical trials. Works fee-for-performance, and is committed to deploying profits toward American infrastructure.</p></div>
+              </div>
+              <div class="member">
+                <img src="assets/img/ronson.jpeg" alt="Ronson Provido" loading="lazy">
+                <div><h3>Ronson Provido</h3><p class="role">Principal Engineering Advisor</p><p>20+ years in electrical engineering: design, commissioning, R&amp;D, and project management. Portfolio includes LAX and multi-state commercial and hospitality projects. Licensed PE, Title 24 and LEED qualified.</p></div>
+              </div>
+              <div class="member">
+                <img src="assets/img/cj.jpeg" alt="CJ Metz" loading="lazy">
+                <div><h3>CJ Metz</h3><p class="role">Strategic Account Manager</p><p>23+ years in technology leadership, sales, and consulting. Air Force veteran who has led major initiatives for Fortune 500 firms across business, technology, and community.</p></div>
+              </div>
+              <div class="member">
+                <img src="assets/img/pepper.jpeg" alt="Pepper J. Matanga" loading="lazy">
+                <div><h3>Pepper J. Matanga</h3><p class="role">Partnerships &amp; Business Development</p><p>25+ years leading P.E.P. &amp; Associates, a marketing, sales, and project-development firm. Partnerships span Fortune 100 names like AT&amp;T, Boeing, Motorola, and NASA to federal agencies including the US Marine Corps, Navy, and CIA. A former collegiate and pro football coach who has raised over $3M for national and local causes.</p></div>
+              </div>
+              <div class="member">
+                <img src="assets/img/raul.jpeg" alt="Raul Solis" loading="lazy">
+                <div><h3>Raul Solis</h3><p class="role">International Market Development</p><p>A seasoned business consultant who has spearheaded Energy Plus's expansion into Mexican and South American markets, opening retail, commercial, and government channels over the past decade.</p></div>
+              </div>
+            </div>
+          </div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- CLOSE -->
+  <section class="close-echo" aria-label="Book a call">
+    <div class="container">
+      <h2 data-scrub-words>Cash flow and fewer headaches. <span style="color: var(--muted)">The next step is fifteen minutes.</span></h2>
+      <svg class="sig-stroke reveal" viewBox="0 0 360 26" aria-hidden="true"><path pathLength="1" d="M4 18 C 42 6, 70 24, 104 14 S 160 4, 196 15 S 268 22, 300 10 S 344 8, 356 12"/></svg>
+      <div class="cta-block">
+        <div class="cta-row reveal" style="--ri:1">
+          <button type="button" class="pill pill--lg" data-cal-namespace="15min" data-cal-link="dan-knows-a-gut/15min" data-cal-config='{"layout":"month_view","theme":"light"}'>Book the 15-minute fit call <span class="arrow" aria-hidden="true">&rarr;</span></button>
+          <button type="button" class="ghostlink js-tf-toggle" aria-expanded="false">Just text the founder</button>
+        </div>
+        <div class="tf-panel" role="group" aria-label="Text the founder">
+          <p class="tf-panel__to">To Dan &middot; (864) 777-0688</p>
+          <textarea rows="4" spellcheck="false" aria-label="Message to Dan">Hi Dan, I run a commercial building and I'd like to see what real energy savings could look like at my property, without the sales song and dance. What does it take to qualify?</textarea>
+          <div class="tf-panel__foot">
+            <span class="tf-panel__hint">Opens in your messages, ready to send.</span>
+            <a class="pill js-tf-send" href="#" data-phone="+18647770688">Send message</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-foot">
+  <div class="container">
+    <img src="assets/img/energy-plus-logo.png" alt="Energy Plus" width="108" height="31">
+    <p class="tagline">Independent energy partner to commercial buildings. We don't sell the box. We diagnose the property and verify the savings.</p>
+    <nav class="foot-nav" aria-label="Footer">
+      <a href="#problem">The problem</a>
+      <a href="#method">The method</a>
+      <a href="how-it-works.html">How it works</a>
+      <a href="#proof">Proof</a>
+      <a href="#calculator">Calculator</a>
+      <a href="#team">Team</a>
+    </nav>
+
+    <div class="foot-notes" id="notes">
+      <p><strong>How to read this page.</strong> Energy Plus is an independent energy solutions partner. We do not manufacture equipment. We diagnose each property and procure, size, and integrate the right technologies from our stack for that specific building. The numbered notes below apply to the marked figures and statements throughout this page.</p>
+      <ul>
+        <li><span class="n">1</span><span><strong>Savings and performance figures.</strong> All savings, bill-reduction, equipment-life, maintenance, and payback figures shown (including ranges such as 8 to 14% and the HVAC savings ranges) are illustrative estimates or results achieved at specific facilities under their own conditions. They are not predictions or guarantees of your results. Your actual results depend on your building, climate, occupancy, equipment condition, and utility rates, which is exactly why we prove your savings on site before you commit. Modeled numbers are directional estimates, not quotes.</span></li>
+        <li><span class="n">2</span><span><strong>Program terms and eligibility.</strong> Our done-for-you program, including negotiation, pricing, and contract terms, is offered case-by-case and depends on factors such as the number of facilities in your portfolio and the size of your electricity bills. Properties that do not qualify for the done-for-you program may instead be offered self-directed options, which carry different terms, pricing, and responsibilities. "No cost," "the diagnosis is on us," and "nothing owed" describe the diagnosis and pilot phase for qualifying properties; they do not describe the cost of any installed solution. Eligibility, scheduling, and availability are determined during the application and diagnosis process.</span></li>
+        <li><span class="n">3</span><span><strong>Tax incentives.</strong> Any tax figures shown are potential amounts based on current federal rules and assumptions; they are not tax advice. Actual deductions depend on your building, the work performed, and your tax situation. Consult a qualified tax advisor.</span></li>
+        <li><span class="n">4</span><span><strong>Utility and incentive programs.</strong> Utility-program coverage varies by state, utility, and program, and is subject to program availability, funding, and qualification. Amounts shown are illustrative and are not guaranteed.</span></li>
+        <li><span class="n">5</span><span><strong>Professional history and credentials.</strong> Biographical and credential statements reflect documented professional history. Supporting documentation is available for verification on request.</span></li>
+      </ul>
+    </div>
+
+    <details class="disclosures" id="disclosures-terms">
+      <summary>Important Disclosures and Terms <span class="plus" aria-hidden="true">+</span></summary>
+      <div class="disclosures__body">
+        <p><em>Effective date: February 4, 2026.</em> These disclosures apply to Energy Plus marketing and informational materials, including videos, presentations, web pages, and printed materials. They explain the basis for the statements, figures, and offers presented in those materials. By viewing or relying on those materials, you acknowledge these disclosures. Where a signed agreement exists, that agreement governs.</p>
+        <h4>1. General</h4>
+        <p>This content is provided for general informational purposes only. It is not an offer, warranty, guarantee, or professional advice. All figures are estimates, are illustrative, and are subject to change without notice. The only binding commitments between you and Energy Plus are those set out in a signed written agreement. Results vary by facility.</p>
+        <h4>2. Performance figures</h4>
+        <p>Stated efficiency and savings ranges, including but not limited to 15 to 30 percent, 30 to 50 percent, combined multi-measure ("stacked") heating-and-cooling reductions that can exceed 50 percent, up to 36 percent, up to 33 percent, an IEER of 31, a COP of 6, and more than 10 degrees, reflect results observed under specific conditions or reported in specific studies. A single measure typically produces the lower figures; the higher, "stacked" figures assume multiple measures applied together (for example equipment, thermal envelope, and controls) and are not achievable in every building. Actual performance depends on factors including equipment type, equipment age, baseline efficiency, climate, occupancy, usage patterns, maintenance, and installation quality. Your actual results may differ from, and may fall below, the ranges shown.</p>
+        <h4>3. System and technical statements</h4>
+        <p>Descriptions of how heating and cooling systems operate, including any statement that the compressor accounts for a majority or a stated share of system energy use, are typical or representative rather than universal. Actual values vary by system design, configuration, and operation.</p>
+        <h4>4. Savings and return on investment</h4>
+        <p>Any savings, payback period, or return on investment figure is an estimate based on assumptions that may not reflect the conditions at your facility. It is not a guarantee of any specific financial outcome. Modeled results and prior results do not predict future performance.</p>
+        <h4>5. Cash flow and program cost</h4>
+        <p>Statements that a project can be cash-flow positive from day one, or that incentives can cover the entire program, describe outcomes that are achievable only under certain financing structures, utility rates, program eligibility, and tax positions. These outcomes are not available in all cases and are not promised for any particular customer.</p>
+        <h4>6. Tax credits, deductions, and rebates</h4>
+        <p>The availability, amounts, and eligibility requirements of tax deductions, tax credits, and utility rebates depend on jurisdiction, current law, program funding, and your individual tax situation. Programs change and may end without notice. Energy Plus does not provide tax, accounting, or legal advice and does not guarantee that any incentive will be approved or received. Consult your own qualified advisor regarding your specific circumstances.</p>
+        <h4>7. Best-return and finder's-fee offer</h4>
+        <p>Any offer to pay a finder's fee in connection with a demonstrably better return is subject to separate written terms and conditions. Such an offer requires a like-for-like comparison on equivalent scope, equipment, and methodology, and is subject to verification by Energy Plus. Energy Plus reserves the right to verify, interpret, and administer the offer, and to modify or withdraw it at any time. The offer is void where prohibited by law.</p>
+        <h4>8. Measurement and verification</h4>
+        <p>Independent measurement and verification of results, including under recognized protocols such as the International Performance Measurement and Verification Protocol (IPMVP) Option C and ASHRAE Guideline 14, is available upon request on qualifying projects. Where performed, verification confirms measured results for that specific project only and does not guarantee future results or results at any other site.</p>
+        <h4>9. Third-party evaluations and named organizations</h4>
+        <p>References to NASA, Durham College, named utilities, and other organizations reflect publicly available reports and evaluations concerning the underlying technologies that Energy Plus deploys. They do not refer to Energy Plus itself. Such references are provided for identification and descriptive purposes only and do not constitute or imply endorsement, sponsorship, certification, or affiliation by those organizations with Energy Plus, unless expressly stated in writing.</p>
+        <h4>10. Case studies and references</h4>
+        <p>Case studies, study counts, and climate or geographic references reflect specific installations completed under specific conditions. They are illustrative and are not predictive of the results you will achieve at your facility.</p>
+        <h4>11. Third-party products and trademarks</h4>
+        <p>Certain technologies referenced are manufactured or supplied by third parties. All product names, logos, and trademarks are the property of their respective owners. Specifications are subject to change without notice.</p>
+        <h4>12. Equipment life and maintenance</h4>
+        <p>Statements regarding extended equipment life, reduced maintenance, improved humidity control, and single-application or long-lasting benefits assume proper installation, operation, and maintenance. They are not a warranty, and actual outcomes will vary. Warranty terms, if any, are provided separately in writing.</p>
+        <h4>13. Forward-looking statements</h4>
+        <p>Statements about future benefits, savings, performance, and outcomes are forward-looking and inherently uncertain. Actual results may differ materially from those expressed or implied.</p>
+        <h4>14. Not professional advice; assessment required</h4>
+        <p>The information presented is general and educational in nature. It is not engineering, financial, tax, or legal advice for your specific situation. A formal assessment of your facility is required before any specific recommendation, scope, or projected result can be provided.</p>
+        <h4>15. Analogies</h4>
+        <p>References to diagnosis, examinations, prescriptions, or disease are analogies used to describe the energy assessment process. They are not medical statements and are not intended to convey any medical meaning.</p>
+        <p><strong>Questions.</strong> For questions about these disclosures or any statement in our materials, contact Energy Plus at <a href="mailto:dan@yourenergyplus.com">dan@yourenergyplus.com</a> or <a href="tel:+18647770688">(864) 777-0688</a>. Energy Plus. Your Energy Partner.</p>
+      </div>
+    </details>
+
+    <div class="foot-meta">
+      <span>&copy; 2026 Energy Plus</span>
+      <span>Independent Energy Solutions Partner</span>
+    </div>
+  </div>
+</footer>
+
+<div class="sticky-cta" id="sticky-cta">
+  <div class="container sticky-cta__in">
+    <span class="sticky-cta__label">Ready when you are.</span>
+    <button type="button" class="pill" data-cal-namespace="15min" data-cal-link="dan-knows-a-gut/15min" data-cal-config='{"layout":"month_view","theme":"light"}'>Book the 15-minute fit call</button>
+    <button type="button" class="sticky-cta__close" aria-label="Dismiss">&times;</button>
+  </div>
+</div>
+
+<script src="assets/vendor/gsap.min.js" defer></script>
+<script src="assets/vendor/ScrollTrigger.min.js" defer></script>
+<script src="assets/main.js" defer></script>
+<script src="assets/choreo.js" defer></script>
+<script src="assets/atmosphere.js" defer></script>
+<script src="assets/pinned-bill.js" defer></script>
+<script src="assets/motion/building.js" defer></script>
+<script src="assets/motion/scrub.js" defer></script>
+</body>
+</html>

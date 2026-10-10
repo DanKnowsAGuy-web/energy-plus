@@ -1,0 +1,20 @@
+/* Energy Plus · scroll scrub (motion preview). Pairs with scrub.js. */
+
+/* word-by-word light; --k goes 0 -> 1 per word as the line rises */
+.scrub-on .sw{ opacity:calc(.16 + .84 * var(--k, 1)); transition:opacity .12s linear; }
+
+/* hero hand-off: copy lifts and fades, the plate sinks into the problem's dusk */
+.scrub-ready .hero__inner{
+  opacity:calc(1 - var(--hx, 0) * 1.25);
+  transform:translate3d(0, calc(var(--hx, 0) * -8svh), 0) scale(calc(1 - var(--hx, 0) * .04));
+  transform-origin:30% 60%; will-change:opacity, transform;
+}
+.scrub-ready .hero__media::after{ content:""; position:absolute; inset:0; background:#14181f; opacity:calc(var(--hx, 0) * .75); pointer-events:none; }
+.scrub-ready .hero__cue{ opacity:calc(1 - var(--hx, 0) * 3) !important; }
+
+/* the close: one signature stroke draws under the ask (a nod to the ad's end card) */
+.close-echo .sig-stroke{ display:block; width:min(360px, 70%); height:auto; margin:.6rem 0 0; overflow:visible; }
+.close-echo .sig-stroke path{ fill:none; stroke:var(--verd); stroke-width:2.4; stroke-linecap:round;
+  stroke-dasharray:1; stroke-dashoffset:1; transition:stroke-dashoffset 1.6s var(--ease-out) .35s; }
+.close-echo .sig-stroke.is-in path, html:not(.anim-ready) .close-echo .sig-stroke path{ stroke-dashoffset:0; }
+@media (prefers-reduced-motion: reduce){ .close-echo .sig-stroke path{ stroke-dashoffset:0; transition:none; } }

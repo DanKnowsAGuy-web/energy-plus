@@ -1,0 +1,112 @@
+/* Energy Plus · the building (motion preview)
+   Scoped to #method.bld. The pinned stage holds the beats (left) and the
+   scene (right); below it, the three lever details stay as readable copy.
+   Default (no JS): beats stack as plain text, scene hidden.
+   .bld-live: pinned and scrubbed. .bld-still (reduced motion): one still
+   frame, beats stacked, nothing pins. */
+
+#method.bld{ padding:0; position:relative; --bld-fix:0; }
+#method .bld-scene{ display:none; }
+#method .bld-stage{ position:relative; }
+#method .bld-pin{ position:relative; padding-block:var(--space-6); }
+#method .bld-beat{ margin-bottom:var(--space-4); }
+
+#method.bld-live .bld-scene{ display:block; }
+#method.bld-live:not(.bld-still) .bld-stage{ height:640vh; }
+#method.bld-live:not(.bld-still) .bld-pin{
+  position:sticky; top:0; height:100svh; overflow:hidden; padding:0;
+  display:grid; place-items:center;
+}
+
+/* ground: graphite at the start, a verdigris dawn as the fix lands */
+#method .bld-pin::before, #method .bld-pin::after{ content:""; position:absolute; inset:0; pointer-events:none; z-index:0; }
+#method .bld-pin::before{ background:radial-gradient(110% 90% at 66% 30%, #252d36 0%, #1a2028 52%, #11161b 100%); }
+#method .bld-pin::after{ background:radial-gradient(110% 90% at 66% 30%, #16332f 0%, #10241f 55%, #0a1715 100%);
+  opacity:var(--bld-fix); }
+#method .bld-vig{ position:absolute; inset:0; z-index:1; pointer-events:none; box-shadow:inset 0 0 170px 40px rgba(4,8,10,.55); }
+
+#method .bld-grid{ position:relative; z-index:2; width:100%; max-width:1280px; margin-inline:auto;
+  padding-inline:clamp(1.25rem, 4vw, 2.5rem); }
+#method.bld-live .bld-grid{ display:grid; grid-template-columns:minmax(0,5fr) minmax(0,7fr); gap:clamp(1.5rem,4vw,4rem); align-items:center; }
+
+/* ---------- beats ---------- */
+#method .bld-beat .tag{ font-family:var(--font-mono); font-size:var(--step--1); letter-spacing:.08em; text-transform:uppercase;
+  color:var(--cinema-body); margin-bottom:1rem; display:flex; align-items:center; gap:.6rem; }
+#method .bld-beat .tag::before{ content:""; width:.55rem; height:.55rem; border-radius:50%; background:currentColor; }
+#method .bld-beat .tag.heat{ color:#eaa877; }
+#method .bld-beat .tag.verd{ color:#6fd3c2; }
+#method .bld-beat h2{ font-size:var(--step-3); color:var(--cinema-ink); line-height:1.04; max-width:15ch; margin:0; }
+#method .bld-beat .sub{ font-size:var(--step-1); color:var(--cinema-body); margin-top:1.1rem; max-width:32ch; line-height:1.45; }
+#method .bld-beat .fig{ font-family:var(--font-mono); font-size:var(--step-0); color:var(--cinema-ink); margin-top:1.3rem;
+  padding-top:.9rem; border-top:1px solid var(--cinema-line); max-width:34ch; }
+
+#method.bld-live:not(.bld-still) .bld-beats{ position:relative; min-height:min(30rem, 62svh); }
+#method.bld-live:not(.bld-still) .bld-beat{ position:absolute; inset:0; margin:0; display:flex; flex-direction:column; justify-content:center;
+  opacity:0; transform:translateY(18px); filter:blur(6px); pointer-events:none;
+  transition:opacity .55s var(--ease-out), transform .7s var(--ease-out), filter .55s var(--ease-out); }
+#method.bld-live:not(.bld-still) .bld-beat.on{ opacity:1; transform:none; filter:none; pointer-events:auto; }
+/* the headline lands a beat after its tag */
+#method.bld-live:not(.bld-still) .bld-beat h2,
+#method.bld-live:not(.bld-still) .bld-beat .sub,
+#method.bld-live:not(.bld-still) .bld-beat .fig{ transition:opacity .6s var(--ease-out), transform .8s var(--ease-out); opacity:0; transform:translateY(12px); }
+#method.bld-live:not(.bld-still) .bld-beat.on h2{ opacity:1; transform:none; transition-delay:.06s; }
+#method.bld-live:not(.bld-still) .bld-beat.on .sub{ opacity:1; transform:none; transition-delay:.14s; }
+#method.bld-live:not(.bld-still) .bld-beat.on .fig{ opacity:1; transform:none; transition-delay:.22s; }
+
+/* ---------- scene ---------- */
+#method .bld-scene{ position:relative; margin:0; aspect-ratio:1000/820; width:100%; max-height:84svh; }
+#method .bld-svg, #method .bld-fx{ position:absolute; inset:0; width:100%; height:100%; display:block; }
+#method .bld-fx{ pointer-events:none; }
+#method .bld-svg .bld-tag{ font-family:var(--font-mono); font-size:13px; letter-spacing:.08em; fill:#c9d3da; }
+
+/* instrument readout: three levers, one line each, plus the incoming trace */
+#method .bld-hud{ position:absolute; left:0; bottom:2%; display:grid; gap:.35rem; font-family:var(--font-mono);
+  font-size:.78rem; letter-spacing:.06em; text-transform:uppercase; color:var(--cinema-body);
+  background:rgba(10,14,18,.55); border:1px solid var(--cinema-line); border-radius:12px; padding:.8rem .95rem;
+  -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px); min-width:15.5rem; }
+#method .bld-hud .row{ display:grid; grid-template-columns:.6rem 6.2rem 1fr; align-items:center; gap:.55rem; }
+#method .bld-hud .dot{ width:.5rem; height:.5rem; border-radius:50%; background:#4a5a66; transition:background .4s, box-shadow .4s; }
+#method .bld-hud .k{ color:var(--cinema-ink); }
+#method .bld-hud .v{ color:var(--cinema-body); transition:color .4s; }
+#method .bld-hud [data-state="scan"] .dot{ background:#9fb6c6; }
+#method .bld-hud [data-state="found"] .dot{ background:#e0864e; box-shadow:0 0 10px rgba(224,134,78,.8); }
+#method .bld-hud [data-state="found"] .v{ color:#eaa877; }
+#method .bld-hud [data-state="fixed"] .dot{ background:#5fc7b7; box-shadow:0 0 10px rgba(95,199,183,.8); }
+#method .bld-hud [data-state="fixed"] .v{ color:#6fd3c2; }
+#method .bld-sig{ display:block; width:100%; height:28px; margin-top:.35rem; border-top:1px solid var(--cinema-line); padding-top:.4rem; overflow:visible; }
+#method .bld-sig path{ fill:none; stroke-width:1.6; stroke-linejoin:round; }
+#method .bld-sig-cap{ font-size:.68rem; color:var(--cinema-body); opacity:.8; }
+
+/* chapter rail: five hairlines that fill with the scroll */
+#method .bld-rail{ display:none; }
+#method.bld-live:not(.bld-still) .bld-rail{ display:flex; position:absolute; z-index:3; left:50%; bottom:clamp(1rem,3svh,2rem); transform:translateX(-50%);
+  gap:.4rem; }
+#method .bld-rail i{ display:block; width:clamp(1.6rem,4vw,3rem); height:2px; border-radius:2px; background:rgba(255,255,255,.14); overflow:hidden; position:relative; }
+#method .bld-rail i::after{ content:""; position:absolute; inset:0; background:var(--cinema-ink); transform-origin:left; transform:scaleX(var(--f,0)); }
+
+/* the lever details, back in normal flow under the pin */
+#method .bld-after{ position:relative; z-index:2; padding-block:var(--space-5) var(--space-6); }
+#method .bld-after .beats{ grid-template-columns:repeat(3, minmax(0,1fr)); }
+@media (max-width: 979px){ #method .bld-after .beats{ grid-template-columns:1fr; } }
+
+/* ---------- narrow screens: scene on top, beat below, still pinned ---------- */
+@media (max-width: 860px){
+  #method.bld-live .bld-grid{ grid-template-columns:1fr; gap:.5rem; align-content:center; height:100%; padding-block:4.5rem 3rem; }
+  #method.bld-live:not(.bld-still) .bld-pin{ place-items:stretch; }
+  #method .bld-scene{ order:-1; max-height:46svh; justify-self:center; }
+  #method.bld-live:not(.bld-still) .bld-beats{ min-height:34svh; }
+  #method.bld-live:not(.bld-still) .bld-beat{ justify-content:flex-start; }
+  #method .bld-beat h2{ font-size:var(--step-2); max-width:20ch; }
+  #method .bld-beat .sub{ font-size:var(--step-0); margin-top:.7rem; }
+  #method .bld-beat .fig{ display:none; }
+  #method .bld-hud{ font-size:.66rem; padding:.5rem .6rem; min-width:0; bottom:0; }
+  #method .bld-hud .row{ grid-template-columns:.5rem 5rem 1fr; }
+  #method .bld-sig, #method .bld-sig-cap{ display:none; }
+}
+
+/* reduced motion: one still frame above the stacked beats */
+#method.bld-still .bld-grid{ grid-template-columns:1fr !important; }
+#method.bld-still .bld-scene{ order:-1; max-width:760px; margin-inline:auto; margin-bottom:var(--space-4); }
+
+/* the pinned scene owns the screen: the sticky CTA steps aside while it runs */
+.bld-pinned .sticky-cta{ transform:translateY(110%) !important; }
