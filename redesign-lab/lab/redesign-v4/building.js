@@ -297,6 +297,11 @@
   }
 
   /* ---------- drive ---------- */
+  let visible = false, raf = 0;
+  const t0 = performance.now();
+  function frame(now) { raf = 0; render((now - t0) / 1000); if (visible) raf = requestAnimationFrame(frame); }
+  function kick() { if (!raf) raf = requestAnimationFrame(frame); }
+
   scene.classList.add("is-live");
   size();
   addEventListener("resize", () => { size(); kick(); }, { passive: true });
@@ -336,10 +341,6 @@
   const already = Array.from(pin.querySelectorAll(".v2-chapter")).findIndex((c) => c.classList.contains("is-active"));
   if (already > -1) pin.dispatchEvent(new CustomEvent("v2:chapter", { detail: already }));
 
-  let visible = false, raf = 0;
-  const t0 = performance.now();
-  function frame(now) { raf = 0; render((now - t0) / 1000); if (visible) raf = requestAnimationFrame(frame); }
-  function kick() { if (!raf) raf = requestAnimationFrame(frame); }
   if ("IntersectionObserver" in window) {
     new IntersectionObserver((es) => { visible = es[0].isIntersecting; if (visible) { size(); kick(); } }, { rootMargin: "80px 0px" }).observe(scene);
   } else { visible = true; }
