@@ -1,0 +1,24 @@
+/* Energy+ · redesign v4 · the building in the pinned bill scene (pairs with building.js).
+   Desktop (980px+) only: the building sits above the bill card in the pinned
+   media column and takes over from the three small chapter illustrations.
+   Below 980px, and without JS, the page is exactly v3. */
+
+.v4-scene { display: none; }
+
+@media (min-width: 980px) {
+  .v4-scene.is-live {
+    display: block; position: relative; margin: 0 auto 0.75rem;
+    /* whatever the screen has left after the bar, the card and the progress row */
+    width: 100%; height: clamp(210px, calc(100svh - 560px), 420px);
+  }
+  .v4-scene__svg, .v4-scene__fx { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .v4-scene__fx { pointer-events: none; }
+
+  /* the building carries the story on desktop: the per-chapter illustrations step aside */
+  .v4-has-scene .v2-chapter .v2-illust { display: none; }
+
+  /* a little less vertical weight on the card so scene + card + progress fit a laptop screen */
+  .v4-has-scene .v2-billcard { padding-block: clamp(1.25rem, 2.2vw, 1.8rem); }
+  .v4-has-scene .v2-billcard__total { font-size: clamp(2.6rem, 1.8rem + 3vw, 4.4rem); }
+  .v4-has-scene .v2-pin__media { top: 84px; }
+}

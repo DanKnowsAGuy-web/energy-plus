@@ -1,0 +1,98 @@
+/* Energy+ overspend reading, printed. Simple register, letter, two pages at most. */
+@page { size: letter; margin: 0.55in 0.6in; }
+html, body { background: #fff !important; color: #101416 !important; }
+body { font-size: 11.5px; line-height: 1.4; --fg: #101416; --fg2: #3b4347; --fg3: #5f686e; --line: #d3d9dd; --line2: #101416; --bg: #fff; }
+.shell { padding: 0 !important; max-width: none; overflow: visible !important; }
+main { display: block !important; margin-top: 6px !important; }
+
+/* what the printout does not need */
+header.top .prog .lang, header.top .live, .stick, .opener, .step .ask, .reveal, .step .sum button, .nudge, .assume .help, .assume .bank span,
+.f .src, #more, .distort, .contact, .cta, #placeholder, details.how summary::after, .tog, .inc li a, .story .lede, .story .placeholder, .charttitle { display: none !important; }
+details.how h4:nth-of-type(2), details.how h4:nth-of-type(2) + p, details.how table:nth-of-type(2) { display: none !important; }
+header.top .prog .desk { display: inline !important; }
+
+/* header */
+header.top { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #101416; padding-bottom: 6px; margin: 0 !important; }
+header.top img { height: 22px; }
+header.top .prog { font-size: 10.5px; color: #5f686e; }
+
+/* the card becomes a flowing block: answers in two columns, assumptions in two columns, then the number */
+.card { border: 0 !important; box-shadow: none !important; padding: 0 !important; margin: 0 0 8px !important; display: block !important; position: static !important; }
+.card .head { margin: 4px 0 2px; }
+.card h1 { font-size: 11px; }
+.card h1 small { display: none; }
+.badge { font-size: 8.5px !important; padding: 3px 6px !important; }
+#steps { display: grid; grid-template-columns: 1fr 1fr; gap: 0 28px; border-top: 1px solid #101416; }
+.step { padding: 3px 0 !important; border-top: 0 !important; border-bottom: 1px solid #d3d9dd; margin: 0 !important; }
+.step.done .sum { display: flex !important; flex-wrap: nowrap !important; gap: 8px !important; align-items: baseline; }
+.step .sum .k { font-size: 9.5px !important; flex: 0 0 76px !important; width: 76px !important; }
+.step .sum .v { font-size: 12px !important; }
+.assume { margin-top: 6px !important; padding-top: 4px !important; border-top: 1px solid #101416 !important; }
+.assume .bank b { font-size: 11px !important; }
+#fields { display: grid; grid-template-columns: 1fr 1fr; gap: 0 28px; }
+.f { grid-template-columns: 76px 1fr !important; padding: 3px 0 !important; }
+.f .k { font-size: 9.5px !important; }
+.f .v { font-size: 12px !important; border-bottom-width: 1px !important; }
+.total { margin-top: 6px !important; padding-top: 6px !important; border-top: 1px solid #101416 !important; page-break-inside: avoid; }
+.total .k { font-size: 10px !important; }
+.total .n { font-size: 24px !important; }
+.meter { height: 32px !important; }
+.meter .range { transition: none !important; }
+.meter .needle { transition: none !important; }
+.total .a, .total .loc { font-size: 11px !important; }
+
+/* story */
+.story { display: block !important; color: #101416 !important; }
+.story h2 { font-size: 18px !important; margin: 8px 0 6px !important; max-width: none !important; color: #101416 !important; }
+.story h2 em { color: #174e58 !important; }
+.bldgwrap { page-break-inside: avoid; margin: 0 0 4px !important; }
+.bldgwrap h3 { font-size: 10px !important; }
+.bldgfig svg { max-height: 92px; }
+.spots li { font-size: 11px !important; opacity: 1 !important; transform: none !important; }
+.bk { padding: 6px 0 !important; page-break-inside: avoid; border-top: 1px solid #d3d9dd !important; }
+.bk:first-of-type { border-top: 1px solid #101416 !important; }
+.bk .name { font-size: 13px !important; }
+.bk .name i { font-size: 9.5px !important; }
+.bk .r { font-size: 12.5px !important; white-space: nowrap !important; max-width: none !important; }
+.bk .r small { font-size: 9.5px !important; }
+.bk p { font-size: 10.5px !important; margin-top: 3px !important; }
+.dcurve { max-height: 66px; margin: 4px 0 0 !important; }
+.dcurve .load, .dcurve .shaved { stroke-dashoffset: 0 !important; animation: none !important; }
+.dcurve .peak, .dcurve .capline { opacity: 1 !important; animation: none !important; }
+.dcurve .load { stroke: #101416 !important; }
+.wait { grid-template-columns: 1fr 1fr 1fr !important; gap: 14px !important; margin-top: 6px !important; padding-top: 6px !important; border-top: 1px solid #101416 !important; page-break-inside: avoid; }
+.wait div { font-size: 10.5px !important; }
+.wait b { font-size: 14px !important; }
+
+/* page two: how it gets paid, incentives, how we got this */
+.cash { page-break-inside: avoid; border-top: 1px solid #101416 !important; padding-top: 10px !important; margin-top: 10px !important; }
+.cash .name { font-size: 14px !important; }
+.cash p { font-size: 11px !important; }
+.cash .cols { max-width: 440px; margin: 8px 0 4px !important; }
+.cash .col { height: 96px !important; }
+.cash .seg { font-size: 10px !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.cash .seg.lost { background: #c9d0d4 !important; color: #101416 !important; }
+.cash .seg.pay { background: #8aa6ab !important; color: #101416 !important; }
+.cash .seg.keep { background: #e0a21c !important; color: #5a3f00 !important; }
+.cash .cap { font-size: 10px !important; }
+.cash .fine { font-size: 9.5px !important; }
+.inc { page-break-inside: avoid; margin-top: 10px !important; }
+.inc h3 { font-size: 10px !important; }
+.inc li { font-size: 10.5px !important; padding: 2px 0 !important; }
+.inc .note { font-size: 9.5px !important; }
+details.how { margin-top: 10px !important; }
+details.how summary { font-size: 12px !important; list-style: none; }
+details.how p { font-size: 10.5px !important; margin: 4px 0 !important; }
+details.how h4 { font-size: 10px !important; margin: 8px 0 2px !important; }
+details.how table { font-size: 10px !important; }
+details.how td { padding: 3px 0 !important; }
+details.how td.g { display: table-cell !important; font-size: 9.5px !important; padding-left: 18px !important; width: 30% !important; }
+details.how td.r { padding-right: 6px !important; }
+details.how td:first-child { width: 46% !important; }
+footer.foot { display: none !important; }
+a { text-decoration: none; color: inherit; }
+* { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.mbars .mbar rect, .spots li { animation: none !important; }
+.mbars .mbar .bill { fill: #b9c9cd !important; }
+.mbars .mbar.hi .bill { fill: #174e58 !important; }
+.mbars .mbar .os { fill: #e0a21c !important; }
