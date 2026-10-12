@@ -158,20 +158,28 @@
               <span class="v2-chapter__num" aria-hidden="true">02</span>
               <span class="v2-illust v2-illust--peak" data-illust aria-hidden="true">
                 <svg viewBox="0 0 260 150" role="img" aria-hidden="true">
-                  <line x1="16" y1="118" x2="244" y2="118" stroke="#d3d9dd" stroke-width="2"/>
-                  <rect class="wash" x="190" y="24" width="34" height="38" fill="#e0a21c" opacity="0"/>
-                  <path class="load-line" d="M16,98 C40,100 60,104 84,96 C108,88 128,86 150,90 C172,94 182,98 190,94 C198,90 204,84 208,74" fill="none" stroke="#174e58" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" pathLength="1" stroke-dasharray="1"/>
-                  <path class="spike-tall" d="M208,74 L208,24" fill="none" stroke="#e0a21c" stroke-width="5" stroke-linecap="round"/>
-                  <path class="spike-clip" d="M208,74 L208,62" fill="none" stroke="#174e58" stroke-width="5" stroke-linecap="round" opacity="0"/>
-                  <g class="label-250">
-                    <rect x="176" y="6" width="64" height="20" rx="10" fill="#e0a21c"/>
-                    <text x="208" y="20" text-anchor="middle" font-family="Geist Mono" font-weight="700" font-size="11" fill="#101416">250 KW</text>
+                  <line x1="10" y1="125" x2="232" y2="125" stroke="#d3d9dd" stroke-width="2"/>
+                  <rect class="pk-bar" x="16" y="94" width="10" height="30" rx="2" style="--i:0"/>
+                  <rect class="pk-bar" x="31" y="90" width="10" height="34" rx="2" style="--i:1"/>
+                  <rect class="pk-bar" x="46" y="86" width="10" height="38" rx="2" style="--i:2"/>
+                  <rect class="pk-bar" x="61" y="88" width="10" height="36" rx="2" style="--i:3"/>
+                  <rect class="pk-bar" x="76" y="82" width="10" height="42" rx="2" style="--i:4"/>
+                  <rect class="pk-bar" x="91" y="78" width="10" height="46" rx="2" style="--i:5"/>
+                  <rect class="pk-bar" x="106" y="80" width="10" height="44" rx="2" style="--i:6"/>
+                  <rect class="pk-bar" x="121" y="74" width="10" height="50" rx="2" style="--i:7"/>
+                  <rect class="pk-bar" x="136" y="70" width="10" height="54" rx="2" style="--i:8"/>
+                  <rect class="pk-bar" x="151" y="66" width="10" height="58" rx="2" style="--i:9"/>
+                  <rect class="pk-spike" x="166" y="26" width="10" height="98" rx="2"/>
+                  <rect class="pk-bar" x="181" y="72" width="10" height="52" rx="2" style="--i:11"/>
+                  <rect class="pk-bar" x="196" y="78" width="10" height="46" rx="2" style="--i:12"/>
+                  <rect class="pk-bar" x="211" y="84" width="10" height="40" rx="2" style="--i:13"/>
+                  <g class="pk-250"><rect x="137" y="4" width="64" height="20" rx="10" fill="#e0a21c"/><text x="169" y="18" text-anchor="middle" font-family="Geist Mono" font-weight="700" font-size="11" fill="#101416">250 KW</text></g>
+                  <g class="pk-ceil">
+                    <line x1="10" y1="70" x2="232" y2="70" stroke="#174e58" stroke-width="2.5" stroke-dasharray="6 5"/>
+                    <rect x="186" y="50" width="66" height="20" rx="10" fill="#174e58"/>
+                    <text x="219" y="64" text-anchor="middle" font-family="Geist Mono" font-weight="700" font-size="11" fill="#fff">150 KW</text>
                   </g>
-                  <g class="ceiling">
-                    <line x1="16" y1="62" x2="224" y2="62" stroke="#174e58" stroke-width="2.5" stroke-dasharray="6 5"/>
-                    <rect x="10" y="52" width="66" height="20" rx="10" fill="#174e58"/>
-                    <text x="43" y="66" text-anchor="middle" font-family="Geist Mono" font-weight="700" font-size="11" fill="#fff">150 KW</text>
-                  </g>
+                  <text x="10" y="142" font-family="Geist Mono" font-weight="600" font-size="9" fill="#6b747a">ONE AFTERNOON, 15-MINUTE READS</text>
                 </svg>
               </span>
             </div>
@@ -222,7 +230,6 @@
             <canvas class="v4-scene__fx"></canvas>
           </figure>
           <div class="v2-billcard" data-billcard>
-            <p class="v2-billcard__eyebrow">EXAMPLE BUILDING &middot; MONTHLY BILL</p>
             <div class="v2-billcard__total-row">
               <span class="v2-billcard__total" data-field="total-big">$10,384</span>
               <span class="v2-billcard__permo">/ month</span>
@@ -290,8 +297,9 @@
             </svg>
           </div>
           <p class="v2-costcard__label">Energy</p>
-          <p class="v2-costcard__stat"><span class="v2-costcard__stat-line"><span class="v2-cost-num" data-count-to="30" data-suffix="%">0%</span></span><span class="v2-costcard__stat-line">or more</span></p>
-          <p class="v2-costcard__line">We only take on buildings where we find at least 30% in savings.</p>
+          <p class="v2-costcard__stat"><span class="v2-cost-num" data-count-to="30" data-suffix="%+">0%+</span></p>
+          <p class="v2-costcard__unit">lower energy use</p>
+          <p class="v2-costcard__line">We only take on buildings where we can find at least 30%.</p>
         </article>
 
         <article class="v2-costcard" data-cost="maintenance">
@@ -324,8 +332,9 @@
             </svg>
           </div>
           <p class="v2-costcard__label">Maintenance</p>
-          <p class="v2-costcard__stat"><span class="v2-costcard__stat-line">Up to</span><span class="v2-costcard__stat-line"><span class="v2-cost-num" data-count-to="40" data-suffix="%">0%</span></span></p>
-          <p class="v2-costcard__line">Off your maintenance bill. Equipment that&rsquo;s calibrated and matched to your building breaks down less.<sup class="v2-fn"><a href="#v2-notes">12</a></sup></p>
+          <p class="v2-costcard__stat">Up to <span class="v2-cost-num" data-count-to="40" data-suffix="%">0%</span></p>
+          <p class="v2-costcard__unit">less maintenance</p>
+          <p class="v2-costcard__line">Equipment calibrated and matched to your building breaks down less.<sup class="v2-fn"><a href="#v2-notes">12</a></sup></p>
         </article>
 
         <article class="v2-costcard" data-cost="replacement">
@@ -353,8 +362,9 @@
             </svg>
           </div>
           <p class="v2-costcard__label">Replacement</p>
-          <p class="v2-costcard__stat"><span class="v2-costcard__stat-line">5 to <span class="v2-cost-num" data-count-from="5" data-count-to="15">5</span></span><span class="v2-costcard__stat-line">years</span></p>
-          <p class="v2-costcard__line">Of life added to your equipment. HVAC rooftop units that wear out early cost $260K to $480K per property to replace.<sup class="v2-fn"><a href="#v2-notes">12</a></sup></p>
+          <p class="v2-costcard__stat">5 to <span class="v2-cost-num" data-count-from="5" data-count-to="15">5</span></p>
+          <p class="v2-costcard__unit">more years of equipment life</p>
+          <p class="v2-costcard__line">Rooftop units that wear out early cost $260K to $480K per property to replace.<sup class="v2-fn"><a href="#v2-notes">12</a></sup></p>
         </article>
 
       </div>
@@ -381,22 +391,14 @@
         <!-- v4: on phones the six credentials become one swipeable row; on desktop this wrapper is display:contents, so the grid is unchanged -->
         <div class="v2-cliff-cards">
         <div class="v2-card v2-card--stat v2-cliff-slot v2-reveal" data-cliff-slot="0" data-expand-card tabindex="0" role="button" aria-haspopup="dialog">
-          <p class="v2-card__eyebrow">Sandia National Labs</p>
+          <p class="v2-card__eyebrow">Sandia National Labs &middot; DOE and DOD</p>
           <p class="v2-card__fig v2-card__fig--word">Sole source</p>
-          <p class="v2-card__cap">Sandia National Laboratories picked him without a bid.</p>
-          <div class="v2-card__detail"><p>Sandia awarded the contract directly to Cliff, then watched him assemble and direct a 22-person engineering team across facilities in Albuquerque, Livermore, Tonopah, and Kauai, completing hundreds of task orders under Star Wars Program infrastructure. When the DOE and DOD need structural integrity assured, they do not shop around.</p></div>
+          <p class="v2-card__cap">Sandia picked him without a bid to lead 22 engineers across four DOE and DOD facilities.</p>
+          <div class="v2-card__detail"><p>Sandia National Laboratories awarded the contract directly to Cliff, with no bid. For five years he assembled and directed a 22-person engineering team across four DOE and DOD facilities in Albuquerque, Livermore, Tonopah, and Kauai, completing hundreds of task orders under Star Wars Program infrastructure. When the DOE and DOD need structural integrity assured, they do not shop around.</p></div>
           <button type="button" class="v2-card__expand" aria-label="Read more about Sandia National Laboratories" tabindex="-1"><span aria-hidden="true">+</span></button>
         </div>
 
         <div class="v2-card v2-card--stat v2-cliff-slot v2-reveal" data-cliff-slot="1" data-expand-card tabindex="0" role="button" aria-haspopup="dialog">
-          <p class="v2-card__eyebrow">DOE and DOD facilities</p>
-          <p class="v2-card__fig v2-card__fig--word">22 engineers</p>
-          <p class="v2-card__cap">Four DOE and DOD facilities, five years.</p>
-          <div class="v2-card__detail"><p>Sole source, five years, twenty-two engineers, four national facilities. Cliff directed the team end to end, with hundreds of task orders completed under Star Wars Program infrastructure across Albuquerque, Livermore, Tonopah, and Kauai.</p></div>
-          <button type="button" class="v2-card__expand" aria-label="Read more about the DOE and DOD facilities" tabindex="-1"><span aria-hidden="true">+</span></button>
-        </div>
-
-        <div class="v2-card v2-card--stat v2-cliff-slot v2-reveal" data-cliff-slot="2" data-expand-card tabindex="0" role="button" aria-haspopup="dialog">
           <p class="v2-card__eyebrow">Salt River Project</p>
           <p class="v2-card__fig">Billions</p>
           <p class="v2-card__cap">In projects overseen, including a $600M program.</p>
@@ -404,7 +406,7 @@
           <button type="button" class="v2-card__expand" aria-label="Read more about the Salt River Project" tabindex="-1"><span aria-hidden="true">+</span></button>
         </div>
 
-        <div class="v2-card v2-card--stat v2-cliff-slot v2-reveal" data-cliff-slot="3" data-expand-card tabindex="0" role="button" aria-haspopup="dialog">
+        <div class="v2-card v2-card--stat v2-cliff-slot v2-reveal" data-cliff-slot="2" data-expand-card tabindex="0" role="button" aria-haspopup="dialog">
           <p class="v2-card__eyebrow">ASTM standards committee</p>
           <p class="v2-card__fig">8 years</p>
           <p class="v2-card__cap">Co-writing ASTM national standards.</p>
@@ -412,7 +414,7 @@
           <button type="button" class="v2-card__expand" aria-label="Read more about the ASTM standards committee" tabindex="-1"><span aria-hidden="true">+</span></button>
         </div>
 
-        <div class="v2-card v2-card--stat v2-cliff-slot v2-reveal" data-cliff-slot="4" data-expand-card tabindex="0" role="button" aria-haspopup="dialog">
+        <div class="v2-card v2-card--stat v2-cliff-slot v2-reveal" data-cliff-slot="3" data-expand-card tabindex="0" role="button" aria-haspopup="dialog">
           <p class="v2-card__eyebrow">UAE national power grid</p>
           <p class="v2-card__fig">3 emirates</p>
           <p class="v2-card__cap">Called in to assess a national grid.</p>
@@ -420,7 +422,7 @@
           <button type="button" class="v2-card__expand" aria-label="Read more about the UAE national power grid" tabindex="-1"><span aria-hidden="true">+</span></button>
         </div>
 
-        <div class="v2-card v2-card--stat v2-cliff-slot v2-reveal" data-cliff-slot="5" data-expand-card tabindex="0" role="button" aria-haspopup="dialog">
+        <div class="v2-card v2-card--stat v2-cliff-slot v2-reveal" data-cliff-slot="4" data-expand-card tabindex="0" role="button" aria-haspopup="dialog">
           <p class="v2-card__eyebrow">York International, LA County Courts</p>
           <p class="v2-card__fig">Northridge</p>
           <p class="v2-card__cap">County engineers on the other side. He won.</p>
@@ -431,7 +433,6 @@
       </div>
       <div class="v2-cliff-dots" data-cliff-dots aria-hidden="true">
         <span class="v2-cliff-dot is-on"></span>
-        <span class="v2-cliff-dot"></span>
         <span class="v2-cliff-dot is-on"></span>
         <span class="v2-cliff-dot is-on"></span>
         <span class="v2-cliff-dot is-on"></span>
@@ -453,19 +454,21 @@
           <div class="v2-carousel__track">
             <article class="v2-carousel__card">
               <p class="v2-carousel__num">01</p>
+              <svg class="v2-step-ico" viewBox="0 0 96 64" aria-hidden="true"><rect x="22" y="6" width="44" height="54" rx="4" fill="#fff" stroke="#9fb3ba" stroke-width="2.5"/><rect x="16" y="10" width="44" height="50" rx="4" fill="#fff" stroke="#9fb3ba" stroke-width="2.5"/><rect x="10" y="14" width="44" height="46" rx="4" fill="#fff" stroke="#174e58" stroke-width="3"/><path d="M18 26h22M18 34h28M18 42h16" stroke="#174e58" stroke-width="3" stroke-linecap="round"/><rect x="36" y="48" width="12" height="5" rx="2.5" fill="#e0a21c"/></svg>
               <h3>Send a year of bills.</h3>
-              <p>Plus a photo of each HVAC nameplate. One email, no site visit.</p>
             </article>
             <article class="v2-carousel__card v2-examstep2" data-expand-card data-sheet-visual="#v2-examchart-tpl" tabindex="0" role="button" aria-haspopup="dialog">
               <p class="v2-carousel__num">02</p>
+              <svg class="v2-step-ico" viewBox="0 0 96 64" aria-hidden="true"><rect x="10" y="8" width="52" height="48" rx="8" fill="#fff" stroke="#174e58" stroke-width="3"/><path d="M18 40 L28 40 L33 24 L40 48 L46 30 L54 30" fill="none" stroke="#174e58" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/><circle cx="74" cy="22" r="13" fill="#e0a21c"/><path d="M68 22 L72.5 26.5 L80 18" fill="none" stroke="#101416" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
               <h3>We measure it.</h3>
-              <p class="v2-card__cap">Seven days before, seven days after, witnessed by anyone you choose.</p>
+              <p class="v2-card__cap">A pilot on your building, checked by a third party you choose.</p>
               <button type="button" class="v2-card__expand" aria-label="See the proof-window chart" tabindex="-1"><span aria-hidden="true">+</span></button>
             </article>
             <article class="v2-carousel__card">
               <p class="v2-carousel__num">03</p>
-              <h3>You build the ROI.</h3>
-              <p>Keep the fixes that pay for themselves. Skip the rest and owe nothing for them.</p>
+              <svg class="v2-step-ico" viewBox="0 0 96 64" aria-hidden="true"><rect x="8" y="10" width="22" height="22" rx="5" fill="#174e58"/><path d="M13 21 L17.5 25.5 L25 17" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><rect x="37" y="10" width="22" height="22" rx="5" fill="#174e58"/><path d="M42 21 L46.5 25.5 L54 17" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><rect x="66" y="10" width="22" height="22" rx="5" fill="#fff" stroke="#9fb3ba" stroke-width="2.5"/><line x1="8" y1="48" x2="88" y2="48" stroke="#d3d9dd" stroke-width="4" stroke-linecap="round"/><line x1="8" y1="48" x2="58" y2="48" stroke="#e0a21c" stroke-width="4" stroke-linecap="round"/><circle cx="58" cy="48" r="7" fill="#fff" stroke="#e0a21c" stroke-width="3"/></svg>
+              <h3>You set the ROI.</h3>
+              <p>Pick the fixes that fit the return you want. Skip the rest and owe nothing for them.</p>
             </article>
           </div>
         </div>
@@ -475,7 +478,7 @@
       <template id="v2-examchart-tpl">
         <figure class="v2-examchart v2-reveal">
           <svg viewBox="0 0 700 280" role="img" aria-labelledby="v2-examchart-t">
-            <title id="v2-examchart-t">A seven day kW line before the install, an install marker, then a lower seven day kW line after.</title>
+            <title id="v2-examchart-t">A kW line before the install, an install marker, then a lower kW line after.</title>
             <line x1="30" y1="230" x2="670" y2="230" stroke="#d3d9dd" stroke-width="1.5"/>
             <path class="v2-examchart-before" d="M30,150 C60,140 90,160 120,145 C150,132 180,150 210,140 C240,128 270,148 300,138" fill="none" stroke="#174e58" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1"/>
             <line class="v2-examchart-install" x1="330" y1="60" x2="330" y2="230" stroke="#e0a21c" stroke-width="3" stroke-dasharray="6 5" opacity="0"/>
@@ -504,36 +507,36 @@
       </div>
 
       <div class="v2-techfield v2-reveal" aria-hidden="true">
-        <span class="v2-techfield__tile is-fit" style="--d:0ms">The HVAC optimizer</span>
-        <span class="v2-techfield__tile is-fit" style="--d:35ms">The coil treatment</span>
-        <span class="v2-techfield__tile is-fit" style="--d:70ms">The solar coil</span>
-        <span class="v2-techfield__tile is-fit" style="--d:105ms">The thermal barrier</span>
+        <span class="v2-techfield__tile is-fit" style="--d:0ms">The HVAC Optimizer</span>
+        <span class="v2-techfield__tile is-fit" style="--d:35ms">The Coil Treatment</span>
+        <span class="v2-techfield__tile is-fit" style="--d:70ms">The Solar Coil</span>
+        <span class="v2-techfield__tile is-fit" style="--d:105ms">The Thermal Barrier</span>
         <span class="v2-techfield__tile" data-mobile-keep style="--d:140ms">The SunCore</span>
-        <span class="v2-techfield__tile" data-mobile-keep style="--d:175ms">LED lighting retrofit</span>
-        <span class="v2-techfield__tile" data-mobile-keep style="--d:210ms">Lighting controls</span>
-        <span class="v2-techfield__tile" data-mobile-keep style="--d:245ms">Variable frequency drives</span>
-        <span class="v2-techfield__tile" data-mobile-keep style="--d:280ms">Power factor correction</span>
-        <span class="v2-techfield__tile" data-mobile-keep style="--d:315ms">Battery storage</span>
-        <span class="v2-techfield__tile" data-mobile-keep style="--d:350ms">Demand controls</span>
-        <span class="v2-techfield__tile" data-mobile-keep style="--d:385ms">Building automation</span>
-        <span class="v2-techfield__tile" style="--d:420ms">Refrigeration controls</span>
-        <span class="v2-techfield__tile" style="--d:455ms">Rooftop solar</span>
-        <span class="v2-techfield__tile" style="--d:490ms">Window film</span>
-        <span class="v2-techfield__tile" style="--d:525ms">Cool roof coating</span>
-        <span class="v2-techfield__tile" style="--d:560ms">Heat recovery</span>
-        <span class="v2-techfield__tile" style="--d:595ms">Economizer repair</span>
-        <span class="v2-techfield__tile" style="--d:630ms">Smart thermostats</span>
-        <span class="v2-techfield__tile" style="--d:665ms">Chiller optimization</span>
-        <span class="v2-techfield__tile" style="--d:700ms">Boiler calibration</span>
-        <span class="v2-techfield__tile" style="--d:735ms">Motor upgrades</span>
-        <span class="v2-techfield__tile" style="--d:770ms">Air sealing</span>
-        <span class="v2-techfield__tile" style="--d:805ms">Duct sealing</span>
+        <span class="v2-techfield__tile" data-mobile-keep style="--d:175ms">LED Lighting Retrofit</span>
+        <span class="v2-techfield__tile" data-mobile-keep style="--d:210ms">Lighting Controls</span>
+        <span class="v2-techfield__tile" data-mobile-keep style="--d:245ms">Variable Frequency Drives</span>
+        <span class="v2-techfield__tile" data-mobile-keep style="--d:280ms">Power Factor Correction</span>
+        <span class="v2-techfield__tile" data-mobile-keep style="--d:315ms">Battery Storage</span>
+        <span class="v2-techfield__tile" data-mobile-keep style="--d:350ms">Demand Controls</span>
+        <span class="v2-techfield__tile" data-mobile-keep style="--d:385ms">Building Automation</span>
+        <span class="v2-techfield__tile" style="--d:420ms">Refrigeration Controls</span>
+        <span class="v2-techfield__tile" style="--d:455ms">Rooftop Solar</span>
+        <span class="v2-techfield__tile" style="--d:490ms">Window Film</span>
+        <span class="v2-techfield__tile" style="--d:525ms">Cool Roof Coating</span>
+        <span class="v2-techfield__tile" style="--d:560ms">Heat Recovery</span>
+        <span class="v2-techfield__tile" style="--d:595ms">Economizer Repair</span>
+        <span class="v2-techfield__tile" style="--d:630ms">Smart Thermostats</span>
+        <span class="v2-techfield__tile" style="--d:665ms">Chiller Optimization</span>
+        <span class="v2-techfield__tile" style="--d:700ms">Boiler Calibration</span>
+        <span class="v2-techfield__tile" style="--d:735ms">Motor Upgrades</span>
+        <span class="v2-techfield__tile" style="--d:770ms">Air Sealing</span>
+        <span class="v2-techfield__tile" style="--d:805ms">Duct Sealing</span>
       </div>
 
       <div class="v2-film" id="film">
         <div class="v2-film__intro v2-reveal">
           <p class="v2-eyebrow">The film</p>
-          <h3>See every fix at work in six minutes.</h3>
+          <h3>See our most-used HVAC fixes in six minutes.</h3>
           <p class="v2-sub">How we find the overspend, measure it, and install only what pays for itself.</p>
         </div>
         <button type="button" class="v2-film__media v2-reveal" data-film-inline aria-label="Play the six-minute Energy Plus film">
@@ -549,45 +552,39 @@
             <video class="v2-graded" src="../../assets/img/suncore-rotate.mp4" poster="../../assets/img/kit-suncore.jpg" muted loop playsinline preload="auto" data-suncore-video aria-label="The SunCore packaged unit with its two integrated solar thermal collectors, rotating slowly"></video>
           </div>
           <div class="v2-suncore-copy">
-            <p class="v2-card__fit">For true end of life</p>
             <h3>The SunCore</h3>
+            <p class="v2-card__fit">For true end of life</p>
             <p>IEER 31 &middot; COP 6</p>
           </div>
         </div>
 
         <div class="v2-card v2-fix-small v2-reveal">
           <div class="v2-fix-img"><img src="../../assets/img/kit-optimizer.jpg" alt="The HVAC optimizer control module, photographed on its mounting panel" loading="lazy"></div>
-          <p class="v2-card__fit">For on/off compressors.</p>
-          <h3>The HVAC optimizer</h3>
+          <h3>The HVAC Optimizer</h3>
+          <p class="v2-card__fit">For on/off compressors</p>
           <p class="v2-card__fig">15 to 30% less HVAC energy</p>
         </div>
 
         <div class="v2-card v2-fix-small v2-reveal">
           <div class="v2-fix-img">
-            <svg viewBox="0 0 600 400" role="img" aria-hidden="true" style="width:100%;height:100%;background:#f3f5f6;">
-              <circle cx="160" cy="186" r="92" fill="none" stroke="#101416" stroke-width="2"/>
-              <circle cx="160" cy="186" r="52" fill="none" stroke="#6b747a" stroke-width="1"/>
-              <circle cx="440" cy="186" r="92" fill="none" stroke="#101416" stroke-width="2"/>
-              <text x="160" y="330" text-anchor="middle" font-family="Geist Mono" font-size="13" fill="#6b747a">before</text>
-              <text x="440" y="330" text-anchor="middle" font-family="Geist Mono" font-size="13" fill="#6b747a">after</text>
-            </svg>
+            <img src="../../assets/img/kit-coil.png" alt="A rooftop unit coil, the left half restored and the right half still fouled" loading="lazy">
           </div>
-          <p class="v2-card__fit">For aging units.</p>
-          <h3>The coil treatment</h3>
+          <h3>The Coil Treatment</h3>
+          <p class="v2-card__fit">For aging units</p>
           <p class="v2-card__fig">Recovers up to 36% of lost performance</p>
         </div>
 
         <div class="v2-card v2-fix-small v2-reveal">
           <div class="v2-fix-img"><img src="../../assets/img/kit-solarcoil.jpg" alt="A solar coil collector installed on a commercial roof, rooftop units behind it" loading="lazy"></div>
-          <p class="v2-card__fit">For inverter systems.</p>
-          <h3>The solar coil</h3>
+          <h3>The Solar Coil</h3>
+          <p class="v2-card__fit">For inverter systems</p>
           <p class="v2-card__fig">30 to 50% more efficient</p>
         </div>
 
         <div class="v2-card v2-fix-small v2-reveal">
           <div class="v2-fix-img"><img src="../../assets/img/kit-barrier.png" alt="Illustrative: a commercial flat roof half-coated in a bright reflective thermal barrier" loading="lazy"></div>
-          <p class="v2-card__fit">For the building itself.</p>
-          <h3>The thermal barrier</h3>
+          <h3>The Thermal Barrier</h3>
+          <p class="v2-card__fit">For the building itself</p>
           <p class="v2-card__fig">Blocks up to 18 degrees</p>
         </div>
       </div>
@@ -598,32 +595,32 @@
           <div class="v2-carousel__track">
             <article class="v2-carousel__card">
               <div class="v2-fix-img"><img src="../../assets/img/kit-suncore.jpg" alt="The SunCore packaged rooftop unit" loading="lazy"></div>
-              <p class="v2-card__fit">For true end of life.</p>
               <h3>The SunCore</h3>
+              <p class="v2-card__fit">For true end of life</p>
               <p class="v2-card__fig">IEER 31 &middot; COP 6</p>
             </article>
             <article class="v2-carousel__card">
               <div class="v2-fix-img"><img src="../../assets/img/kit-optimizer.jpg" alt="The HVAC optimizer control module" loading="lazy"></div>
-              <p class="v2-card__fit">For on/off compressors.</p>
-              <h3>The HVAC optimizer</h3>
+              <h3>The HVAC Optimizer</h3>
+              <p class="v2-card__fit">For on/off compressors</p>
               <p class="v2-card__fig">15 to 30% less HVAC energy</p>
             </article>
             <article class="v2-carousel__card">
-              <div class="v2-fix-img"><img src="../../assets/img/kit-solarcoil.jpg" alt="A solar coil collector on a commercial roof" loading="lazy"></div>
-              <p class="v2-card__fit">For aging units.</p>
-              <h3>The coil treatment</h3>
+              <div class="v2-fix-img"><img src="../../assets/img/kit-coil.png" alt="A rooftop unit coil, the left half restored and the right half still fouled" loading="lazy"></div>
+              <h3>The Coil Treatment</h3>
+              <p class="v2-card__fit">For aging units</p>
               <p class="v2-card__fig">Recovers up to 36% of lost performance</p>
             </article>
             <article class="v2-carousel__card">
               <div class="v2-fix-img"><img src="../../assets/img/kit-solarcoil.jpg" alt="A solar coil collector installed on a commercial roof" loading="lazy"></div>
-              <p class="v2-card__fit">For inverter systems.</p>
-              <h3>The solar coil</h3>
+              <h3>The Solar Coil</h3>
+              <p class="v2-card__fit">For inverter systems</p>
               <p class="v2-card__fig">30 to 50% more efficient</p>
             </article>
             <article class="v2-carousel__card">
               <div class="v2-fix-img"><img src="../../assets/img/kit-barrier.png" alt="A commercial flat roof coated in a reflective thermal barrier" loading="lazy"></div>
-              <p class="v2-card__fit">For the building itself.</p>
-              <h3>The thermal barrier</h3>
+              <h3>The Thermal Barrier</h3>
+              <p class="v2-card__fit">For the building itself</p>
               <p class="v2-card__fig">Blocks up to 18 degrees</p>
             </article>
           </div>
@@ -672,19 +669,11 @@
         </div>
 
         <div class="v2-card v2-card--stat v2-card--sm v2-reveal" data-expand-card tabindex="0" role="button" aria-haspopup="dialog">
-          <p class="v2-card__eyebrow">The bar</p>
-          <p class="v2-card__fig v2-card__fig--word">2 years</p>
-          <p class="v2-card__cap">The payback bar every fix has to clear.</p>
-          <div class="v2-card__detail"><p>Every fix must clear a roughly two year payback bar, or run cash flow positive from day one, on your numbers. Anything that misses the bar stays off the proposal.</p></div>
+          <p class="v2-card__eyebrow">The payback bar</p>
+          <p class="v2-card__fig v2-card__fig--word">Your call</p>
+          <p class="v2-card__cap">You set the payback each fix must clear. We aim for under three years.</p>
+          <div class="v2-card__detail"><p>You decide the payback a fix has to clear, or ask for cash flow positive from day one. We aim for under three years on your numbers, and anything that misses your bar stays off the proposal.</p></div>
           <button type="button" class="v2-card__expand" aria-label="Read more about the payback bar" tabindex="-1"><span aria-hidden="true">+</span></button>
-        </div>
-
-        <div class="v2-card v2-card--stat v2-card--sm v2-reveal" data-expand-card tabindex="0" role="button" aria-haspopup="dialog">
-          <p class="v2-card__eyebrow">Terms</p>
-          <p class="v2-card__fig v2-card__fig--word">Financing</p>
-          <p class="v2-card__cap">Pay over time out of the savings.<sup class="v2-fn"><a href="#v2-notes">2</a></sup></p>
-          <div class="v2-card__detail"><p>We bring financing options matched to your project, including property assessed programs where your state offers them. Terms are set case by case once we know the building.</p></div>
-          <button type="button" class="v2-card__expand" aria-label="Read more about financing" tabindex="-1"><span aria-hidden="true">+</span></button>
         </div>
 
         <div class="v2-card v2-card--stat v2-card--sm v2-reveal" data-expand-card tabindex="0" role="button" aria-haspopup="dialog">
@@ -701,6 +690,14 @@
           <p class="v2-card__cap">Diagnosis to install to paperwork, one team.</p>
           <div class="v2-card__detail"><p>The Exam, the install, the incentive filings, and the measurement afterward are handled by one team, with your HVAC contractor kept in the loop.</p></div>
           <button type="button" class="v2-card__expand" aria-label="Read more about the turnkey team" tabindex="-1"><span aria-hidden="true">+</span></button>
+        </div>
+
+        <div class="v2-card v2-card--stat v2-card--sm v2-reveal" data-expand-card tabindex="0" role="button" aria-haspopup="dialog">
+          <p class="v2-card__eyebrow">Terms</p>
+          <p class="v2-card__fig v2-card__fig--word">Financing</p>
+          <p class="v2-card__cap">Pay over time out of the savings.<sup class="v2-fn"><a href="#v2-notes">2</a></sup></p>
+          <div class="v2-card__detail"><p>We bring financing options matched to your project, including property assessed programs where your state offers them. Terms are set case by case once we know the building.</p></div>
+          <button type="button" class="v2-card__expand" aria-label="Read more about financing" tabindex="-1"><span aria-hidden="true">+</span></button>
         </div>
       </div>
 
@@ -813,13 +810,13 @@
         <details>
           <summary>I own the P&amp;L. What does it cost? <span class="v2-chev" aria-hidden="true">&#9662;</span></summary>
           <div class="v2-faq-body">
-            <p>Every fix must clear a roughly two-year payback bar, or run cash-flow positive from day one, on your own numbers.<sup class="v2-fn"><a href="#v2-notes">1, 2</a></sup> If we can&rsquo;t prove the savings, nothing is installed and you owe nothing. Every rebate, credit, and deduction your project qualifies for is found and filed for you.<sup class="v2-fn"><a href="#v2-notes">3, 4</a></sup></p>
+            <p>You set the payback bar every fix must clear, or ask for cash-flow positive from day one, on your own numbers. We aim for under three years.<sup class="v2-fn"><a href="#v2-notes">1, 2</a></sup> If we can&rsquo;t prove the savings, nothing is installed and you owe nothing. Every rebate, credit, and deduction your project qualifies for is found and filed for you.<sup class="v2-fn"><a href="#v2-notes">3, 4</a></sup></p>
           </div>
         </details>
         <details>
           <summary>I answer for the numbers. How is it measured? <span class="v2-chev" aria-hidden="true">&#9662;</span></summary>
           <div class="v2-faq-body">
-            <p>Seven days of metering before and after, per unit, witnessed by any third party you choose. Recognized protocols on request: IPMVP Option C, ASHRAE Guideline 14.<sup class="v2-fn"><a href="#v2-notes">8</a></sup> The result is verified kWh you can carry straight to your books, not a marketing claim.</p>
+            <p>Every pilot is metered before and after, witnessed by any third party you choose. Recognized protocols on request: IPMVP Option C, ASHRAE Guideline 14.<sup class="v2-fn"><a href="#v2-notes">8</a></sup> The result is verified kWh you can carry straight to your books, not a marketing claim.</p>
           </div>
         </details>
         <details>

@@ -814,23 +814,23 @@
     cardSheet.addEventListener("close", () => { if (lastCard) lastCard.focus(); });
   }
 
-  /* ---------- Cliff bento: 6 credentials, 4 visible slots rotate through them ----------
-     Markup keeps all 6 real cards always in the DOM (baseline: a normal, holeless grid,
+  /* ---------- Cliff bento: 5 credentials, 4 visible slots rotate through them ----------
+     Markup keeps all 5 real cards always in the DOM (baseline: a normal, holeless grid,
      every card independently clickable). This enhancement assigns 4 of them an explicit
      grid position (.v2-cliff-slot--pN) and, every ~5s, crossfades one position over to a
      credential not currently shown. Reduced motion / ?static=1 skips this entirely, so
-     the CSS fallback (all 6, plain grid) stands. */
+     the CSS fallback (all 5, plain grid) stands. */
   (() => {
     if (REDUCED) return;
     const bento = document.querySelector(".v2-bento--cliff");
     if (!bento) return;
     const cards = Array.from(bento.querySelectorAll("[data-cliff-slot]"));
-    if (cards.length !== 6) return;
+    if (cards.length < 5) return; /* v4: five credentials (Sole source and 22 engineers merged) */
     const dots = document.querySelector("[data-cliff-dots]");
     const POS = ["v2-cliff-slot--p0", "v2-cliff-slot--p1", "v2-cliff-slot--p2", "v2-cliff-slot--p3"];
 
-    let visible = [0, 2, 3, 4]; /* Sole source, Billions, 8 years, 3 emirates */
-    let hiddenQueue = [1, 5];   /* 22 engineers, Northridge */
+    let visible = [0, 1, 2, 3];                                       /* Sole source, Billions, 8 years, 3 emirates */
+    let hiddenQueue = cards.map((_, i) => i).filter((i) => i > 3);    /* Northridge */
 
     const renderDots = () => {
       if (!dots) return;

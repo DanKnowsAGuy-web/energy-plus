@@ -1095,3 +1095,81 @@ sup.v2-fn a { color: inherit; text-decoration: none; }
 @media (min-width: 640px) {
   .v2-anim .v2-bento--cliff .v2-cliff-slot:not(.v2-cliff-slot--p0):not(.v2-cliff-slot--p1):not(.v2-cliff-slot--p2):not(.v2-cliff-slot--p3) { display: none; }
 }
+
+/* ======================================================================
+   v4 review pass
+   ====================================================================== */
+
+/* ---------- bill card ---------- */
+/* legend: a little air when "Other" wraps to its own line */
+.v2-billbar__labels { row-gap: 0.55rem; margin-bottom: 0.35rem; }
+
+/* phones: the card rides higher and slimmer so the chapter cards get the screen */
+@media (max-width: 979.9px) {
+  .v2-pin__media {
+    top: calc(8px + env(safe-area-inset-top, 0px));
+    max-height: none; padding-top: 0.25rem; padding-bottom: 0.5rem; gap: 0.45rem;
+  }
+  .v2-billcard { position: relative; width: 100%; padding: 0.75rem 0.9rem 0.7rem; }
+  .v2-billcard__total { font-size: clamp(1.9rem, 1.3rem + 4vw, 2.4rem); }
+  .v2-billbar { margin-top: 0.5rem; }
+  .v2-billbar__track { height: 28px; border-radius: 9px; }
+  .v2-billbar__labels { display: none; }                 /* the key costs a line we need */
+  .v2-billcard__change { margin-top: 0.45rem; min-height: 1.2em; }
+  .v2-billcard__lineitems { position: absolute; right: 0.9rem; bottom: 0.7rem; margin: 0; }
+  .v2-progress3 { width: 100%; }
+  /* the draft badge sat on top of the text being read */
+  .v2-preview-badges { display: none; }
+  .v2-progress3 { gap: 6px; }
+  .v2-progress3__seg { gap: 0.3rem; }
+  .v2-progress3__seg .bar { height: 4px; }
+  .v2-progress3__seg label { font-size: 0.72rem; }
+
+  /* every chapter card stays readable, scrolling back up included */
+  .v2-chapter:not(.is-active) { opacity: 1; }
+  .v2-pin__chapters { padding-bottom: 22vh; }
+}
+
+/* ---------- chapter 02 illustration: one afternoon of 15-minute reads ---------- */
+.v2-illust--peak .pk-bar { fill: #174e58; opacity: 0.28; transform-box: fill-box; transform-origin: bottom; }
+.v2-illust--peak .pk-spike { fill: #e0a21c; transform-box: fill-box; transform-origin: bottom; }
+.v2-illust--peak .pk-ceil { opacity: 0; }
+.v2-illust--peak.is-playing .pk-bar { animation: pkRise 520ms var(--ease) both; animation-delay: calc(var(--i) * 30ms); }
+.v2-illust--peak.is-playing .pk-spike { animation: pkSpike 1500ms var(--ease) forwards; }
+.v2-illust--peak.is-playing .pk-250 { animation: v2fadeOut 300ms var(--ease) forwards; animation-delay: 1050ms; }
+.v2-illust--peak.is-playing .pk-ceil { animation: v2ceilDrop 420ms var(--ease) forwards; animation-delay: 750ms; }
+@keyframes pkRise { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+@keyframes pkSpike {
+  0% { transform: scaleY(0); fill: #e0a21c; }
+  35% { transform: scaleY(1); fill: #e0a21c; }
+  60% { transform: scaleY(1); fill: #e0a21c; }
+  100% { transform: scaleY(0.551); fill: #174e58; }
+}
+.v2-reduced .v2-illust--peak .pk-spike, .v2-static .v2-illust--peak .pk-spike { transform: scaleY(0.551); fill: #174e58; }
+.v2-reduced .v2-illust--peak .pk-250, .v2-static .v2-illust--peak .pk-250 { opacity: 0; }
+.v2-reduced .v2-illust--peak .pk-ceil, .v2-static .v2-illust--peak .pk-ceil { opacity: 1; }
+
+/* ---------- three costs: the number, what it measures, then one sentence ---------- */
+.v2-costcard__stat { white-space: nowrap; }
+.v2-costcard__unit { margin-top: 0.35rem; font-size: 1.15rem; font-weight: 600; color: var(--ink); }
+.v2-costcard__line { margin-top: 0.6rem; }
+/* the replacement flag travels slowly enough to watch */
+.v2-replace-flag { transition: transform 2400ms cubic-bezier(0.45, 0, 0.2, 1) 300ms; }
+.v2-life-segment { transition: width 2400ms cubic-bezier(0.45, 0, 0.2, 1) 300ms; }
+.v2-life-segment-label { transition-delay: 1900ms; }
+
+/* ---------- the three steps: a small picture each ---------- */
+.v2-step-ico { display: block; width: 96px; height: 64px; margin-top: 1rem; }
+.v2-carousel__card .v2-step-ico + h3 { margin-top: 0.7rem; }
+
+/* ---------- fix cards: the "For ..." line reads as a plain caption under the name ---------- */
+.v2-fix-small .v2-card__fit,
+.v2-fixes-carousel .v2-card__fit,
+.v2-suncore-copy .v2-card__fit {
+  margin-top: 0.35rem; font-family: var(--font-sans); font-size: 1rem; font-weight: 500;
+  letter-spacing: 0; text-transform: none; color: var(--faint);
+}
+.v2-fix-small .v2-card__fig, .v2-fixes-carousel .v2-card__fig { margin-top: 0.8rem; }
+/* the fixes carousel (phones) sits in the dark section, whose white h3 made the
+   product names vanish on the white cards; v3 has the same bug */
+.v2-fixes-carousel .v2-carousel__card h3 { color: var(--ink); }
