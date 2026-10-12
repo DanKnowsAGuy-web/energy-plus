@@ -853,6 +853,7 @@
     let posIdx = 0;
     setInterval(() => {
       if (paused || window.v2CardSheetOpen || document.hidden) return;
+      if (matchMedia("(max-width: 639.9px)").matches) return; /* v4: phones show all six in a swipe row */
       const outIdx = visible[posIdx];
       const inIdx = hiddenQueue.shift();
       hiddenQueue.push(outIdx);

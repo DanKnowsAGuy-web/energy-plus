@@ -1065,3 +1065,33 @@ sup.v2-fn a { color: inherit; text-decoration: none; }
   .v2-reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
   .v2-bar { transition: none; }
 }
+
+/* ---------- v4: Cliff credentials on phones ----------
+   Two columns were too narrow for the big figures ("Northridge", "3 emirates")
+   and wrapped the eyebrows into three or four lines. Below 640px the six cards
+   become one swipeable row, the same pattern as the steps and fixes carousels.
+   On wider screens the wrapper is display:contents, so the bento grid and the
+   desktop rotation are exactly as before. */
+.v2-cliff-cards { display: contents; }
+@media (max-width: 639.9px) {
+  .v2-bento--cliff { display: block; }
+  .v2-bento--cliff .v2-card--photo { margin-bottom: 1rem; }
+  .v2-cliff-cards {
+    display: flex; gap: 0.9rem; overflow-x: auto; scroll-snap-type: x mandatory;
+    margin-inline: -1.25rem; padding: 0.25rem 1.25rem 1rem; scroll-padding-inline: 1.25rem;
+    -webkit-overflow-scrolling: touch; scrollbar-width: none;
+  }
+  .v2-cliff-cards::-webkit-scrollbar { display: none; }
+  .v2-cliff-cards .v2-cliff-slot {
+    flex: 0 0 min(78vw, 20rem); scroll-snap-align: start;
+    opacity: 1 !important; transform: none !important;
+  }
+  .v2-cliff-dots { display: none; }
+}
+/* v4: the rotation shows four of the six credentials at a time. v3 never hid
+   the two waiting their turn, so they fell to a stray third row on desktop and
+   tablet. While rotation runs (.v2-anim, 640px+), a card without a slot
+   position is hidden; reduced motion and ?static keep the full six-card grid. */
+@media (min-width: 640px) {
+  .v2-anim .v2-bento--cliff .v2-cliff-slot:not(.v2-cliff-slot--p0):not(.v2-cliff-slot--p1):not(.v2-cliff-slot--p2):not(.v2-cliff-slot--p3) { display: none; }
+}
