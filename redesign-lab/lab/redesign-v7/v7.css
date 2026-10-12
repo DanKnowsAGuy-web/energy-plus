@@ -1,0 +1,146 @@
+/* Energy+ · redesign v7 · motion pass
+   Every effect here waits for .v2-anim (set by v2.js only when motion is allowed),
+   so reduced motion and ?static=1 keep v6's finished, still states.
+   One color rule throughout: ochre is waste, petrol is fixed. */
+
+/* ---------- 1. the "Your energy bill" icon grows into the bill card ---------- */
+.v7-ghost {
+  position: fixed; left: 0; top: 0; z-index: 30; pointer-events: none; display: none;
+  background: #fff; border-radius: 12px; overflow: hidden; box-shadow: var(--shadow-card);
+  will-change: transform, width, height;
+}
+.v7-ghost.is-on { display: block; }
+.v7-ghost__fill { position: absolute; inset: 0; background: var(--petrol); }
+.v7-ghost__ic { position: absolute; left: 50%; top: 50%; width: 24px; height: 24px; color: #fff; transform: translate(-50%, -50%); }
+.v7-ghost__ic svg { width: 100%; height: 100%; display: block; }
+
+/* ---------- 2. the peak: rises, gets cut, hits the ceiling, settles under it ---------- */
+.v2-anim .v2-illust--peak.is-playing .pk-bar { animation-duration: 700ms; animation-delay: calc(var(--i) * 45ms); }
+.v2-anim .v2-illust--peak.is-playing .pk-spike { animation: v7pkSpike 2900ms linear forwards; }
+.v2-anim .v2-illust--peak.is-playing .pk-250 { animation-delay: 1250ms; }
+.v2-anim .v2-illust--peak.is-playing .pk-ceil { animation-delay: 950ms; }
+.v2-anim .v2-illust--peak.is-playing .pk-ceil-line { animation: v7pkHit 520ms ease-out 2000ms; }
+@keyframes v7pkSpike {
+  0%   { transform: scaleY(0);    fill: #e0a21c; animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1); }
+  22%  { transform: scaleY(1);    fill: #e0a21c; }
+  42%  { transform: scaleY(1);    fill: #e0a21c; animation-timing-function: cubic-bezier(0.55, 0, 0.3, 1); }
+  60%  { transform: scaleY(0.42); fill: #174e58; animation-timing-function: cubic-bezier(0.35, 0, 0.7, 1); }
+  69%  { transform: scaleY(0.551); fill: #174e58; animation-timing-function: cubic-bezier(0.2, 0.7, 0.3, 1); }
+  80%  { transform: scaleY(0.47); fill: #174e58; animation-timing-function: ease-in-out; }
+  89%  { transform: scaleY(0.52); fill: #174e58; animation-timing-function: ease-in-out; }
+  100% { transform: scaleY(0.49); fill: #174e58; }
+}
+@keyframes v7pkHit {
+  0%   { stroke-width: 2.5; }
+  25%  { stroke-width: 5.5; stroke: #e0a21c; }
+  100% { stroke-width: 2.5; stroke: #174e58; }
+}
+.v2-reduced .v2-illust--peak .pk-spike, .v2-static .v2-illust--peak .pk-spike { transform: scaleY(0.49); }
+
+/* ---------- 3. the hinge cards, slower ---------- */
+/* maintenance: the breakdowns clear one at a time, then the count rolls */
+.v2-anim .v2-cal-dot--flip, .v2-anim .v2-cal-check {
+  transition-duration: 800ms, 800ms;
+  transition-delay: calc(var(--d, 0ms) * 2.6 + 400ms);
+}
+.v2-anim .v2-cal-roll { transition: transform 700ms var(--ease) 2500ms; }
+/* replacement: the flag walks the timeline while the year on it counts forward */
+.v2-anim .v2-replace-flag { transition: transform 3200ms cubic-bezier(0.45, 0, 0.2, 1) 400ms; }
+.v2-anim .v2-life-segment { transition: width 3200ms cubic-bezier(0.45, 0, 0.2, 1) 400ms; }
+.v2-anim .v2-life-segment-label { transition-delay: 3000ms; }
+.v7-year { transition: fill 600ms var(--ease); }
+.v7-year.is-done { fill: #174e58; }
+
+/* ---------- 4. chaos becomes order: the vendor chips land in the stack ---------- */
+.v7-stackwrap { position: relative; max-width: 860px; margin-bottom: clamp(3rem, 6vw, 4.5rem); }
+.v7-stackwrap .v5-stack { margin-bottom: 0; }
+.v7-chips { position: absolute; inset: 0; pointer-events: none; z-index: 2; }
+.v7-chip {
+  position: absolute; left: 0; top: 0; opacity: 0;
+  padding: 0.6rem 1rem; border-radius: 14px; background: #fff; color: var(--ink);
+  font-weight: 700; font-size: clamp(0.92rem, 0.85rem + 0.3vw, 1.05rem); white-space: nowrap;
+  box-shadow: 0 16px 34px -14px rgb(0 0 0 / 0.55), 0 0 0 1px rgb(16 20 22 / 0.06);
+}
+/* rows wait, dimmed and unticked, until their chips arrive */
+.v2-anim .v7-stack li { transition: opacity 500ms var(--ease); }
+.v2-anim .v7-stack.is-chaos li:not(.v7-done) { opacity: 0.3; }
+.v2-anim .v7-stack li:not(.v7-done) .v5-stack__check { background: #fff; border-color: var(--rule); }
+.v2-anim .v7-stack li:not(.v7-done) .v5-stack__check svg { stroke-dashoffset: 24; }
+.v2-anim .v7-stack li .v5-stack__check, .v2-anim .v7-stack li .v5-stack__check svg { transition-delay: 0ms; }
+.v2-anim .v7-stack li.v7-done .v5-stack__check { background: var(--petrol); border-color: var(--petrol); animation: v7tickPop 420ms var(--ease); }
+.v2-anim .v7-stack li.v7-done .v5-stack__check svg { stroke-dashoffset: 0; transition-delay: 120ms; }
+@keyframes v7tickPop { 0% { transform: scale(0.7); } 60% { transform: scale(1.18); } 100% { transform: scale(1); } }
+
+/* ---------- 5. the three steps: one line runs through them (phones) ---------- */
+.v7-spine, .v7-node { display: none; }
+@media (max-width: 639.9px) {
+  .v2-anim .v6-steps .v2-carousel__track { position: relative; padding-left: 2.1rem; }
+  .v2-anim .v7-spine { display: block; position: absolute; left: 0.6rem; width: 3px; border-radius: 3px; background: var(--rule); }
+  .v2-anim .v7-spine__fill { position: absolute; inset: 0; border-radius: 3px; background: var(--petrol); transform-origin: top; transform: scaleY(var(--p, 0)); }
+  .v2-anim .v7-node {
+    display: block; position: absolute; left: calc(0.6rem + 1.5px); width: 15px; height: 15px; margin: -7.5px 0 0 -7.5px;
+    border-radius: 50%; background: #fff; border: 3px solid var(--rule);
+    transition: background 300ms var(--ease), border-color 300ms var(--ease), transform 400ms var(--ease);
+  }
+  .v2-anim .v7-node.is-lit { background: var(--petrol); border-color: var(--petrol); transform: scale(1.15); box-shadow: 0 0 0 5px rgb(23 78 88 / 0.14); }
+  .v2-anim .v6-steps .v2-carousel__num { transition: color 400ms var(--ease); }
+  .v2-anim .v6-steps .v2-carousel__card:not(.is-lit) .v2-carousel__num { color: #b9c4c9; }
+}
+
+/* each step's picture plays when its card lights (any width) */
+.v7-page, .v7-bill-tag, .v7-badge, .v7-slide, .v7-knob { transform-box: fill-box; }
+.v2-anim .v7-page { opacity: 0; transition: opacity 400ms var(--ease), transform 700ms var(--ease); }
+.v2-anim .v7-page--3 { transform: translate(14px, 10px) rotate(8deg); }
+.v2-anim .v7-page--2 { transform: translate(10px, 8px) rotate(5deg); transition-delay: 120ms; }
+.v2-anim .v7-page--1 { transform: translate(0, 14px); transition-delay: 240ms; }
+.v2-anim .is-lit .v7-page { opacity: 1; transform: none; }
+.v2-anim .v7-bill-tag { transform-origin: left; transform: scaleX(0); transition: transform 500ms var(--ease) 800ms; }
+.v2-anim .is-lit .v7-bill-tag { transform: none; }
+
+.v2-anim .v7-pulse { stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke-dashoffset 1000ms cubic-bezier(0.45, 0, 0.3, 1) 150ms; }
+.v2-anim .is-lit .v7-pulse { stroke-dashoffset: 0; }
+.v2-anim .v7-badge { transform-origin: center; transform: scale(0); transition: transform 500ms cubic-bezier(0.3, 1.6, 0.5, 1) 1100ms; }
+.v2-anim .is-lit .v7-badge { transform: none; }
+.v2-anim .v7-badge-tick { stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke-dashoffset 350ms var(--ease) 1450ms; }
+.v2-anim .is-lit .v7-badge-tick { stroke-dashoffset: 0; }
+
+.v2-anim .v7-box { fill: #fff; stroke: #9fb3ba; transition: fill 300ms var(--ease) 250ms, stroke 300ms var(--ease) 250ms; }
+.v2-anim .v7-box--2 { transition-delay: 650ms; }
+.v2-anim .is-lit .v7-box { fill: #174e58; stroke: #174e58; }
+.v2-anim .v7-tick { stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke-dashoffset 300ms var(--ease) 450ms; }
+.v2-anim .v7-tick--2 { transition-delay: 850ms; }
+.v2-anim .is-lit .v7-tick { stroke-dashoffset: 0; }
+.v2-anim .v7-slide { transform-origin: left; transform: scaleX(0); transition: transform 1000ms cubic-bezier(0.45, 0, 0.2, 1) 1100ms; }
+.v2-anim .v7-knob { transform: translateX(-50px); transition: transform 1000ms cubic-bezier(0.45, 0, 0.2, 1) 1100ms; }
+.v2-anim .is-lit .v7-slide, .v2-anim .is-lit .v7-knob { transform: none; }
+
+/* the promise lands like a seal */
+.v2-anim #the-exam .v2-floor.v7-sealed { animation: v7seal 900ms cubic-bezier(0.2, 0.9, 0.25, 1) both; }
+@keyframes v7seal {
+  0%   { transform: scale(1.07); box-shadow: 0 0 0 0 rgb(224 162 28 / 0); }
+  45%  { transform: scale(0.985); box-shadow: 0 0 0 0 rgb(224 162 28 / 0.45); }
+  100% { transform: scale(1); box-shadow: 0 0 0 22px rgb(224 162 28 / 0); }
+}
+
+/* ---------- 6. Cliff: figures flip into place, the photo has depth ---------- */
+.v7-flap { display: inline-block; text-align: center; overflow: hidden; vertical-align: bottom; white-space: pre; }
+.v7-flap.is-tick { animation: v7flap 80ms linear; }
+@keyframes v7flap { 0% { transform: scaleY(1); } 50% { transform: scaleY(0.2); } 100% { transform: scaleY(1); } }
+.v7-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.v2-anim .v2-bento--cliff .v2-card--photo { overflow: hidden; }
+.v2-anim .v2-bento--cliff .v2-card--photo img { transform: translate3d(0, var(--py, 0px), 0) scale(1.1); will-change: transform; }
+
+/* ---------- 7. cash flow: the payment, then savings above it, then the gap fills ---------- */
+.v2-anim [data-v7-money] .v7-pay, .v2-anim [data-v7-money] .v7-save { stroke-dasharray: 1; stroke-dashoffset: 1; }
+.v2-anim [data-v7-money] .v7-pay { transition: stroke-dashoffset 1100ms cubic-bezier(0.45, 0, 0.3, 1); }
+.v2-anim [data-v7-money] .v7-save { transition: stroke-dashoffset 1200ms cubic-bezier(0.45, 0, 0.3, 1) 500ms; }
+.v2-anim [data-v7-money].is-on .v7-pay, .v2-anim [data-v7-money].is-on .v7-save { stroke-dashoffset: 0; }
+.v2-anim [data-v7-money] .v7-gap { fill: var(--ochre); transition: fill 900ms var(--ease) 2300ms, opacity 900ms var(--ease) 2300ms; }
+.v2-anim [data-v7-money].is-on .v7-gap { fill: var(--petrol); opacity: 0.16; }
+.v2-anim [data-v7-money] .v7-gap-label { opacity: 0; transform: translateY(8px); transition: opacity 600ms var(--ease) 2500ms, transform 600ms var(--ease) 2500ms, fill 600ms var(--ease) 2500ms; }
+.v2-anim [data-v7-money].is-on .v7-gap-label { opacity: 1; transform: none; fill: var(--petrol); }
+.v7-dayone-ring { transform-box: fill-box; transform-origin: center; opacity: 0; }
+.v2-anim [data-v7-money].is-on .v7-dayone-ring { animation: v7ring 1400ms ease-out 1700ms 2; }
+@keyframes v7ring { 0% { transform: scale(1); opacity: 0.6; } 100% { transform: scale(3.2); opacity: 0; } }
+.v7-dayone-dot { opacity: 0; transition: opacity 300ms var(--ease) 1600ms; }
+.v2-anim [data-v7-money].is-on .v7-dayone-dot, .v2-reduced .v7-dayone-dot, .v2-static .v7-dayone-dot { opacity: 1; }

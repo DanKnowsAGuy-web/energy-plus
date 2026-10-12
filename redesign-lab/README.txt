@@ -18,3 +18,13 @@ v6 (lab/redesign-v6): v5 with the copy pass. One word per idea (overpaying,
 day one, payback, fixes, diagnosis/pilot), plainer bill chapters, shorter
 stack rows and steps, short Cliff labels, money cut to Day one + Your call,
 redundant lines and the duplicate FAQ removed. v6.css holds the money layout.
+
+v7 (lab/redesign-v7): v6 with the motion pass. The "Your energy bill" icon
+grows into the bill card; the peak spike gets cut, hits the ceiling and
+settles under it (phone illustration and desktop building); the two cost
+cards play slower and the replacement flag counts years forward; the vendor
+chips land in the "we handle all of it" checklist; a line runs through the
+three steps on phones and each step's picture plays; Cliff's figures flip
+into place and his photo drifts; the cash flow chart draws itself.
+New code lives in v7.css and v7.js (plus small hooks in building.js and v2.js).
+Reduced motion and ?static=1 keep v6's still states.

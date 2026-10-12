@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DRAFT · Energy Plus redesign preview v7</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="color-scheme" content="light">
+<meta name="theme-color" content="#174e58">
+<link rel="stylesheet" href="../../assets/fonts/report-fonts.css">
+<link rel="stylesheet" href="v2.css">
+<link rel="stylesheet" href="building.css">
+<link rel="stylesheet" href="v5.css">
+<link rel="stylesheet" href="v6.css">
+<link rel="stylesheet" href="v7.css">
+<script>
+/* First-visit motion intro: OFF by default. Opt-in only via ?intro=1 (the localStorage
+   "seen" flag is no longer read at all, so no visitor gets it without asking for it).
+   Decide synchronously, before paint, so the hero copy below never flashes its normal
+   fade-in and then has to be undone. v2.js does the actual work; this only sets the
+   class it reads. */
+(function () {
+  try {
+    var qs = new URLSearchParams(location.search);
+    var introOn = qs.get("intro") === "1";
+    var staticMode = qs.has("static");
+    var reduced = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+    var show = introOn && !staticMode && !reduced;
+    if (show) document.documentElement.classList.add("v2-intro-pending");
+  } catch (e) {}
+})();
+</script>
+</head>
+<body class="v2">
+
+<!-- first-visit motion intro: full-viewport overlay, embedded so future edits to the source
+     piece (lab/motion-hero) or this derived copy (intro/) flow straight through. Populated and
+     shown by v2.js only when v2-intro-pending is set. Kept as a direct child of <body> (not
+     nested inside #hero, which has `overflow: clip`) so this fixed-position overlay covers the
+     real viewport instead of being clipped to the hero section's box. -->
+<div class="v2-intro" data-intro hidden aria-hidden="true">
+  <iframe class="v2-intro__frame" data-intro-frame title="" tabindex="-1"></iframe>
+</div>
+
+<!-- sticky pill bar, appears after scrolling past the hero -->
+<div class="v2-bar" data-bar>
+  <a class="v2-bar__mark" href="#top" aria-label="Energy Plus, home" data-mark>
+    <svg class="v2-bar__mark-svg" data-mark-svg viewBox="0 0 5361.0 687.3" xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true"><g transform="translate(0 687.3) scale(1 -1)">
+      <path class="v2-mark-letter" style="--lx:0px" d="M80.3626766204834 0V687.3060457706451H719.5499982833862V541.8881661891937H271.6810805797577V419.489976644516H663.2182867527008V278.3979938030243H271.6810805797577V145.41787958145142H726.7925674915314V0Z"/>
+      <path class="v2-mark-letter" style="--lx:748px" d="M79.51485180854797 0V687.3060457706451H249.50252079963684L550.6242909431458 367.38010144233704Q558.7686264514923 359.4148585796356 571.4833364486694 344.78049314022064Q584.1980464458466 330.14612770080566 597.406195640564 315.00918328762054Q610.6143448352814 299.8722388744354 619.0263650417328 289.2027258872986L625.9880039691925 289.76794242858887Q625.4862639904022 309.477511882782 625.1575664281845 333.36818039417267Q624.8288688659668 357.25884890556335 624.8288688659668 374.4230179786682V687.3060457706451H803.8196806907654V0H635.5311238765717L330.7568163871765 325.2541563510895Q312.6588056087494 343.8871102333069 294.1803568601608 365.08531653881073Q275.70190811157227 386.2835228443146 264.0473186969757 399.73906207084656L257.565660238266 399.1738455295563Q258.0674002170563 384.21734714508057 258.2865319252014 361.8693140745163Q258.50566363334656 339.521281003952 258.50566363334656 317.66844940185547V0Z"/>
+      <path class="v2-mark-letter" style="--lx:1601px" d="M80.3626766204834 0V687.3060457706451H719.5499982833862V541.8881661891937H271.6810805797577V419.489976644516H663.2182867527008V278.3979938030243H271.6810805797577V145.41787958145142H726.7925674915314V0Z"/>
+      <path class="v2-mark-letter" style="--lx:2349px" d="M79.51485180854797 0V687.3060457706451H561.6979920864105Q637.5840539932251 687.3060457706451 687.6322785615921 657.5609508752823Q737.6805031299591 627.8158559799194 762.7856967449188 578.0976785421371Q787.8908903598785 528.3795011043549 787.8908903598785 467.976793050766Q787.8908903598785 402.05249404907227 757.1491601467133 349.59253311157227Q726.407429933548 297.13257217407227 667.8065688610077 267.27791142463684L807.1397452354431 0H593.0921688079834L478.76561522483826 235.59213399887085H270.5724070072174V0ZM270.5724070072174 376.9247601032257H511.8830506801605Q548.7043843269348 376.9247601032257 570.745422244072 400.1941314935684Q592.7864601612091 423.46350288391113 592.7864601612091 462.6891334056854Q592.7864601612091 488.29112219810486 582.9185712337494 506.4291149377823Q573.0506823062897 524.5671076774597 555.0305029153824 534.3580700159073Q537.0103235244751 544.1490323543549 511.8830506801605 544.1490323543549H270.5724070072174Z"/>
+      <path class="v2-mark-letter" style="--lx:3157px" d="M428.6420180797577 -12Q242.188218832016 -12 146.954203248024 75.97168838977814Q51.72018766403198 163.94337677955627 51.72018766403198 343.54345703125Q51.72018766403198 462.03655910491943 100.09860563278198 541.0274193286896Q148.47702360153198 620.0182795524597 240.26475882530212 659.6621626615524Q332.05249404907227 699.3060457706451 461.0821726322174 699.3060457706451Q539.9947876930237 699.3060457706451 608.3609230518341 683.3812943696976Q676.7270584106445 667.45654296875 728.4615399837494 635.6504971981049Q780.1960215568542 603.8444514274597 808.964545249939 555.7758169174194Q837.7330689430237 507.70718240737915 837.7330689430237 443.18200492858887H651.2544195652008Q651.2544195652008 470.60052394866943 636.5909209251404 491.654181599617Q621.92742228508 512.7078392505646 596.376525759697 526.5723102092743Q570.825629234314 540.436781167984 538.0321102142334 547.2811793088913Q505.23859119415283 554.1255774497986 468.7594187259674 554.1255774497986Q415.7872681617737 554.1255774497986 374.4277023077011 541.976820230484Q333.06813645362854 529.8280630111694 304.82900750637054 505.21356976032257Q276.58987855911255 480.5990765094757 262.0859636068344 444.62578082084656Q247.58204865455627 408.6524851322174 247.58204865455627 360.93993163108826V326.34783458709717Q247.58204865455627 260.50475883483887 271.568576335907 217.67534625530243Q295.5551040172577 174.845933675766 342.5829447507858 154.01320099830627Q389.61078548431396 133.18046832084656 457.83424973487854 133.18046832084656Q515.6344709396362 133.18046832084656 559.2710298299789 146.49413573741913Q602.9075887203217 159.8078031539917 627.4254022836685 185.48857378959656Q651.9432158470154 211.16934442520142 651.9432158470154 246.59245371818542V252.18121433258057H440.42725372314453V380.20141983032227H838.2130494117737V0H726.7992522716522L708.7255663871765 76.80697774887085Q674.3005485534668 46.883469343185425 631.9660362005234 27.019562244415283Q589.63152384758 7.155655145645142 539.1179188489914 -2.422172427177429Q488.60431385040283 -12 428.6420180797577 -12Z"/>
+      <path class="v2-mark-letter" style="--lx:4037px" d="M315.6591796875 0V273.3027789592743L12.731170177459717 687.3060457706451H235.61175441741943L412.54144191741943 430.331773519516H418.8761897087097L595.9884498119354 687.3060457706451H808.2351830005646L506.71673488616943 273.3027789592743V0Z"/>
+      <path class="v2-mark-glyph" fill-rule="evenodd" transform="translate(4931.5 0)" d="M0.0 687.3 L221.9 687.3 L221.9 458.2 L429.6 458.2 L429.6 232.0 L221.9 232.0 L221.9 0.0 L0.0 0.0 L0.0 232.0 L-239.8 232.0 L-175.4 458.2 L0.0 458.2 Z M176.8 588.5 L131.7 389.5 L242.7 389.5 L44.4 103.1 L90.9 300.0 L-21.5 300.0 Z"/>
+    </g></svg>
+  </a>
+  <nav class="v2-bar__nav" data-section-nav aria-label="Page sections">
+    <a href="#the-three" data-nav-link>The bill</a>
+    <a href="#the-exam" data-nav-link>The diagnosis</a>
+    <a href="#the-fixes" data-nav-link>All of it</a>
+    <a href="#proof" data-nav-link>Proof</a>
+    <a href="#your-number" data-nav-link>Your number</a>
+    <span class="v2-bar__nav-underline" data-nav-underline aria-hidden="true"></span>
+  </nav>
+  <button type="button" class="v2-btn" data-book>Book a 15-minute call</button>
+</div>
+
+<!-- mobile bottom booking bar, replaces the top pill below 980px -->
+<div class="v2-mbar" data-mbar>
+  <button type="button" class="v2-btn v2-mbar__book" data-book>Book a 15-minute call</button>
+  <button type="button" class="v2-mbar__text js-v2-sms-toggle" aria-expanded="false" aria-label="Text Dan">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+  </button>
+</div>
+
+<main id="top">
+
+  <!-- HERO -->
+  <section class="v2-hero" id="hero" aria-labelledby="hero-h">
+    <div class="v2-hero__media v2-graded-wrap" aria-hidden="true" data-hero-media>
+      <img class="v2-hero__poster v2-graded" src="../../assets/img/film-cover.jpg" alt="" data-hero-poster>
+      <iframe class="v2-hero__iframe v2-graded" data-hero-iframe title="" tabindex="-1" allow="autoplay"></iframe>
+      <div class="v2-hero__scrim"></div>
+    </div>
+    <div class="v2-hero__copy">
+      <h1 id="hero-h" data-hero-h1>Stop overpaying for energy.</h1>
+      <p class="v2-hero__sub" data-hero-sub>We diagnose your building, handle every fix, and you&rsquo;re cash flow positive from day one.<sup class="v2-fn"><a href="#v2-note-cashflow">*</a></sup></p>
+      <div class="v2-cta v2-cta--hero" data-cta>
+        <button type="button" class="v2-btn v2-btn--lg v2-btn--light" data-book>Book a 15-minute call</button>
+        <button type="button" class="v2-textlink v2-textlink--light js-v2-sms-toggle" aria-expanded="false">or text Dan</button>
+      </div>
+      <div class="v2-sms" role="group" aria-label="Text the founder">
+        <p class="v2-sms__to">To Dan &middot; (864) 777-0688</p>
+        <textarea rows="4" spellcheck="false" aria-label="Message to Dan">Hi Dan, I run a commercial building and I'd like to see what real energy savings could look like at my property, without the sales song and dance. What does it take to qualify?</textarea>
+        <div class="v2-sms__foot">
+          <span class="v2-sms__hint">Opens in your messages, ready to send.</span>
+          <a class="v2-btn js-v2-sms-send" href="#" data-phone="+18647770688">Send message</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- v5 · THE MAP: three ways the building overpays; the page then zooms into the first -->
+  <section class="v5-map" aria-labelledby="map-h">
+    <div class="v2-wrap">
+      <h2 id="map-h" class="v5-map__h">Your building overpays three ways.</h2>
+      <ol class="v5-map__list">
+        <li class="v5-map__item">
+          <span class="v5-map__ic" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3h12l5 5v21H8z"/><path d="M20 3v5h5"/><path d="M12 15h9M12 20h9M12 25h5"/></svg></span>
+          <span class="v5-map__t">Your energy bill</span>
+        </li>
+        <li class="v5-map__item">
+          <span class="v5-map__ic" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 4.5a7 7 0 0 0-8.8 9L4 21.2V28h6.8l7.7-7.7a7 7 0 0 0 9-8.8l-4.3 4.3-4.6-1.2-1.2-4.6z"/></svg></span>
+          <span class="v5-map__t">Your maintenance</span>
+        </li>
+        <li class="v5-map__item">
+          <span class="v5-map__ic" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="13" width="24" height="14" rx="2"/><circle cx="16" cy="20" r="4"/><path d="M9 13V9h14v4"/><path d="M13 5h6"/></svg></span>
+          <span class="v5-map__t">Early replacement</span>
+        </li>
+      </ol>
+      <a class="v5-map__next" href="#the-three">Start with the one you see every month <span aria-hidden="true">&darr;</span></a>
+    </div>
+  </section>
+
+  <!-- CHAPTER 1 · THE THREE (pinned bill scene) -->
+  <section class="v2-section v4-has-scene" id="the-three" aria-labelledby="three-h" data-pin-scene>
+    <div class="v2-wrap">
+      <div class="v2-secintro v2-reveal">
+        <h2 id="three-h">Start with the bill.</h2>
+        <p class="v2-sub">Three things on it make you overpay.</p>
+      </div>
+
+      <div class="v2-pin">
+        <div class="v2-pin__chapters">
+          <article class="v2-chapter" data-highlight="energy,tag1" data-num="01">
+            <div class="v2-chapter__head">
+              <span class="v2-chapter__num" aria-hidden="true">01</span>
+              <span class="v2-illust v2-illust--price" data-illust aria-hidden="true">
+                <svg viewBox="0 0 260 150" role="img" aria-hidden="true">
+                  <path class="tag-shape" d="M52,22 L222,22 Q234,22 234,34 L234,116 Q234,128 222,128 L52,128 L16,75 Z" fill="#fff" stroke="#174e58" stroke-width="4" stroke-linejoin="round"/>
+                  <circle cx="52" cy="75" r="8" fill="#fff" stroke="#174e58" stroke-width="4"/>
+                  <g clip-path="url(#v2clipPrice)">
+                    <rect x="74" y="46" width="148" height="58" fill="#fff"/>
+                    <g class="price-roll">
+                      <text x="148" y="68" text-anchor="middle" font-family="Geist Mono" font-weight="700" font-size="19" fill="#101416">$0.0650</text>
+                      <text x="148" y="86" text-anchor="middle" font-family="Geist Mono" font-weight="600" font-size="12" fill="#6b747a">/ kWh</text>
+                      <text x="148" y="126" text-anchor="middle" font-family="Geist Mono" font-weight="700" font-size="19" fill="#e0a21c">$0.0590</text>
+                      <text x="148" y="144" text-anchor="middle" font-family="Geist Mono" font-weight="600" font-size="12" fill="#5a3f00">/ kWh</text>
+                    </g>
+                  </g>
+                  <g class="price-stamp">
+                    <rect x="150" y="4" width="80" height="24" rx="12" fill="#e0a21c"/>
+                    <text x="190" y="20" text-anchor="middle" font-family="Geist Mono" font-weight="700" font-size="10" fill="#101416">RATE RESET</text>
+                  </g>
+                  <defs><clipPath id="v2clipPrice"><rect x="74" y="46" width="148" height="58"/></clipPath></defs>
+                </svg>
+              </span>
+            </div>
+            <p class="v2-chapter__eyebrow">The price</p>
+            <h3>You pay too much for every kilowatt-hour.</h3>
+            <p>You may be on the wrong rate, or paying fees you don&rsquo;t need to.</p>
+          </article>
+          <article class="v2-chapter" data-highlight="demand,tag2" data-num="02">
+            <div class="v2-chapter__head">
+              <span class="v2-chapter__num" aria-hidden="true">02</span>
+              <span class="v2-illust v2-illust--peak" data-illust aria-hidden="true">
+                <svg viewBox="0 0 260 150" role="img" aria-hidden="true">
+                  <line x1="10" y1="125" x2="232" y2="125" stroke="#d3d9dd" stroke-width="2"/>
+                  <rect class="pk-bar" x="16" y="94" width="10" height="30" rx="2" style="--i:0"/>
+                  <rect class="pk-bar" x="31" y="90" width="10" height="34" rx="2" style="--i:1"/>
+                  <rect class="pk-bar" x="46" y="86" width="10" height="38" rx="2" style="--i:2"/>
+                  <rect class="pk-bar" x="61" y="88" width="10" height="36" rx="2" style="--i:3"/>
+                  <rect class="pk-bar" x="76" y="82" width="10" height="42" rx="2" style="--i:4"/>
+                  <rect class="pk-bar" x="91" y="78" width="10" height="46" rx="2" style="--i:5"/>
+                  <rect class="pk-bar" x="106" y="80" width="10" height="44" rx="2" style="--i:6"/>
+                  <rect class="pk-bar" x="121" y="74" width="10" height="50" rx="2" style="--i:7"/>
+                  <rect class="pk-bar" x="136" y="70" width="10" height="54" rx="2" style="--i:8"/>
+                  <rect class="pk-bar" x="151" y="66" width="10" height="58" rx="2" style="--i:9"/>
+                  <rect class="pk-spike" x="166" y="26" width="10" height="98" rx="2"/>
+                  <rect class="pk-bar" x="181" y="72" width="10" height="52" rx="2" style="--i:11"/>
+                  <rect class="pk-bar" x="196" y="78" width="10" height="46" rx="2" style="--i:12"/>
+                  <rect class="pk-bar" x="211" y="84" width="10" height="40" rx="2" style="--i:13"/>
+                  <g class="pk-250"><rect x="137" y="4" width="64" height="20" rx="10" fill="#e0a21c"/><text x="169" y="18" text-anchor="middle" font-family="Geist Mono" font-weight="700" font-size="11" fill="#101416">250 KW</text></g>
+                  <g class="pk-ceil">
+                    <line class="pk-ceil-line" x1="10" y1="70" x2="232" y2="70" stroke="#174e58" stroke-width="2.5" stroke-dasharray="6 5"/>
+                    <rect x="186" y="50" width="66" height="20" rx="10" fill="#174e58"/>
+                    <text x="219" y="64" text-anchor="middle" font-family="Geist Mono" font-weight="700" font-size="11" fill="#fff">150 KW</text>
+                  </g>
+                  <text x="10" y="142" font-family="Geist Mono" font-weight="600" font-size="9" fill="#6b747a">ONE AFTERNOON, 15-MINUTE READS</text>
+                </svg>
+              </span>
+            </div>
+            <p class="v2-chapter__eyebrow">The peak</p>
+            <h3>Your worst 15 minutes sets the whole bill.</h3>
+            <p>One spike sets a charge you pay all month. Lower the spike, lower the charge.</p>
+          </article>
+          <article class="v2-chapter" data-highlight="energy,fuel,tag3" data-num="03">
+            <div class="v2-chapter__head">
+              <span class="v2-chapter__num" aria-hidden="true">03</span>
+              <span class="v2-illust v2-illust--equipment" data-illust aria-hidden="true">
+                <svg viewBox="0 0 260 150" role="img" aria-hidden="true">
+                  <path class="gauge-band-off" d="M45,88 A50,50 0 0,1 95,38" fill="none" stroke="#e0a21c" stroke-width="10" stroke-linecap="round"/>
+                  <path class="gauge-band-calibrated" d="M95,38 A50,50 0 0,1 145,88" fill="none" stroke="#174e58" stroke-width="10" stroke-linecap="round"/>
+                  <text x="45" y="106" text-anchor="middle" font-family="Geist Mono" font-weight="700" font-size="11" letter-spacing="0.02em" fill="#5a3f00">OFF</text>
+                  <text x="145" y="106" text-anchor="middle" font-family="Geist Mono" font-weight="700" font-size="11" letter-spacing="0.01em" fill="#174e58">CALIBRATED</text>
+                  <g class="gauge-needle">
+                    <line x1="0" y1="0" x2="0" y2="-40" stroke="#101416" stroke-width="4" stroke-linecap="round"/>
+                    <circle cx="0" cy="0" r="6" fill="#101416"/>
+                  </g>
+                  <g class="comfort-chip">
+                    <rect x="182" y="40" width="68" height="72" rx="12" fill="#fff" stroke="#174e58" stroke-width="3"/>
+                    <text x="216" y="68" text-anchor="middle" font-family="Geist Mono" font-weight="700" font-size="17" fill="#101416">72&deg;F</text>
+                    <text x="216" y="88" text-anchor="middle" font-family="Geist Mono" font-weight="700" font-size="8" letter-spacing="0.05em" fill="#174e58">COMFORT</text>
+                    <text x="216" y="100" text-anchor="middle" font-family="Geist Mono" font-weight="700" font-size="8" letter-spacing="0.05em" fill="#174e58">SAME</text>
+                  </g>
+                  <g clip-path="url(#v2clipKwh)">
+                    <rect x="16" y="120" width="160" height="22" fill="#f3f5f6"/>
+                    <g class="kwh-roll">
+                      <text x="16" y="136" font-family="Geist Mono" font-weight="700" font-size="14" fill="#101416">80,000 kWh</text>
+                      <text x="16" y="156" font-family="Geist Mono" font-weight="700" font-size="14" fill="#e0a21c">58,500 kWh</text>
+                    </g>
+                  </g>
+                  <defs><clipPath id="v2clipKwh"><rect x="16" y="120" width="160" height="22"/></clipPath></defs>
+                </svg>
+              </span>
+            </div>
+            <p class="v2-chapter__eyebrow">The equipment</p>
+            <h3>Your equipment was never calibrated to your building.</h3>
+            <p>Most units were never tuned to your building or to each other. They burn energy without adding comfort.</p>
+          </article>
+        </div>
+
+        <div class="v2-pin__media">
+          <!-- v4: the building. Each chapter lights and fixes its part of it, in step with the bill card. -->
+          <figure class="v4-scene" data-facility="store" aria-hidden="true">
+            <svg class="v4-scene__svg" preserveAspectRatio="xMidYMid meet"></svg>
+            <canvas class="v4-scene__fx"></canvas>
+          </figure>
+          <div class="v2-billcard" data-billcard>
+            <div class="v2-billcard__total-row">
+              <span class="v2-billcard__total" data-field="total-big">$10,384</span>
+              <span class="v2-billcard__permo">/ month</span>
+            </div>
+            <div class="v2-billcard__pill" data-field="pill" aria-hidden="true"></div>
+            <div class="v2-billbar" data-billbar aria-hidden="true">
+              <div class="v2-billbar__track">
+                <span class="v2-billbar__seg v2-billbar__seg--energy" data-seg="energy"></span>
+                <span class="v2-billbar__seg v2-billbar__seg--demand" data-seg="demand"></span>
+                <span class="v2-billbar__seg v2-billbar__seg--other" data-seg="other"></span>
+                <span class="v2-billbar__saved" data-seg="saved"></span>
+              </div>
+            </div>
+            <div class="v2-billbar__labels">
+              <span class="v2-billbar__label" data-seg-label="energy"><i class="v2-billbar__dot v2-billbar__dot--energy" aria-hidden="true"></i>Energy <b data-seg-amt="energy">$6,160</b></span>
+              <span class="v2-billbar__label" data-seg-label="demand"><i class="v2-billbar__dot v2-billbar__dot--demand" aria-hidden="true"></i>Demand <b data-seg-amt="demand">$3,500</b></span>
+              <span class="v2-billbar__label" data-seg-label="other"><i class="v2-billbar__dot v2-billbar__dot--other" aria-hidden="true"></i>Other <b data-seg-amt="other">$724</b></span>
+            </div>
+            <p class="v2-billcard__change" data-field="change" aria-live="polite"></p>
+            <button type="button" class="v2-textlink v2-billcard__lineitems" data-lineitems-open aria-haspopup="dialog">See the line items</button>
+          </div>
+          <div class="v2-progress3" data-progress aria-hidden="true">
+            <div class="v2-progress3__seg"><span class="bar"></span><label>Price</label></div>
+            <div class="v2-progress3__seg"><span class="bar"></span><label>Peak</label></div>
+            <div class="v2-progress3__seg"><span class="bar"></span><label>Equipment</label></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="v2-closing-beat v2-reveal">
+        <h3>Same building. $3,645 less every month.</h3>
+        <p>35% off the bill.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- THREE COSTS -->
+  <section class="v2-section v2-costs" id="three-costs" aria-labelledby="costs-h" data-costs-pin>
+    <div class="v2-wrap" data-reveal-group>
+      <div class="v2-secintro v2-reveal">
+        <h2 id="costs-h">The same equipment drives two more costs.</h2>
+        <p class="v2-sub">Fix it, and your maintenance and replacement costs come down too.</p>
+      </div>
+      <div class="v2-costs-grid v5-costs-two" data-costs-grid>
+
+        <article class="v2-costcard" data-cost="maintenance">
+          <div class="v2-costcard__visual" aria-hidden="true">
+            <svg class="v2-viz v2-viz--maintenance" data-viz="maintenance" viewBox="0 0 320 160" role="img" aria-hidden="true">
+              <defs>
+                <clipPath id="calRollClip"><rect x="178" y="138" width="126" height="17"/></clipPath>
+              </defs>
+              <g class="v2-cal-cells" font-family="Geist Mono">
+                <g class="v2-cal-cell" style="--d:0ms"><rect x="12" y="10" width="69" height="35" rx="4" fill="#fff" stroke="#174e58" stroke-width="2"/><text x="18" y="23" font-size="9" font-weight="700" fill="#101416">J</text><circle class="v2-cal-dot" cx="63" cy="29" r="6" fill="#c2513f"/></g>
+                <g class="v2-cal-cell" style="--d:140ms"><rect x="89" y="10" width="69" height="35" rx="4" fill="#fff" stroke="#174e58" stroke-width="2"/><text x="95" y="23" font-size="9" font-weight="700" fill="#101416">F</text><circle class="v2-cal-dot v2-cal-dot--flip" cx="140" cy="29" r="6" fill="#c2513f"/><path class="v2-cal-check" d="M129 29l6 6 12-13" fill="none" stroke="#174e58" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></g>
+                <g class="v2-cal-cell" style="--d:0ms"><rect x="166" y="10" width="69" height="35" rx="4" fill="#fff" stroke="#174e58" stroke-width="2"/><text x="172" y="23" font-size="9" font-weight="700" fill="#101416">M</text><circle class="v2-cal-dot" cx="217" cy="29" r="6" fill="#c2513f"/></g>
+                <g class="v2-cal-cell" style="--d:280ms"><rect x="243" y="10" width="69" height="35" rx="4" fill="#fff" stroke="#174e58" stroke-width="2"/><text x="249" y="23" font-size="9" font-weight="700" fill="#101416">A</text><circle class="v2-cal-dot v2-cal-dot--flip" cx="294" cy="29" r="6" fill="#c2513f"/><path class="v2-cal-check" d="M283 29l6 6 12-13" fill="none" stroke="#174e58" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></g>
+                <g class="v2-cal-cell" style="--d:0ms"><rect x="12" y="53" width="69" height="35" rx="4" fill="#fff" stroke="#174e58" stroke-width="2"/><text x="18" y="66" font-size="9" font-weight="700" fill="#101416">M</text><circle class="v2-cal-dot" cx="63" cy="72" r="6" fill="#c2513f"/></g>
+                <g class="v2-cal-cell" style="--d:420ms"><rect x="89" y="53" width="69" height="35" rx="4" fill="#fff" stroke="#174e58" stroke-width="2"/><text x="95" y="66" font-size="9" font-weight="700" fill="#101416">J</text><circle class="v2-cal-dot v2-cal-dot--flip" cx="140" cy="72" r="6" fill="#c2513f"/><path class="v2-cal-check" d="M129 72l6 6 12-13" fill="none" stroke="#174e58" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></g>
+                <g class="v2-cal-cell"><rect x="166" y="53" width="69" height="35" rx="4" fill="#fff" stroke="#174e58" stroke-width="2"/><text x="172" y="66" font-size="9" font-weight="700" fill="#101416">J</text></g>
+                <g class="v2-cal-cell" style="--d:0ms"><rect x="243" y="53" width="69" height="35" rx="4" fill="#fff" stroke="#174e58" stroke-width="2"/><text x="249" y="66" font-size="9" font-weight="700" fill="#101416">A</text><circle class="v2-cal-dot" cx="294" cy="72" r="6" fill="#c2513f"/></g>
+                <g class="v2-cal-cell" style="--d:560ms"><rect x="12" y="96" width="69" height="35" rx="4" fill="#fff" stroke="#174e58" stroke-width="2"/><text x="18" y="109" font-size="9" font-weight="700" fill="#101416">S</text><circle class="v2-cal-dot v2-cal-dot--flip" cx="63" cy="115" r="6" fill="#c2513f"/><path class="v2-cal-check" d="M52 115l6 6 12-13" fill="none" stroke="#174e58" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></g>
+                <g class="v2-cal-cell" style="--d:0ms"><rect x="89" y="96" width="69" height="35" rx="4" fill="#fff" stroke="#174e58" stroke-width="2"/><text x="95" y="109" font-size="9" font-weight="700" fill="#101416">O</text><circle class="v2-cal-dot" cx="140" cy="115" r="6" fill="#c2513f"/></g>
+                <g class="v2-cal-cell"><rect x="166" y="96" width="69" height="35" rx="4" fill="#fff" stroke="#174e58" stroke-width="2"/><text x="172" y="109" font-size="9" font-weight="700" fill="#101416">N</text></g>
+                <g class="v2-cal-cell" style="--d:0ms"><rect x="243" y="96" width="69" height="35" rx="4" fill="#fff" stroke="#174e58" stroke-width="2"/><text x="249" y="109" font-size="9" font-weight="700" fill="#101416">D</text><circle class="v2-cal-dot" cx="294" cy="115" r="6" fill="#c2513f"/></g>
+              </g>
+              <g clip-path="url(#calRollClip)">
+                <rect x="178" y="138" width="126" height="17" fill="#fff"/>
+                <g class="v2-cal-roll">
+                  <text x="178" y="151" font-family="Geist Mono" font-size="11" font-weight="700" fill="#101416">10 &rarr; 6 breakdowns</text>
+                  <text x="178" y="168" font-family="Geist Mono" font-size="11" font-weight="700" fill="#174e58">10 &rarr; 6 breakdowns</text>
+                </g>
+              </g>
+            </svg>
+          </div>
+          <p class="v2-costcard__label">Maintenance</p>
+          <p class="v2-costcard__stat">Up to <span class="v2-cost-num" data-count-to="40" data-suffix="%">0%</span></p>
+          <p class="v2-costcard__unit">less maintenance</p>
+          <p class="v2-costcard__line">Equipment calibrated and matched to your building breaks down less.<sup class="v2-fn"><a href="#v2-notes">12</a></sup></p>
+        </article>
+
+        <article class="v2-costcard" data-cost="replacement">
+          <div class="v2-costcard__visual" aria-hidden="true">
+            <svg class="v2-viz v2-viz--replacement" data-viz="replacement" viewBox="0 0 320 160" role="img" aria-hidden="true">
+              <rect x="110" y="15" width="100" height="45" rx="4" fill="#fff" stroke="#174e58" stroke-width="4"/>
+              <circle cx="160" cy="37" r="14" fill="none" stroke="#174e58" stroke-width="3"/>
+              <path d="M160 23v28M146 37h28" stroke="#174e58" stroke-width="2"/>
+              <line x1="20" y1="130" x2="300" y2="130" stroke="#101416" stroke-width="4" stroke-linecap="round"/>
+              <g font-family="Geist Mono" font-size="8" font-weight="600" fill="#6b747a">
+                <line x1="20" y1="125" x2="20" y2="135" stroke="#101416" stroke-width="3"/><text x="20" y="148" text-anchor="middle">YR 0</text>
+                <line x1="76" y1="125" x2="76" y2="135" stroke="#101416" stroke-width="3"/><text x="76" y="148" text-anchor="middle">YR 5</text>
+                <line x1="132" y1="125" x2="132" y2="135" stroke="#101416" stroke-width="3"/><text x="132" y="148" text-anchor="middle">YR 10</text>
+                <line x1="188" y1="125" x2="188" y2="135" stroke="#101416" stroke-width="3"/><text x="188" y="148" text-anchor="middle">YR 15</text>
+                <line x1="244" y1="125" x2="244" y2="135" stroke="#101416" stroke-width="3"/><text x="244" y="148" text-anchor="middle">YR 20</text>
+                <line x1="300" y1="125" x2="300" y2="135" stroke="#101416" stroke-width="3"/><text x="300" y="148" text-anchor="middle">YR 25</text>
+              </g>
+              <rect class="v2-life-segment" x="154.4" y="127" width="0" height="6" fill="#e0a21c"/>
+              <text class="v2-life-segment-label" x="210" y="118" text-anchor="middle" font-family="Geist Mono" font-size="9" font-weight="700" fill="#5a3f00">+5 TO 15 YRS</text>
+              <g class="v2-replace-flag">
+                <line x1="0" y1="80" x2="0" y2="127" stroke="#101416" stroke-width="3"/>
+                <path d="M0 80 L34 88 L0 96 Z" fill="#c2513f"/>
+                <text x="-5" y="74" text-anchor="end" font-family="Geist Mono" font-size="9" font-weight="700" fill="#101416">REPLACE <tspan class="v7-year" fill="#c2513f">2031</tspan></text>
+              </g>
+            </svg>
+          </div>
+          <p class="v2-costcard__label">Replacement</p>
+          <p class="v2-costcard__stat">5 to <span class="v2-cost-num" data-count-from="5" data-count-to="15">5</span></p>
+          <p class="v2-costcard__unit">more years of equipment life</p>
+          <p class="v2-costcard__line">Rooftop units that wear out early cost $260K to $480K per property to replace.<sup class="v2-fn"><a href="#v2-notes">12</a></sup></p>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- v5 · THE VILLAIN: why nobody fixes this -->
+  <section class="v2-section v2-dark v5-why" id="why-not" aria-labelledby="why-h">
+    <div class="v2-wrap" data-reveal-group>
+      <div class="v2-secintro v2-reveal">
+        <h2 id="why-h">So why isn&rsquo;t anyone fixing this?</h2>
+      </div>
+      <div class="v5-why__grid">
+        <ol class="v5-why__list">
+          <li class="v2-reveal"><h3>Vendors sell one product.</h3><p>So every building gets the same answer, whether it fits or not.</p></li>
+          <li class="v2-reveal"><h3>Nobody is paid to diagnose first.</h3><p>The case study you&rsquo;re shown is someone else&rsquo;s building.</p></li>
+          <li class="v2-reveal"><h3>Fixing it yourself is a project.</h3><p>Eight vendors, eight contracts, and all of the risk on you.</p></li>
+        </ol>
+        <div class="v5-vendors v2-reveal" aria-hidden="true">
+          <span style="--x:6%;--y:8%;--r:-7deg;--i:0">Solar</span>
+          <span style="--x:52%;--y:2%;--r:5deg;--i:1">Battery</span>
+          <span style="--x:30%;--y:24%;--r:-3deg;--i:2">HVAC</span>
+          <span style="--x:64%;--y:30%;--r:8deg;--i:3">Controls</span>
+          <span style="--x:2%;--y:46%;--r:4deg;--i:4">Finance</span>
+          <span style="--x:40%;--y:54%;--r:-9deg;--i:5">Rebates</span>
+          <span style="--x:12%;--y:74%;--r:-4deg;--i:6">Installer</span>
+          <span style="--x:58%;--y:78%;--r:6deg;--i:7">Tax</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CHAPTER 2 · YOUR DIAGNOSTICIAN (bento) -->
+  <section class="v2-section" id="diagnostician" aria-labelledby="diag-h">
+    <div class="v2-wrap" data-reveal-group>
+      <div class="v2-secintro v2-reveal">
+        <h2 id="diag-h">We diagnose before anyone sells you anything.</h2>
+        <p class="v2-sub">Your diagnosis is led by Cliff Suljak, who ran measurement for Sandia National Laboratories for the DOE and DOD.</p>
+      </div>
+
+      <div class="v2-bento v2-bento--cliff" data-bento>
+        <div class="v2-card v2-card--media v2-card--photo v2-graded-wrap v2-reveal">
+          <img class="v2-graded" src="../../assets/img/cliff-lab.jpg" alt="Cliff Suljak, Chief Materials Engineer, standing in a materials testing laboratory" loading="eager">
+          <div class="v2-card--photo__cap">
+            <h3>Cliff Suljak</h3>
+            <p>Chief Materials Engineer</p>
+          </div>
+        </div>
+
+        <!-- v4: on phones the six credentials become one swipeable row; on desktop this wrapper is display:contents, so the grid is unchanged -->
+        <div class="v2-cliff-cards">
+        <div class="v2-card v2-card--stat v2-cliff-slot v2-reveal" data-cliff-slot="0" data-expand-card tabindex="0" role="button" aria-haspopup="dialog">
+          <p class="v2-card__eyebrow">Sandia</p>
+          <p class="v2-card__fig">Billions</p>
+          <p class="v2-card__cap">In DOE and DOD projects. Hired directly, no bid, to lead 22 engineers.</p>
+          <div class="v2-card__detail"><p>Sandia National Laboratories awarded the contract directly to Cliff, with no bid. For five years he assembled and directed a 22-person engineering team across four DOE and DOD facilities in Albuquerque, Livermore, Tonopah, and Kauai, completing hundreds of task orders under Star Wars Program infrastructure and overseeing billions of dollars in projects. When the DOE and DOD need structural integrity assured, they do not shop around.</p></div>
+          <button type="button" class="v2-card__expand" aria-label="Read more about Sandia National Laboratories" tabindex="-1"><span aria-hidden="true">+</span></button>
+        </div>
+
+        <div class="v2-card v2-card--stat v2-cliff-slot v2-reveal" data-cliff-slot="1" data-expand-card tabindex="0" role="button" aria-haspopup="dialog">
+          <p class="v2-card__eyebrow">Salt River</p>
+          <p class="v2-card__fig">$600M</p>
+          <p class="v2-card__cap">Quality program he built for a major Southwest utility.</p>
+          <div class="v2-card__detail"><p>As Manager of the Materials and Quality Services Division, Cliff created a complete quality control infrastructure for one of the Southwest's largest utilities: metallurgical lab, nondestructive testing, failure analysis, predictive vibration monitoring. The innovations he introduced on the $600M program were later adopted by utilities across the country.</p></div>
+          <button type="button" class="v2-card__expand" aria-label="Read more about the Salt River Project" tabindex="-1"><span aria-hidden="true">+</span></button>
+        </div>
+
+        <div class="v2-card v2-card--stat v2-cliff-slot v2-reveal" data-cliff-slot="2" data-expand-card tabindex="0" role="button" aria-haspopup="dialog">
+          <p class="v2-card__eyebrow">ASTM</p>
+          <p class="v2-card__fig">8 years</p>
+          <p class="v2-card__cap">Co-writing ASTM national standards.</p>
+          <div class="v2-card__detail"><p>For eight years Cliff served on the ASTM committee developing test methods for leading-edge materials diagnostics: advanced composites and ultra-high-strength metals in extreme temperature environments. The methods he helped develop were adopted as national industry acceptance criteria for utility procurement.</p></div>
+          <button type="button" class="v2-card__expand" aria-label="Read more about the ASTM standards committee" tabindex="-1"><span aria-hidden="true">+</span></button>
+        </div>
+
+        <div class="v2-card v2-card--stat v2-cliff-slot v2-reveal" data-cliff-slot="3" data-expand-card tabindex="0" role="button" aria-haspopup="dialog">
+          <p class="v2-card__eyebrow">UAE grid</p>
+          <p class="v2-card__fig">3 emirates</p>
+          <p class="v2-card__cap">Called in to assess a national grid.</p>
+          <div class="v2-card__detail"><p>What began as a reactive power loss engagement across Dubai, Abu Dhabi, and Sharjah grew into a full operational assessment of the UAE's power grid. Cliff mobilized in country for extended periods, consulting directly to utility authorities on grid reliability.</p></div>
+          <button type="button" class="v2-card__expand" aria-label="Read more about the UAE national power grid" tabindex="-1"><span aria-hidden="true">+</span></button>
+        </div>
+
+        <div class="v2-card v2-card--stat v2-cliff-slot v2-reveal" data-cliff-slot="4" data-expand-card tabindex="0" role="button" aria-haspopup="dialog">
+          <p class="v2-card__eyebrow">LA County Courts</p>
+          <p class="v2-card__fig">Northridge</p>
+          <p class="v2-card__cap">County engineers on the other side. He won.</p>
+          <div class="v2-card__detail"><p>After the Northridge earthquake threatened the world's largest thermal storage system at the LA County Courts facility, York International hired Cliff on a sole-source basis to fix it. He performed the seismic stability analysis, delivered litigation testimony against the county's own engineers and consultants, and prevailed, then designed, fabricated, and personally oversaw installation of the custom seismic restraint system.</p></div>
+          <button type="button" class="v2-card__expand" aria-label="Read more about the Northridge earthquake response" tabindex="-1"><span aria-hidden="true">+</span></button>
+        </div>
+        </div>
+      </div>
+      <div class="v2-cliff-dots" data-cliff-dots aria-hidden="true">
+        <span class="v2-cliff-dot is-on"></span>
+        <span class="v2-cliff-dot is-on"></span>
+        <span class="v2-cliff-dot is-on"></span>
+        <span class="v2-cliff-dot is-on"></span>
+        <span class="v2-cliff-dot"></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- CHAPTER 3 · THE PLAN: three steps, the first two are the diagnosis -->
+  <section class="v2-section" id="the-exam" aria-labelledby="exam-h">
+    <div class="v2-wrap">
+      <div class="v2-secintro v2-reveal">
+        <h2 id="exam-h">Three steps. Two are free.</h2>
+      </div>
+
+      <div class="v2-carousel v6-steps" data-carousel>
+        <div class="v2-carousel__track-outer">
+          <div class="v2-carousel__track">
+            <article class="v2-carousel__card">
+              <p class="v2-carousel__num">01</p>
+              <svg class="v2-step-ico v7-ico-bills" viewBox="0 0 96 64" aria-hidden="true"><rect class="v7-page v7-page--3" x="22" y="6" width="44" height="54" rx="4" fill="#fff" stroke="#9fb3ba" stroke-width="2.5"/><rect class="v7-page v7-page--2" x="16" y="10" width="44" height="50" rx="4" fill="#fff" stroke="#9fb3ba" stroke-width="2.5"/><g class="v7-page v7-page--1"><rect x="10" y="14" width="44" height="46" rx="4" fill="#fff" stroke="#174e58" stroke-width="3"/><path d="M18 26h22M18 34h28M18 42h16" stroke="#174e58" stroke-width="3" stroke-linecap="round"/><rect class="v7-bill-tag" x="36" y="48" width="12" height="5" rx="2.5" fill="#e0a21c"/></g></svg>
+              <h3>Send a year of bills.</h3>
+            </article>
+            <article class="v2-carousel__card v2-examstep2" data-expand-card data-sheet-visual="#v2-examchart-tpl" tabindex="0" role="button" aria-haspopup="dialog">
+              <p class="v2-carousel__num">02</p>
+              <svg class="v2-step-ico v7-ico-pilot" viewBox="0 0 96 64" aria-hidden="true"><rect x="10" y="8" width="52" height="48" rx="8" fill="#fff" stroke="#174e58" stroke-width="3"/><path class="v7-pulse" pathLength="1" d="M18 40 L28 40 L33 24 L40 48 L46 30 L54 30" fill="none" stroke="#174e58" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/><g class="v7-badge"><circle cx="74" cy="22" r="13" fill="#e0a21c"/><path class="v7-badge-tick" pathLength="1" d="M68 22 L72.5 26.5 L80 18" fill="none" stroke="#101416" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></g></svg>
+              <h3>We prove it with a pilot.</h3>
+              <p class="v2-card__cap">Checked by a third party you choose.</p>
+              <button type="button" class="v2-card__expand" aria-label="See the proof-window chart" tabindex="-1"><span aria-hidden="true">+</span></button>
+            </article>
+            <article class="v2-carousel__card">
+              <p class="v2-carousel__num">03</p>
+              <svg class="v2-step-ico v7-ico-choose" viewBox="0 0 96 64" aria-hidden="true"><rect class="v7-box" x="8" y="10" width="22" height="22" rx="5" fill="#174e58" stroke="#174e58" stroke-width="2.5"/><path class="v7-tick" pathLength="1" d="M13 21 L17.5 25.5 L25 17" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><rect class="v7-box v7-box--2" x="37" y="10" width="22" height="22" rx="5" fill="#174e58" stroke="#174e58" stroke-width="2.5"/><path class="v7-tick v7-tick--2" pathLength="1" d="M42 21 L46.5 25.5 L54 17" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><rect x="66" y="10" width="22" height="22" rx="5" fill="#fff" stroke="#9fb3ba" stroke-width="2.5"/><line x1="8" y1="48" x2="88" y2="48" stroke="#d3d9dd" stroke-width="4" stroke-linecap="round"/><line class="v7-slide" x1="8" y1="48" x2="58" y2="48" stroke="#e0a21c" stroke-width="4" stroke-linecap="round"/><circle class="v7-knob" cx="58" cy="48" r="7" fill="#fff" stroke="#e0a21c" stroke-width="3"/></svg>
+              <h3>You choose the fixes.</h3>
+              <p>Keep what pays. Skip the rest, owe nothing.</p>
+            </article>
+          </div>
+        </div>
+        <div class="v2-carousel__progress" aria-hidden="true"><span></span></div>
+      </div>
+
+      <template id="v2-examchart-tpl">
+        <figure class="v2-examchart v2-reveal">
+          <svg viewBox="0 0 700 280" role="img" aria-labelledby="v2-examchart-t">
+            <title id="v2-examchart-t">A kW line before the install, an install marker, then a lower kW line after.</title>
+            <line x1="30" y1="230" x2="670" y2="230" stroke="#d3d9dd" stroke-width="1.5"/>
+            <path class="v2-examchart-before" d="M30,150 C60,140 90,160 120,145 C150,132 180,150 210,140 C240,128 270,148 300,138" fill="none" stroke="#174e58" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1"/>
+            <line class="v2-examchart-install" x1="330" y1="60" x2="330" y2="230" stroke="#e0a21c" stroke-width="3" stroke-dasharray="6 5" opacity="0"/>
+            <path class="v2-examchart-after" d="M360,196 C390,190 420,202 450,192 C480,184 510,198 540,190 C570,182 600,196 630,188" fill="none" stroke="#e0a21c" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1"/>
+            <text x="150" y="256" text-anchor="middle" font-family="Geist Mono" font-size="15" fill="#174e58" font-weight="600">7 days before</text>
+            <text x="330" y="48" text-anchor="middle" font-family="Geist Mono" font-size="15" fill="#5a3f00" font-weight="700" class="v2-examchart-install-label" opacity="0">Install</text>
+            <text x="495" y="256" text-anchor="middle" font-family="Geist Mono" font-size="15" fill="#5a3f00" font-weight="600">7 days after</text>
+          </svg>
+          <figcaption>Fig. The pilot&rsquo;s proof window. Illustrative.</figcaption>
+        </figure>
+      </template>
+
+      <div class="v2-floor v2-reveal">
+        <p>If we can&rsquo;t prove the savings, nothing is installed and you owe nothing.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CHAPTER 4 · WE HANDLE ALL OF IT: the stack, then the equipment (dark), then the money -->
+  <section class="v2-section v2-dark" id="the-fixes" aria-labelledby="fixes-h">
+    <div class="v2-wrap" data-reveal-group>
+      <div class="v2-secintro v2-reveal">
+        <h2 id="fixes-h">Then we handle all of it.</h2>
+        <p class="v2-sub">One team, from the diagnosis to the paperwork.</p>
+      </div>
+      <ol class="v5-stack v2-reveal">
+          <li style="--i:0"><span class="v5-stack__check" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 12.5l4 4 8-9"/></svg></span><span class="v5-stack__name">Diagnosis</span><span class="v5-stack__line">Your bills and building, measured.</span></li>
+          <li style="--i:1"><span class="v5-stack__check" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 12.5l4 4 8-9"/></svg></span><span class="v5-stack__name">Verification</span><span class="v5-stack__line">A pilot, checked by a third party you pick.</span></li>
+          <li style="--i:2"><span class="v5-stack__check" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 12.5l4 4 8-9"/></svg></span><span class="v5-stack__name">The fixes</span><span class="v5-stack__line">Matched from four dozen-plus technologies.</span></li>
+          <li style="--i:3"><span class="v5-stack__check" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 12.5l4 4 8-9"/></svg></span><span class="v5-stack__name">Crew</span><span class="v5-stack__line">Vetted crews. Your HVAC contractor stays.</span></li>
+          <li style="--i:4"><span class="v5-stack__check" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 12.5l4 4 8-9"/></svg></span><span class="v5-stack__name">Financing</span><span class="v5-stack__line">Paid from the savings.</span></li>
+          <li style="--i:5"><span class="v5-stack__check" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 12.5l4 4 8-9"/></svg></span><span class="v5-stack__name">Incentives</span><span class="v5-stack__line">Rebates, credits and grants, found.</span></li>
+          <li style="--i:6"><span class="v5-stack__check" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 12.5l4 4 8-9"/></svg></span><span class="v5-stack__name">Paperwork</span><span class="v5-stack__line">Filed for you.</span></li>
+      </ol>
+
+      <div class="v5-subintro v2-reveal" id="equipment">
+        <p class="v2-eyebrow">The fixes</p>
+        <h3>More than four dozen technologies.</h3>
+        <p class="v2-sub">We start with heating and cooling, which can be half your bill.</p>
+      </div>
+
+      <div class="v2-techfield v2-reveal" aria-hidden="true">
+        <span class="v2-techfield__tile is-fit" style="--d:0ms">The HVAC Optimizer</span>
+        <span class="v2-techfield__tile is-fit" style="--d:35ms">The Coil Treatment</span>
+        <span class="v2-techfield__tile is-fit" style="--d:70ms">The Solar Coil</span>
+        <span class="v2-techfield__tile is-fit" style="--d:105ms">The Thermal Barrier</span>
+        <span class="v2-techfield__tile" data-mobile-keep style="--d:140ms">The SunCore</span>
+        <span class="v2-techfield__tile" data-mobile-keep style="--d:175ms">LED Lighting Retrofit</span>
+        <span class="v2-techfield__tile" data-mobile-keep style="--d:210ms">Lighting Controls</span>
+        <span class="v2-techfield__tile" data-mobile-keep style="--d:245ms">Variable Frequency Drives</span>
+        <span class="v2-techfield__tile" data-mobile-keep style="--d:280ms">Power Factor Correction</span>
+        <span class="v2-techfield__tile" data-mobile-keep style="--d:315ms">Battery Storage</span>
+        <span class="v2-techfield__tile" data-mobile-keep style="--d:350ms">Demand Controls</span>
+        <span class="v2-techfield__tile" data-mobile-keep style="--d:385ms">Building Automation</span>
+        <span class="v2-techfield__tile" style="--d:420ms">Refrigeration Controls</span>
+        <span class="v2-techfield__tile" style="--d:455ms">Rooftop Solar</span>
+        <span class="v2-techfield__tile" style="--d:490ms">Window Film</span>
+        <span class="v2-techfield__tile" style="--d:525ms">Cool Roof Coating</span>
+        <span class="v2-techfield__tile" style="--d:560ms">Heat Recovery</span>
+        <span class="v2-techfield__tile" style="--d:595ms">Economizer Repair</span>
+        <span class="v2-techfield__tile" style="--d:630ms">Smart Thermostats</span>
+        <span class="v2-techfield__tile" style="--d:665ms">Chiller Optimization</span>
+        <span class="v2-techfield__tile" style="--d:700ms">Boiler Calibration</span>
+        <span class="v2-techfield__tile" style="--d:735ms">Motor Upgrades</span>
+        <span class="v2-techfield__tile" style="--d:770ms">Air Sealing</span>
+        <span class="v2-techfield__tile" style="--d:805ms">Duct Sealing</span>
+      </div>
+
+      <div class="v2-film" id="film">
+        <div class="v2-film__intro v2-reveal">
+          <p class="v2-eyebrow">The film</p>
+          <h3>See our most-used HVAC fixes in six minutes.</h3>
+        </div>
+        <button type="button" class="v2-film__media v2-reveal" data-film-inline aria-label="Play the six-minute Energy Plus film">
+          <img src="../../assets/img/film-cover.jpg" alt="" loading="lazy">
+          <span class="v2-film__play" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13l11-6.5z"/></svg></span>
+          <span class="v2-film__len" aria-hidden="true">6 min</span>
+        </button>
+      </div>
+
+      <div class="v2-bento v2-bento--fixes">
+        <div class="v2-card v2-card--suncore v2-reveal">
+          <div class="v2-card--media v2-graded-wrap">
+            <video class="v2-graded" src="../../assets/img/suncore-rotate.mp4" poster="../../assets/img/kit-suncore.jpg" muted loop playsinline preload="auto" data-suncore-video aria-label="The SunCore packaged unit with its two integrated solar thermal collectors, rotating slowly"></video>
+          </div>
+          <div class="v2-suncore-copy">
+            <h3>The SunCore</h3>
+            <p class="v2-card__fit">For units at the end of their life</p>
+            <p>IEER 31 &middot; COP 6</p>
+          </div>
+        </div>
+
+        <div class="v2-card v2-fix-small v2-reveal">
+          <div class="v2-fix-img"><img src="../../assets/img/kit-optimizer.jpg" alt="The HVAC optimizer control module, photographed on its mounting panel" loading="lazy"></div>
+          <h3>The HVAC Optimizer</h3>
+          <p class="v2-card__fit">For older single-speed units</p>
+          <p class="v2-card__fig">15 to 30% less HVAC energy</p>
+        </div>
+
+        <div class="v2-card v2-fix-small v2-reveal">
+          <div class="v2-fix-img">
+            <img src="../../assets/img/kit-coil.png" alt="A rooftop unit coil, the left half restored and the right half still fouled" loading="lazy">
+          </div>
+          <h3>The Coil Treatment</h3>
+          <p class="v2-card__fit">For aging units</p>
+          <p class="v2-card__fig">Recovers up to 36% of lost performance</p>
+        </div>
+
+        <div class="v2-card v2-fix-small v2-reveal">
+          <div class="v2-fix-img"><img src="../../assets/img/kit-solarcoil.jpg" alt="A solar coil collector installed on a commercial roof, rooftop units behind it" loading="lazy"></div>
+          <h3>The Solar Coil</h3>
+          <p class="v2-card__fit">For newer variable-speed units</p>
+          <p class="v2-card__fig">30 to 50% more efficient</p>
+        </div>
+
+        <div class="v2-card v2-fix-small v2-reveal">
+          <div class="v2-fix-img"><img src="../../assets/img/kit-barrier.png" alt="Illustrative: a commercial flat roof half-coated in a bright reflective thermal barrier" loading="lazy"></div>
+          <h3>The Thermal Barrier</h3>
+          <p class="v2-card__fit">For the building itself</p>
+          <p class="v2-card__fig">Blocks up to 18 degrees</p>
+        </div>
+      </div>
+
+      <!-- mobile: progress carousel version of the fixes -->
+      <div class="v2-carousel v2-fixes-carousel" data-carousel>
+        <div class="v2-carousel__track-outer">
+          <div class="v2-carousel__track">
+            <article class="v2-carousel__card">
+              <div class="v2-fix-img"><img src="../../assets/img/kit-suncore.jpg" alt="The SunCore packaged rooftop unit" loading="lazy"></div>
+              <h3>The SunCore</h3>
+              <p class="v2-card__fit">For units at the end of their life</p>
+              <p class="v2-card__fig">IEER 31 &middot; COP 6</p>
+            </article>
+            <article class="v2-carousel__card">
+              <div class="v2-fix-img"><img src="../../assets/img/kit-optimizer.jpg" alt="The HVAC optimizer control module" loading="lazy"></div>
+              <h3>The HVAC Optimizer</h3>
+              <p class="v2-card__fit">For older single-speed units</p>
+              <p class="v2-card__fig">15 to 30% less HVAC energy</p>
+            </article>
+            <article class="v2-carousel__card">
+              <div class="v2-fix-img"><img src="../../assets/img/kit-coil.png" alt="A rooftop unit coil, the left half restored and the right half still fouled" loading="lazy"></div>
+              <h3>The Coil Treatment</h3>
+              <p class="v2-card__fit">For aging units</p>
+              <p class="v2-card__fig">Recovers up to 36% of lost performance</p>
+            </article>
+            <article class="v2-carousel__card">
+              <div class="v2-fix-img"><img src="../../assets/img/kit-solarcoil.jpg" alt="A solar coil collector installed on a commercial roof" loading="lazy"></div>
+              <h3>The Solar Coil</h3>
+              <p class="v2-card__fit">For newer variable-speed units</p>
+              <p class="v2-card__fig">30 to 50% more efficient</p>
+            </article>
+            <article class="v2-carousel__card">
+              <div class="v2-fix-img"><img src="../../assets/img/kit-barrier.png" alt="A commercial flat roof coated in a reflective thermal barrier" loading="lazy"></div>
+              <h3>The Thermal Barrier</h3>
+              <p class="v2-card__fit">For the building itself</p>
+              <p class="v2-card__fig">Blocks up to 18 degrees</p>
+            </article>
+          </div>
+        </div>
+        <div class="v2-carousel__progress" aria-hidden="true"><span></span></div>
+      </div>
+
+      <p class="v2-quiet v2-reveal"><a href="../../how-it-works.html">How each fix works &rarr;</a></p>
+    </div>
+  </section>
+
+  <!-- CHAPTER 4.5 · THE MONEY -->
+  <section class="v2-section" id="cash-flow" aria-labelledby="money-h">
+    <div class="v2-wrap" data-reveal-group>
+      <div class="v2-secintro v2-reveal">
+        <p class="v2-eyebrow">All of it &middot; the money</p>
+        <h2 id="money-h">Cash flow positive from day one.</h2>
+        <p class="v2-sub">Your savings are bigger than the payment.</p>
+      </div>
+
+      <div class="v2-bento v2-bento--money">
+        <div class="v2-card v2-card--stat v2-card--lg v2-reveal" data-expand-card tabindex="0" role="button" aria-haspopup="dialog">
+          <p class="v2-card__fig v2-card__fig--word">Day one</p>
+          <p class="v2-card__cap">Savings ahead of payments from day one.</p>
+          <div class="v2-money-chart" data-v7-money>
+            <svg viewBox="0 0 400 150" role="img" aria-labelledby="v2-money-chart-t">
+              <title id="v2-money-chart-t">Illustrative monthly savings running above the monthly payment across twelve months, with the gap between them labeled Cash flow.</title>
+              <polygon class="v7-gap" points="20,58 55,54 90,51 125,49 160,47 195,45 230,44 265,42 300,41 335,39 370,37 370,90 335,90 300,90 265,90 230,89 195,89 160,89 125,88 90,88 55,87 20,86" fill="var(--ochre)" opacity="0.14"/>
+              <polyline class="v7-pay" pathLength="1" points="20,86 55,87 90,88 125,88 160,89 195,89 230,89 265,90 300,90 335,90 370,90" fill="none" stroke="var(--ochre)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <polyline class="v7-save" pathLength="1" points="20,58 55,54 90,51 125,49 160,47 195,45 230,44 265,42 300,41 335,39 370,37" fill="none" stroke="var(--petrol)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <text class="v7-gap-label" x="195" y="70" text-anchor="middle" font-family="Geist Mono" font-weight="700" font-size="14" fill="var(--ochre-ink)">CASH FLOW</text>
+              <g transform="translate(20,14)">
+                <circle cx="0" cy="-4" r="4" fill="var(--petrol)"/>
+                <text x="10" y="0" font-family="Geist Mono" font-weight="600" font-size="14" fill="var(--petrol)">Monthly savings</text>
+              </g>
+              <g transform="translate(190,14)">
+                <circle cx="0" cy="-4" r="4" fill="var(--ochre)"/>
+                <text x="10" y="0" font-family="Geist Mono" font-weight="600" font-size="14" fill="var(--ochre-ink)">Monthly payment</text>
+              </g>
+            </svg>
+            <p class="v2-money-chart__note">Illustrative</p>
+          </div>
+          <div class="v2-card__detail"><p>Where the numbers support it, the project is structured so your monthly savings are larger than your monthly payment from day one. If a fix can&rsquo;t pay its own way, we don&rsquo;t propose it.</p></div>
+          <button type="button" class="v2-card__expand" aria-label="Read more about day one cash flow" tabindex="-1"><span aria-hidden="true">+</span></button>
+        </div>
+
+        <div class="v2-card v2-card--stat v2-card--sm v2-reveal" data-expand-card tabindex="0" role="button" aria-haspopup="dialog">
+          <p class="v2-card__eyebrow">The payback bar</p>
+          <p class="v2-card__fig v2-card__fig--word">Your call</p>
+          <p class="v2-card__cap">You set the payback each fix must clear. We aim for under three years.</p>
+          <div class="v2-card__detail"><p>You decide the payback a fix has to clear, or ask for cash flow positive from day one. We aim for under three years on your numbers, and anything that misses your bar stays off the proposal.</p></div>
+          <button type="button" class="v2-card__expand" aria-label="Read more about the payback bar" tabindex="-1"><span aria-hidden="true">+</span></button>
+        </div>
+
+      </div>
+
+      <div class="v2-cta v2-reveal">
+        <button type="button" class="v2-btn" data-book>Book a 15-minute call</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- CHAPTER 5 · PROOF -->
+  <section class="v2-section" id="proof" aria-labelledby="proof-h">
+    <div class="v2-wrap">
+      <div class="v2-secintro v2-reveal">
+        <h2 id="proof-h">Measured at 200+ named sites.</h2>
+        <p class="v2-sub">Real bills from real buildings.</p>
+      </div>
+
+      <div class="v2-ledger" id="v2-ledger" aria-hidden="true">
+        <div class="v2-ledger__col" style="--dur: 210s"></div>
+        <div class="v2-ledger__col" style="--dur: 260s"></div>
+        <div class="v2-ledger__col" style="--dur: 180s"></div>
+      </div>
+      <p class="v2-quiet">Hover to pause. Tap any result for details. <button type="button" class="v2-textlink" id="v2-record-open" aria-haspopup="dialog">Read the full record: 95 documented examples</button></p>
+    </div>
+  </section>
+
+  <!-- CHAPTER 6 · YOUR NUMBER -->
+  <section class="v2-section" id="your-number" aria-labelledby="number-h">
+    <div class="v2-wrap">
+      <div class="v2-secintro v2-reveal">
+        <h2 id="number-h">Run your own number.</h2>
+        <p class="v2-sub">One bill and four taps.</p>
+      </div>
+      <div class="v2-calc" data-v2-calc>
+        <p class="v2-calc__loading" aria-hidden="true">Loading the calculator&hellip;</p>
+        <iframe id="v2-calc-frame" src="../../overspend-calculator/?embed=1&v=1" title="Energy+ overspend calculator" loading="lazy"></iframe>
+      </div>
+    </div>
+  </section>
+
+  <!-- CLOSE -->
+  <section class="v2-close" aria-labelledby="close-h">
+    <div class="v2-close__media" aria-hidden="true">
+      <img src="../../assets/img/close-dusk.jpg" alt="" loading="lazy">
+      <div class="v2-close__scrim"></div>
+    </div>
+    <div class="v2-wrap v2-close__in">
+      <h2 id="close-h">Find out what your building is overpaying.</h2>
+      <p class="v2-close__sub">Fifteen minutes to see if your building qualifies.</p>
+      <div class="v2-cta" data-cta>
+        <button type="button" class="v2-btn v2-btn--lg v2-btn--light" data-book>Book a 15-minute call</button>
+        <button type="button" class="v2-textlink v2-textlink--light js-v2-sms-toggle" aria-expanded="false">Text Dan</button>
+      </div>
+      <div class="v2-sms" role="group" aria-label="Text the founder">
+        <p class="v2-sms__to">To Dan &middot; (864) 777-0688</p>
+        <textarea rows="4" spellcheck="false" aria-label="Message to Dan">Hi Dan, I run a commercial building and I'd like to see what real energy savings could look like at my property, without the sales song and dance. What does it take to qualify?</textarea>
+        <div class="v2-sms__foot">
+          <span class="v2-sms__hint">Opens in your messages, ready to send.</span>
+          <a class="v2-btn js-v2-sms-send" href="#" data-phone="+18647770688">Send message</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="v2-wrap v2-team-wrap">
+      <div class="v2-team">
+        <h3 class="v2-team__title">Meet the people behind the numbers.</h3>
+        <div class="v2-team-grid" data-team-grid>
+          <article class="v2-person">
+            <span class="v2-person__photo"><img src="../../assets/img/daniel.jpeg" alt="Daniel Gutierrez" loading="lazy"></span>
+            <span class="v2-person__meta">
+              <h4>Daniel Gutierrez</h4>
+              <span class="v2-person__role">CEO + Founder</span>
+              <p class="v2-person__bio">Daniel leads every client relationship and sources, vets, and procures the technology behind every diagnosis. He has spent 19 years connecting people, capital, and opportunity across 14+ industries and 70+ specialized markets, including work as a director of FDA-registered clinical trials. He works fee-for-performance and is committed to putting profits back into American infrastructure.</p>
+            </span>
+          </article>
+          <article class="v2-person">
+            <span class="v2-person__photo"><img src="../../assets/img/ronson.jpeg" alt="Ronson Provido" loading="lazy"></span>
+            <span class="v2-person__meta">
+              <h4>Ronson Provido</h4>
+              <span class="v2-person__role">Principal Field Engineering Advisor</span>
+              <p class="v2-person__bio">Ronson advises on engineering for every install and coordinates the crews on your roof. He brings 20+ years in electrical engineering across design, commissioning, R&amp;D, and project management, with a portfolio that includes LAX and commercial and hospitality projects in several states. He is a licensed PE, qualified in Title 24 and LEED.</p>
+            </span>
+          </article>
+          <article class="v2-person">
+            <span class="v2-person__photo"><img src="../../assets/img/cj.jpeg" alt="CJ Metz" loading="lazy"></span>
+            <span class="v2-person__meta">
+              <h4>CJ Metz</h4>
+              <span class="v2-person__role">Strategic Account Manager</span>
+              <p class="v2-person__bio">CJ brings 23+ years in technology leadership, sales, and consulting. An Air Force veteran, he has led initiatives for Fortune 500 firms.</p>
+            </span>
+          </article>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="v2-section v2-faq" id="faq" aria-labelledby="faq-h">
+    <div class="v2-wrap">
+      <div class="v2-secintro v2-reveal">
+        <h2 id="faq-h">Questions</h2>
+      </div>
+      <div class="v2-faq-list v2-reveal">
+        <details>
+          <summary>I run the building. What changes for me? <span class="v2-chev" aria-hidden="true">&#9662;</span></summary>
+          <div class="v2-faq-body">
+            <p>Nothing breaks and nothing changes hands. The work happens on the units you already run, typically an afternoon each, with comfort held or improved.<sup class="v2-fn"><a href="#v2-notes">1, 12</a></sup> Your incumbent HVAC contractor stays your contractor: we prefer to certify and work through them, not around them. Equipment that&rsquo;s calibrated and matched to your building means fewer breakdowns and fewer hot-room calls.</p>
+          </div>
+        </details>
+        <details>
+          <summary>I own the P&amp;L. What does it cost? <span class="v2-chev" aria-hidden="true">&#9662;</span></summary>
+          <div class="v2-faq-body">
+            <p>You set the payback bar every fix must clear, or ask for cash-flow positive from day one, on your own numbers. We aim for under three years.<sup class="v2-fn"><a href="#v2-notes">1, 2</a></sup> If we can&rsquo;t prove the savings, nothing is installed and you owe nothing. Every rebate, credit, and deduction your project qualifies for is found and filed for you.<sup class="v2-fn"><a href="#v2-notes">3, 4</a></sup></p>
+          </div>
+        </details>
+        <details>
+          <summary>I answer for the numbers. How is it measured? <span class="v2-chev" aria-hidden="true">&#9662;</span></summary>
+          <div class="v2-faq-body">
+            <p>Every pilot is metered before and after, witnessed by any third party you choose. Recognized protocols on request: IPMVP Option C, ASHRAE Guideline 14.<sup class="v2-fn"><a href="#v2-notes">8</a></sup> The result is verified kWh you can carry straight to your books, not a marketing claim.</p>
+          </div>
+        </details>
+        
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="v2-foot">
+  <div class="v2-wrap">
+    <img src="../../assets/img/energy-plus-logo.png" alt="Energy Plus">
+    <p class="v2-foot__tagline">Independent energy partner to commercial buildings. We diagnose the property first, then prove the savings on it.</p>
+
+    <div class="v2-foot__notes" id="v2-notes">
+      <p><strong>How to read this page.</strong> Energy Plus is an independent energy solutions partner. We do not manufacture equipment. We diagnose each property and procure, size, and integrate the right technologies from our stack for that specific building. The numbered notes below apply to the marked figures and statements throughout this page.</p>
+      <ul>
+        <li id="v2-note-cashflow"><span class="n">*</span><span>Cash flow timing runs from install, where the numbers support it; typical time from first call to lower bills is under 90 days. Savings, financing terms, and incentive eligibility depend on your building, utility, and state, and are confirmed during the diagnosis. Your tax advisor confirms final tax figures.</span></li>
+        <li><span class="n">1</span><span><strong>Savings and performance figures.</strong> All savings, bill-reduction, equipment-life, maintenance, and payback figures shown (including the heating-and-cooling savings ranges such as 20 to 55% of the HVAC portion of a bill) are illustrative estimates or results achieved at specific facilities under their own conditions. They are not predictions or guarantees of your results. Your actual results depend on your building, climate, occupancy, equipment condition, and utility rates, which is exactly why we prove your savings on site before you commit. Modeled numbers are directional estimates, not quotes.</span></li>
+        <li><span class="n">2</span><span><strong>Program terms and eligibility.</strong> Our done-for-you program, including negotiation, pricing, and contract terms, is offered case-by-case and depends on factors such as the number of facilities in your portfolio and the size of your electricity bills. Properties that do not qualify for the done-for-you program may instead be offered self-directed options, which carry different terms, pricing, and responsibilities. "No cost," "the diagnosis is on us," and "nothing owed" describe the diagnosis and pilot phase for qualifying properties; they do not describe the cost of any installed solution. Eligibility, scheduling, and availability are determined during the application and diagnosis process.</span></li>
+        <li><span class="n">3</span><span><strong>Tax incentives.</strong> Any tax figures shown are potential amounts based on current federal rules and assumptions; they are not tax advice. Actual deductions depend on your building, the work performed, and your tax situation. Consult a qualified tax advisor.</span></li>
+        <li><span class="n">4</span><span><strong>Utility and incentive programs.</strong> Utility-program coverage varies by state, utility, and program, and is subject to program availability, funding, and qualification. Amounts shown are illustrative and are not guaranteed.</span></li>
+        <li><span class="n">5</span><span><strong>Professional history and credentials.</strong> Biographical and credential statements reflect documented professional history. Supporting documentation is available for verification on request.</span></li>
+        <li><span class="n">8</span><span><strong>Measurement and verification.</strong> Independent measurement and verification of results, including under recognized protocols such as IPMVP Option C and ASHRAE Guideline 14, is available upon request on qualifying projects. Where performed, verification confirms measured results for that specific project only.</span></li>
+        <li><span class="n">9</span><span><strong>Third-party evaluations and named organizations.</strong> References to NASA, named utilities, and other organizations reflect publicly available reports and evaluations concerning the underlying technologies that Energy Plus deploys. They do not refer to Energy Plus itself, and do not constitute or imply endorsement, sponsorship, certification, or affiliation.</span></li>
+        <li><span class="n">12</span><span><strong>Equipment life and maintenance.</strong> Statements regarding extended equipment life, reduced maintenance, improved humidity control, and single-application or long-lasting benefits assume proper installation, operation, and maintenance. They are not a warranty, and actual outcomes will vary.</span></li>
+      </ul>
+    </div>
+
+    <details class="v2-disclosures" id="v2-disclosures-terms">
+      <summary>Important Disclosures and Terms <span class="v2-chev" aria-hidden="true">&#9662;</span></summary>
+      <div class="v2-disclosures__body">
+        <p><em>Effective date: February 4, 2026.</em> These disclosures apply to Energy Plus marketing and informational materials, including videos, presentations, web pages, and printed materials. They explain the basis for the statements, figures, and offers presented in those materials. By viewing or relying on those materials, you acknowledge these disclosures. Where a signed agreement exists, that agreement governs.</p>
+        <h4>1. General</h4>
+        <p>This content is provided for general informational purposes only. It is not an offer, warranty, guarantee, or professional advice. All figures are estimates, are illustrative, and are subject to change without notice. The only binding commitments between you and Energy Plus are those set out in a signed written agreement. Results vary by facility.</p>
+        <h4>2. Performance figures</h4>
+        <p>Stated efficiency and savings ranges, including but not limited to 15 to 30 percent, 30 to 50 percent, 20 to 55 percent of the heating-and-cooling portion of a bill, up to 36 percent, an IEER of 31, a COP of 6, and more than 10 degrees, reflect results observed under specific conditions or reported in specific studies. Where a range is quoted for combined measures, the low end reflects the outcomes we treat as the planning floor and the high end requires per-site modeling. Actual performance depends on factors including equipment type, equipment age, baseline efficiency, climate, occupancy, usage patterns, maintenance, and installation quality. Your actual results may differ from, and may fall below, the ranges shown.</p>
+        <h4>3. System and technical statements</h4>
+        <p>Descriptions of how heating and cooling systems operate, including any statement that the compressor accounts for a majority or a stated share of system energy use, are typical or representative rather than universal. Actual values vary by system design, configuration, and operation.</p>
+        <h4>4. Savings and return on investment</h4>
+        <p>Any savings, payback period, or return on investment figure is an estimate based on assumptions that may not reflect the conditions at your facility. It is not a guarantee of any specific financial outcome. Modeled results and prior results do not predict future performance.</p>
+        <h4>5. Cash flow and program cost</h4>
+        <p>Statements that a project can be cash-flow positive from day one, or that incentives can cover a significant share of a program, describe outcomes that are achievable only under certain financing structures, utility rates, program eligibility, and tax positions. These outcomes are not available in all cases and are not promised for any particular customer.</p>
+        <h4>6. Tax credits, deductions, and rebates</h4>
+        <p>The availability, amounts, and eligibility requirements of tax deductions, tax credits, and utility rebates depend on jurisdiction, current law, program funding, and your individual tax situation. Programs change and may end without notice. Energy Plus does not provide tax, accounting, or legal advice and does not guarantee that any incentive will be approved or received. Consult your own qualified advisor regarding your specific circumstances.</p>
+        <h4>7. Measurement and verification</h4>
+        <p>Independent measurement and verification of results, including under recognized protocols such as the International Performance Measurement and Verification Protocol (IPMVP) Option C and ASHRAE Guideline 14, is available upon request on qualifying projects. Where performed, verification confirms measured results for that specific project only and does not guarantee future results or results at any other site.</p>
+        <h4>8. Third-party evaluations and named organizations</h4>
+        <p>References to NASA, Durham College, named utilities, and other organizations reflect publicly available reports and evaluations concerning the underlying technologies that Energy Plus deploys. They do not refer to Energy Plus itself. Such references are provided for identification and descriptive purposes only and do not constitute or imply endorsement, sponsorship, certification, or affiliation by those organizations with Energy Plus, unless expressly stated in writing.</p>
+        <h4>9. Case studies and references</h4>
+        <p>Case studies, study counts, and climate or geographic references reflect specific installations completed under specific conditions. They are illustrative and are not predictive of the results you will achieve at your facility.</p>
+        <h4>10. Third-party products and trademarks</h4>
+        <p>Certain technologies referenced are manufactured or supplied by third parties. All product names, logos, and trademarks are the property of their respective owners. Specifications are subject to change without notice.</p>
+        <h4>11. Equipment life and maintenance</h4>
+        <p>Statements regarding extended equipment life, reduced maintenance, improved humidity control, and single-application or long-lasting benefits assume proper installation, operation, and maintenance. They are not a warranty, and actual outcomes will vary. Warranty terms, if any, are provided separately in writing.</p>
+        <h4>12. Forward-looking statements</h4>
+        <p>Statements about future benefits, savings, performance, and outcomes are forward-looking and inherently uncertain. Actual results may differ materially from those expressed or implied.</p>
+        <h4>13. Not professional advice; assessment required</h4>
+        <p>The information presented is general and educational in nature. It is not engineering, financial, tax, or legal advice for your specific situation. A formal assessment of your facility is required before any specific recommendation, scope, or projected result can be provided.</p>
+        <h4>14. Analogies</h4>
+        <p>References to diagnosis, examinations, prescriptions, or disease are analogies used to describe the energy assessment process. They are not medical statements and are not intended to convey any medical meaning.</p>
+        <p><strong>Questions.</strong> For questions about these disclosures or any statement in our materials, contact Energy Plus at <a href="mailto:dan@yourenergyplus.com">dan@yourenergyplus.com</a> or <a href="tel:+18647770688">(864) 777-0688</a>.</p>
+      </div>
+    </details>
+
+    <div class="v2-foot__meta">
+      <span>&copy; 2026 Energy Plus</span>
+      <span>Independent Energy Solutions Partner</span>
+    </div>
+  </div>
+</footer>
+
+<dialog class="v2-sheet" id="v2-record-sheet" aria-labelledby="v2-record-title">
+  <div class="v2-sheet__bar">
+    <h2 id="v2-record-title">The full record</h2>
+    <button type="button" class="v2-sheet__close" id="v2-record-close" aria-label="Close the full record">&times;</button>
+  </div>
+  <div class="v2-sheet__body" id="v2-record-body">
+    <noscript><p>The full record requires JavaScript. Documentation for all 95 examples is available on request.</p></noscript>
+  </div>
+  <p class="v2-sheet__note">Every result was measured at the named site under its own conditions; it is not a prediction for your building. Regional programs aggregate hundreds of additional sites into the 200-plus total.<sup class="v2-fn"><a href="#v2-notes">1, 9</a></sup></p>
+</dialog>
+
+<dialog class="v2-card-sheet v2-billsheet" id="v2-bill-sheet" aria-labelledby="v2-billsheet-title">
+  <div class="v2-card-sheet__body v2-billsheet__body">
+    <button type="button" class="v2-card-sheet__close" id="v2-billsheet-close" aria-label="Close">&times;</button>
+    <p class="v2-card-sheet__eyebrow" id="v2-billsheet-title">COMMERCIAL ELECTRIC SERVICE</p>
+    <p class="v2-bill__sub">Example building &middot; 60,000 sq ft &middot; illustrative</p>
+    <div class="v2-bill__rows" id="v2-billsheet-rows">
+      <div class="v2-bill__row">
+        <div class="v2-bill__label">Customer charge</div>
+        <div class="v2-bill__amt" data-field="customer"><span class="v2-bill__old"></span><span class="v2-bill__new">$45.00</span></div>
+      </div>
+      <div class="v2-bill__row">
+        <div class="v2-bill__label">Energy charge
+          <span class="v2-bill__math" data-field="energy-math">80,000 kWh &times; $0.0650</span>
+        </div>
+        <div class="v2-bill__amt" data-field="energy"><span class="v2-bill__old"></span><span class="v2-bill__new">$5,200.00</span></div>
+      </div>
+      <div class="v2-bill__row">
+        <div class="v2-bill__label">Fuel adjustment
+          <span class="v2-bill__math" data-field="fuel-math">80,000 kWh &times; $0.0120</span>
+        </div>
+        <div class="v2-bill__amt" data-field="fuel"><span class="v2-bill__old"></span><span class="v2-bill__new">$960.00</span></div>
+      </div>
+      <div class="v2-bill__row">
+        <div class="v2-bill__label">Demand charge
+          <span class="v2-bill__math" data-field="demand-math">250 kW &times; $14.00</span>
+        </div>
+        <div class="v2-bill__amt" data-field="demand"><span class="v2-bill__old"></span><span class="v2-bill__new">$3,500.00</span></div>
+      </div>
+      <div class="v2-bill__row">
+        <div class="v2-bill__label">Taxes and fees (7%)</div>
+        <div class="v2-bill__amt" data-field="taxes"><span class="v2-bill__old"></span><span class="v2-bill__new">$679.35</span></div>
+      </div>
+    </div>
+    <div class="v2-bill__total">
+      <div class="v2-bill__total-row">
+        <div class="v2-bill__total-label">TOTAL DUE</div>
+        <div class="v2-bill__total-amt" data-field="total"><span class="v2-bill__old"></span><span class="v2-bill__new">$10,384.35</span></div>
+      </div>
+    </div>
+    <p class="v2-billsheet__note">Example building, 60,000 sq ft. Illustrative.</p>
+  </div>
+</dialog>
+
+<dialog class="v2-card-sheet" id="v2-card-sheet" aria-labelledby="v2-card-sheet-cap">
+  <div class="v2-card-sheet__body">
+    <button type="button" class="v2-card-sheet__close" id="v2-card-sheet-close" aria-label="Close">&times;</button>
+    <p class="v2-card-sheet__eyebrow" id="v2-card-sheet-eyebrow"></p>
+    <p class="v2-card-sheet__fig" id="v2-card-sheet-fig"></p>
+    <p class="v2-card-sheet__cap" id="v2-card-sheet-cap"></p>
+    <div class="v2-card-sheet__visual" id="v2-card-sheet-visual" hidden></div>
+    <p class="v2-card-sheet__detail" id="v2-card-sheet-detail"></p>
+  </div>
+</dialog>
+
+<div class="v2-preview-badges">
+  <a class="v2-preview-badge" href="../redesign-v6/index.html">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5l7 7-7 7"/></svg>
+    Preview v7 &middot; compare v6
+  </a>
+  <a class="v2-preview-badge v2-preview-badge--live" href="../../index.html">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5l7 7-7 7"/></svg>
+    live
+  </a>
+</div>
+
+<script src="../../assets/vendor/gsap.min.js"></script>
+<script src="../../assets/vendor/ScrollTrigger.min.js"></script>
+<script src="v2.js" defer></script>
+<script src="building.js" defer></script>
+<script src="v7.js" defer></script>
+</body>
+</html>
