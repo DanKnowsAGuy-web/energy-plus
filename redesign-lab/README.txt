@@ -13,3 +13,8 @@ zoom into the bill, the two other costs as the equipment's payoff, why nobody
 fixes this, the diagnosis (Cliff), three steps, then "we handle all of it"
 (the stack, the equipment, the money), proof, calculator, close.
 New styles live in v5.css; everything else is carried from v4.
+
+v6 (lab/redesign-v6): v5 with the copy pass. One word per idea (overpaying,
+day one, payback, fixes, diagnosis/pilot), plainer bill chapters, shorter
+stack rows and steps, short Cliff labels, money cut to Day one + Your call,
+redundant lines and the duplicate FAQ removed. v6.css holds the money layout.

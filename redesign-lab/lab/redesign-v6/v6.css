@@ -1,0 +1,7 @@
+/* Energy+ · redesign v6 · copy pass
+   Only layout that the copy changes required: the money section is now two
+   cards (Day one + Your call), side by side on desktop. */
+@media (min-width: 860px) {
+  .v2-bento--money .v2-card--lg { grid-column: span 7; grid-row: auto; }
+  .v2-bento--money .v2-card--sm { grid-column: span 5; }
+}
