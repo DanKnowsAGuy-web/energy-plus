@@ -7,7 +7,7 @@
 }
 
 /* the three steps never scroll sideways: stacked on phones, three across on tablets */
-@media (max-width: 979.9px) {
+@media (min-width: 0px) {
   .v6-steps .v2-carousel__track { overflow: visible; scroll-snap-type: none; padding-bottom: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.9rem; }
   .v6-steps .v2-carousel__card { width: auto; }
   .v6-steps .v2-carousel__progress { display: none; }

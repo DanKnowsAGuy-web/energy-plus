@@ -881,6 +881,7 @@
     const track = carousel.querySelector(".v2-carousel__track");
     const fill = carousel.querySelector(".v2-carousel__progress span");
     if (!outer || !track) return;
+    if (carousel.classList.contains("v6-steps")) return; /* three steps sit three across, no sideways scroll */
 
     const isMobile = () => window.innerWidth < 980;
 
@@ -1020,11 +1021,12 @@
 
     if (window.innerWidth >= 980 && window.gsap && window.ScrollTrigger) {
       gsap.registerPlugin(ScrollTrigger);
-      const thresholds = [0.1, 0.35, 0.6];
+      const thresholds = [0, 0.2, 0.4];
+      ScrollTrigger.create({ trigger: costsSection, start: "top 65%", once: true, onEnter: () => playCard(costCards[0]) });
       ScrollTrigger.create({
         trigger: costsSection,
         start: "top top",
-        end: "+=120%",
+        end: "+=80%",
         pin: true,
         onUpdate: (self) => {
           thresholds.forEach((th, i) => { if (self.progress >= th && costCards[i]) playCard(costCards[i]); });
