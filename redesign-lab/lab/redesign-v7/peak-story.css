@@ -1,0 +1,92 @@
+/* Energy Plus · peak story
+   One day draws, one 15-minute spike rises, that spike is billed for all 30 days,
+   then the peak is flattened and the whole month drops. Stage-driven: JS sets
+   data-stage 0..4 on the figure; CSS does the motion. */
+
+.ps-story {
+  --ps-ease: cubic-bezier(0.19, 1, 0.22, 1);
+  margin: clamp(1.4rem, 3vw, 2rem) 0 0;
+  background: #fff;
+  border-radius: 22px;
+  padding: clamp(1rem, 2.2vw, 1.4rem) clamp(1rem, 2.4vw, 1.5rem) 0.9rem;
+  box-shadow: 0 1px 2px rgb(16 20 22 / 0.04), 0 12px 32px -12px rgb(16 20 22 / 0.12);
+}
+.ps-story svg { display: block; width: 100%; height: auto; overflow: visible; }
+
+/* labels */
+.ps-story .ps-k { font-family: var(--font-mono); font-size: 10px; font-weight: 600; letter-spacing: 0.06em; fill: #6b747a; }
+.ps-story .ps-ticks text { font-family: var(--font-mono); font-size: 9.5px; font-weight: 600; fill: #6b747a; }
+
+/* the day */
+.ps-story .ps-area { fill: #174e58; opacity: 0; transition: opacity 900ms var(--ps-ease) 500ms; }
+.ps-story .ps-line { fill: none; stroke: #174e58; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round;
+  stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke-dashoffset 1400ms cubic-bezier(0.45, 0, 0.2, 1); }
+.ps-story[data-stage]:not([data-stage="0"]) .ps-line { stroke-dashoffset: 0; }
+.ps-story[data-stage]:not([data-stage="0"]) .ps-area { opacity: 0.07; }
+
+/* the spike: grows from the top of the normal afternoon (140 kW) to 250 kW, then is flattened to 150 kW */
+.ps-story .ps-spike { fill: #e0a21c; transform-box: fill-box; transform-origin: 50% 100%;
+  transform: scaleY(0.56); opacity: 0; transition: transform 620ms var(--ps-ease), opacity 200ms linear; }
+.ps-story[data-stage="2"] .ps-spike,
+.ps-story[data-stage="3"] .ps-spike { transform: scaleY(1); opacity: 1; }
+.ps-story[data-stage="4"] .ps-spike { transform: scaleY(0.6); opacity: 1; fill: #174e58; transition-duration: 900ms, 200ms; }
+
+.ps-story .ps-tag rect { fill: #e0a21c; }
+.ps-story .ps-tag text { font-family: var(--font-mono); font-size: 10.5px; font-weight: 700; fill: #101416; }
+.ps-story .ps-tag { opacity: 0; transform: translateY(6px); transition: opacity 300ms linear, transform 500ms var(--ps-ease); }
+.ps-story[data-stage="2"] .ps-tag,
+.ps-story[data-stage="3"] .ps-tag { opacity: 1; transform: none; transition-delay: 260ms; }
+.ps-story[data-stage="4"] .ps-tag { opacity: 0; }
+
+/* the ceiling: the spike's height, stretched across the day, then dropped to the flattened peak */
+.ps-story .ps-ceil line { stroke: #174e58; stroke-width: 1.8; stroke-dasharray: 5 4; }
+.ps-story .ps-ceil text { font-family: var(--font-mono); font-size: 10px; font-weight: 700; fill: #174e58; letter-spacing: 0.04em; }
+.ps-story .ps-ceil { transform-box: view-box; transform-origin: 337px 0; transform: scaleX(0); opacity: 0;
+  transition: transform 700ms var(--ps-ease), opacity 200ms linear; }
+.ps-story[data-stage="3"] .ps-ceil { transform: scaleX(1); opacity: 1; }
+.ps-story[data-stage="4"] .ps-ceil { transform: translateY(53.8px) scaleX(1); opacity: 1; transition-duration: 900ms, 200ms; }
+
+/* the month: each day fills to the billed peak, left to right */
+.ps-story .ps-day-track { fill: #f3f5f6; stroke: #d3d9dd; stroke-width: 1; }
+.ps-story .ps-day-fill { fill: #e0a21c; transform-box: fill-box; transform-origin: 50% 100%; transform: scaleY(0);
+  transition: transform 520ms var(--ps-ease); }
+.ps-story[data-stage="3"] .ps-day-fill { transform: scaleY(1); transition-delay: calc(500ms + var(--i) * 38ms); }
+.ps-story[data-stage="4"] .ps-day-fill { transform: scaleY(0.6); fill: #174e58; transition: transform 800ms var(--ps-ease), fill 400ms linear;
+  transition-delay: calc(var(--i) * 14ms); }
+
+/* readout */
+.ps-readout { display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem; margin-top: 0.4rem; min-height: 4.2rem; }
+.ps-cap { margin: 0 !important; font-size: 0.98rem; line-height: 1.4; color: var(--ink); font-weight: 600; max-width: 22ch; transition: opacity 200ms linear; }
+.ps-cap.is-swapping { opacity: 0; }
+.ps-charge { display: grid; justify-items: end; gap: 0.15rem; flex: none; }
+.ps-charge__label { font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase; color: #6b747a; font-weight: 600; }
+.ps-charge__num { font-family: var(--font-mono); font-weight: 700; font-size: clamp(1.5rem, 1.1rem + 1.4vw, 2rem); color: var(--ink); line-height: 1; font-variant-numeric: tabular-nums; }
+.ps-charge__unit { font-size: 0.5em; color: #6b747a; margin-left: 0.2em; font-weight: 600; }
+.ps-save { font-family: var(--font-mono); font-size: 0.74rem; font-weight: 700; color: #fff; background: #174e58; border-radius: 999px;
+  padding: 0.25rem 0.6rem; opacity: 0; transform: translateY(4px); transition: opacity 300ms linear, transform 500ms var(--ps-ease); }
+.ps-story[data-stage="4"] .ps-save { opacity: 1; transform: none; transition-delay: 700ms; }
+
+.ps-foot { display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-top: 0.7rem; padding-top: 0.6rem;
+  border-top: 1px solid #e6eaec; font-size: 0.74rem; color: #6b747a; }
+.ps-replay { font: inherit; font-weight: 600; color: #174e58; background: none; border: 0; padding: 0.2rem 0; cursor: pointer;
+  text-decoration: underline; text-underline-offset: 3px; opacity: 0; pointer-events: none; transition: opacity 300ms linear; }
+.ps-story.is-done .ps-replay { opacity: 1; pointer-events: auto; }
+
+/* the small peak sketch in the chapter head is replaced by this story */
+.v2-chapter[data-num="02"] .v2-illust--peak { display: none; }
+
+@media (max-width: 560px) {
+  .ps-readout { flex-direction: column; align-items: flex-start; }
+  .ps-charge { justify-items: start; }
+  .ps-cap { max-width: none; }
+}
+
+/* still version: the finished picture, no motion */
+.v2-reduced .ps-story *, .v2-static .ps-story * { transition: none !important; }
+
+/* phones: the chart scales down, so its labels scale up */
+@media (max-width: 560px) {
+  .ps-story .ps-k { font-size: 15px; }
+  .ps-story .ps-ticks text { font-size: 14px; }
+  .ps-story .ps-ceil text { font-size: 14px; }
+}
