@@ -181,3 +181,31 @@ html { scroll-padding-top: 6rem; }
 .v7-person h3 { font-size: 1.02rem; color: var(--ink); line-height: 1.25; }
 .v7-person p { margin-top: 0.15rem; font-size: 0.9rem; line-height: 1.4; color: var(--body-c); }
 .v7-person .v7-person__role { font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; color: #6b747a; margin-top: 0.2rem; }
+
+/* how it works: the checklist as a compact two-column grid */
+#the-exam .v5-stack { display: grid; gap: 0.2rem 2rem; padding: 1rem 1.4rem; }
+@media (min-width: 760px) { #the-exam .v5-stack { grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: none; } }
+#the-exam .v5-stack li { grid-template-columns: 2rem minmax(0, 1fr); padding-block: 0.7rem; border-top: 0; border-bottom: 1px solid var(--rule); }
+#the-exam .v5-stack__name { font-size: 1.02rem; }
+#the-exam .v5-stack__line { grid-column: 2; font-size: 0.95rem; }
+
+/* the fixes: products tucked into an accordion under the film */
+.v7-fixes-more { margin-top: clamp(1.6rem, 3vw, 2.2rem); border-top: 1px solid rgb(255 255 255 / 0.2); border-bottom: 1px solid rgb(255 255 255 / 0.2); }
+.v7-fixes-more > summary { list-style: none; cursor: pointer; display: flex; justify-content: space-between; align-items: center;
+  padding: 1.1rem 0; font-weight: 600; font-size: 1.1rem; color: #fff; }
+.v7-fixes-more > summary::-webkit-details-marker { display: none; }
+.v7-fixes-more[open] > summary .v2-chev { transform: rotate(180deg); }
+.v7-fixes-more__body { padding-bottom: 1.6rem; }
+.v7-fixes-more__body .v2-fixes-carousel { margin-top: 0; }
+
+/* the walkthrough door: facility tiles */
+.v7-door__grid { display: grid; gap: 0.6rem; margin-top: clamp(1.4rem, 3vw, 2rem); grid-template-columns: 1fr; }
+@media (min-width: 560px) { .v7-door__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 980px) { .v7-door__grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.v7-door__tile { display: flex; justify-content: space-between; align-items: center; gap: 0.8rem; padding: 1rem 1.1rem; background: #fff;
+  border-radius: 14px; box-shadow: 0 1px 2px rgb(16 20 22 / 0.05); color: var(--ink); font-weight: 600; text-decoration: none; font-size: 0.98rem;
+  transition: background 200ms, transform 200ms; }
+a.v7-door__tile:hover { background: #e7eef0; transform: translateY(-1px); }
+.v7-door__go { font-family: var(--font-mono); color: var(--petrol); }
+.v7-door__tile.is-soon { color: #6b747a; font-weight: 500; background: rgb(255 255 255 / 0.55); box-shadow: none; }
+.v7-door__soon { font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase; color: #9aa3a8; }
