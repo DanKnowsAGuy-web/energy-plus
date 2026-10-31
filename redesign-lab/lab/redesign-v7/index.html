@@ -58,10 +58,10 @@
   </a>
   <nav class="v2-bar__nav" data-section-nav aria-label="Page sections">
     <a href="#the-three" data-nav-link>The bill</a>
-    <a href="#the-exam" data-nav-link>The diagnosis</a>
-    <a href="#the-fixes" data-nav-link>All of it</a>
+    <a href="#the-exam" data-nav-link>How it works</a>
     <a href="#proof" data-nav-link>Proof</a>
     <a href="#your-number" data-nav-link>Your number</a>
+    <a href="#the-fixes" data-nav-link>The fixes</a>
     <span class="v2-bar__nav-underline" data-nav-underline aria-hidden="true"></span>
   </nav>
   <button type="button" class="v2-btn" data-book>Book a 15-minute call</button>
@@ -76,7 +76,6 @@
 </div>
 
 <main id="top">
-
   <!-- HERO -->
   <section class="v2-hero" id="hero" aria-labelledby="hero-h">
     <div class="v2-hero__media v2-graded-wrap" aria-hidden="true" data-hero-media>
@@ -528,14 +527,9 @@
       <div class="v2-floor v2-reveal">
         <p>If we can&rsquo;t prove the savings, nothing is installed and you owe nothing.</p>
       </div>
-    </div>
-  </section>
 
-  <!-- CHAPTER 4 · WE HANDLE ALL OF IT: the stack, then the equipment (dark), then the money -->
-  <section class="v2-section v2-dark" id="the-fixes" aria-labelledby="fixes-h">
-    <div class="v2-wrap" data-reveal-group>
-      <div class="v2-secintro v2-reveal">
-        <h2 id="fixes-h">Then we handle all of it.</h2>
+      <div class="v7-handle v2-reveal">
+        <h3>Then we handle all of it.</h3>
         <p class="v2-sub">One team, from the diagnosis to the paperwork.</p>
       </div>
       <ol class="v5-stack v2-reveal">
@@ -547,10 +541,98 @@
           <li style="--i:5"><span class="v5-stack__check" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 12.5l4 4 8-9"/></svg></span><span class="v5-stack__name">Incentives</span><span class="v5-stack__line">Rebates, credits and grants, found.</span></li>
           <li style="--i:6"><span class="v5-stack__check" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 12.5l4 4 8-9"/></svg></span><span class="v5-stack__name">Paperwork</span><span class="v5-stack__line">Filed for you.</span></li>
       </ol>
+    </div>
+  </section>
 
-      <div class="v5-subintro v2-reveal" id="equipment">
+  <!-- CHAPTER 4.5 · THE MONEY -->
+  <section class="v2-section" id="cash-flow" aria-labelledby="money-h">
+    <div class="v2-wrap" data-reveal-group>
+      <div class="v2-secintro v2-reveal">
+        <p class="v2-eyebrow">The money</p>
+        <h2 id="money-h">Cash flow positive from day one.</h2>
+        <p class="v2-sub">Your savings are bigger than the payment.</p>
+      </div>
+
+      <div class="v2-bento v2-bento--money">
+        <div class="v2-card v2-card--stat v2-card--lg v2-reveal" data-expand-card tabindex="0" role="button" aria-haspopup="dialog">
+          <p class="v2-card__fig v2-card__fig--word">Day one</p>
+          <p class="v2-card__cap">Savings ahead of payments from day one.</p>
+          <div class="v2-money-chart" data-v7-money>
+            <svg viewBox="0 0 400 150" role="img" aria-labelledby="v2-money-chart-t">
+              <title id="v2-money-chart-t">Illustrative monthly savings running above the monthly payment across twelve months, with the gap between them labeled Cash flow.</title>
+              <polygon class="v7-gap" points="20,58 55,54 90,51 125,49 160,47 195,45 230,44 265,42 300,41 335,39 370,37 370,90 335,90 300,90 265,90 230,89 195,89 160,89 125,88 90,88 55,87 20,86" fill="var(--ochre)" opacity="0.14"/>
+              <polyline class="v7-pay" pathLength="1" points="20,86 55,87 90,88 125,88 160,89 195,89 230,89 265,90 300,90 335,90 370,90" fill="none" stroke="var(--ochre)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <polyline class="v7-save" pathLength="1" points="20,58 55,54 90,51 125,49 160,47 195,45 230,44 265,42 300,41 335,39 370,37" fill="none" stroke="var(--petrol)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <text class="v7-gap-label" x="195" y="70" text-anchor="middle" font-family="Geist Mono" font-weight="700" font-size="14" fill="var(--ochre-ink)">CASH FLOW</text>
+              <g transform="translate(20,14)">
+                <circle cx="0" cy="-4" r="4" fill="var(--petrol)"/>
+                <text x="10" y="0" font-family="Geist Mono" font-weight="600" font-size="14" fill="var(--petrol)">Monthly savings</text>
+              </g>
+              <g transform="translate(190,14)">
+                <circle cx="0" cy="-4" r="4" fill="var(--ochre)"/>
+                <text x="10" y="0" font-family="Geist Mono" font-weight="600" font-size="14" fill="var(--ochre-ink)">Monthly payment</text>
+              </g>
+            </svg>
+            <p class="v2-money-chart__note">Illustrative</p>
+          </div>
+          <div class="v2-card__detail"><p>Where the numbers support it, the project is structured so your monthly savings are larger than your monthly payment from day one. If a fix can&rsquo;t pay its own way, we don&rsquo;t propose it.</p></div>
+          <button type="button" class="v2-card__expand" aria-label="Read more about day one cash flow" tabindex="-1"><span aria-hidden="true">+</span></button>
+        </div>
+
+        <div class="v2-card v2-card--stat v2-card--sm v2-reveal" data-expand-card tabindex="0" role="button" aria-haspopup="dialog">
+          <p class="v2-card__eyebrow">The payback bar</p>
+          <p class="v2-card__fig v2-card__fig--word">Your call</p>
+          <p class="v2-card__cap">You set the payback each fix must clear. We aim for under three years.</p>
+          <div class="v2-card__detail"><p>You decide the payback a fix has to clear, or ask for cash flow positive from day one. We aim for under three years on your numbers, and anything that misses your bar stays off the proposal.</p></div>
+          <button type="button" class="v2-card__expand" aria-label="Read more about the payback bar" tabindex="-1"><span aria-hidden="true">+</span></button>
+        </div>
+
+      </div>
+
+      <div class="v2-cta v2-reveal">
+        <button type="button" class="v2-btn" data-book>Book a 15-minute call</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- CHAPTER 5 · PROOF -->
+  <section class="v2-section" id="proof" aria-labelledby="proof-h">
+    <div class="v2-wrap">
+      <div class="v2-secintro v2-reveal">
+        <h2 id="proof-h">Trusted technologies. Measured at 200+ named sites.</h2>
+        <p class="v2-sub">The track record behind every fix we deploy.</p>
+      </div>
+
+      <div class="v2-ledger" id="v2-ledger" aria-hidden="true">
+        <div class="v2-ledger__col" style="--dur: 210s"></div>
+        <div class="v2-ledger__col" style="--dur: 260s"></div>
+        <div class="v2-ledger__col" style="--dur: 180s"></div>
+      </div>
+      <p class="v2-quiet">Hover to pause. Tap any result for details. <button type="button" class="v2-textlink" id="v2-record-open" aria-haspopup="dialog">Read the full record: 95 documented examples</button></p>
+    </div>
+  </section>
+
+  <!-- CHAPTER 6 · YOUR NUMBER -->
+  <section class="v2-section" id="your-number" aria-labelledby="number-h">
+    <div class="v2-wrap">
+      <div class="v2-secintro v2-reveal">
+        <h2 id="number-h">Run your own number.</h2>
+        <p class="v2-sub">One bill and four taps.</p>
+      </div>
+      <div class="v2-calc" data-v2-calc>
+        <p class="v2-calc__loading" aria-hidden="true">Loading the calculator&hellip;</p>
+        <iframe id="v2-calc-frame" src="../../overspend-calculator/?embed=1&v=1" title="Energy+ overspend calculator" loading="lazy"></iframe>
+      </div>
+    </div>
+  </section>
+
+  <!-- THE FIXES: products and the film (dark) -->
+  <section class="v2-section v2-dark" id="the-fixes" aria-labelledby="fixes-h">
+    <div class="v2-wrap" data-reveal-group>
+
+      <div class="v2-secintro v2-reveal" id="equipment">
         <p class="v2-eyebrow">The fixes</p>
-        <h3>More than four dozen technologies.</h3>
+        <h2 id="fixes-h">More than four dozen technologies.</h2>
         <p class="v2-sub">We start with heating and cooling, which can be half your bill.</p>
       </div>
 
@@ -652,88 +734,6 @@
     </div>
   </section>
 
-  <!-- CHAPTER 4.5 · THE MONEY -->
-  <section class="v2-section" id="cash-flow" aria-labelledby="money-h">
-    <div class="v2-wrap" data-reveal-group>
-      <div class="v2-secintro v2-reveal">
-        <p class="v2-eyebrow">All of it &middot; the money</p>
-        <h2 id="money-h">Cash flow positive from day one.</h2>
-        <p class="v2-sub">Your savings are bigger than the payment.</p>
-      </div>
-
-      <div class="v2-bento v2-bento--money">
-        <div class="v2-card v2-card--stat v2-card--lg v2-reveal" data-expand-card tabindex="0" role="button" aria-haspopup="dialog">
-          <p class="v2-card__fig v2-card__fig--word">Day one</p>
-          <p class="v2-card__cap">Savings ahead of payments from day one.</p>
-          <div class="v2-money-chart" data-v7-money>
-            <svg viewBox="0 0 400 150" role="img" aria-labelledby="v2-money-chart-t">
-              <title id="v2-money-chart-t">Illustrative monthly savings running above the monthly payment across twelve months, with the gap between them labeled Cash flow.</title>
-              <polygon class="v7-gap" points="20,58 55,54 90,51 125,49 160,47 195,45 230,44 265,42 300,41 335,39 370,37 370,90 335,90 300,90 265,90 230,89 195,89 160,89 125,88 90,88 55,87 20,86" fill="var(--ochre)" opacity="0.14"/>
-              <polyline class="v7-pay" pathLength="1" points="20,86 55,87 90,88 125,88 160,89 195,89 230,89 265,90 300,90 335,90 370,90" fill="none" stroke="var(--ochre)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-              <polyline class="v7-save" pathLength="1" points="20,58 55,54 90,51 125,49 160,47 195,45 230,44 265,42 300,41 335,39 370,37" fill="none" stroke="var(--petrol)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-              <text class="v7-gap-label" x="195" y="70" text-anchor="middle" font-family="Geist Mono" font-weight="700" font-size="14" fill="var(--ochre-ink)">CASH FLOW</text>
-              <g transform="translate(20,14)">
-                <circle cx="0" cy="-4" r="4" fill="var(--petrol)"/>
-                <text x="10" y="0" font-family="Geist Mono" font-weight="600" font-size="14" fill="var(--petrol)">Monthly savings</text>
-              </g>
-              <g transform="translate(190,14)">
-                <circle cx="0" cy="-4" r="4" fill="var(--ochre)"/>
-                <text x="10" y="0" font-family="Geist Mono" font-weight="600" font-size="14" fill="var(--ochre-ink)">Monthly payment</text>
-              </g>
-            </svg>
-            <p class="v2-money-chart__note">Illustrative</p>
-          </div>
-          <div class="v2-card__detail"><p>Where the numbers support it, the project is structured so your monthly savings are larger than your monthly payment from day one. If a fix can&rsquo;t pay its own way, we don&rsquo;t propose it.</p></div>
-          <button type="button" class="v2-card__expand" aria-label="Read more about day one cash flow" tabindex="-1"><span aria-hidden="true">+</span></button>
-        </div>
-
-        <div class="v2-card v2-card--stat v2-card--sm v2-reveal" data-expand-card tabindex="0" role="button" aria-haspopup="dialog">
-          <p class="v2-card__eyebrow">The payback bar</p>
-          <p class="v2-card__fig v2-card__fig--word">Your call</p>
-          <p class="v2-card__cap">You set the payback each fix must clear. We aim for under three years.</p>
-          <div class="v2-card__detail"><p>You decide the payback a fix has to clear, or ask for cash flow positive from day one. We aim for under three years on your numbers, and anything that misses your bar stays off the proposal.</p></div>
-          <button type="button" class="v2-card__expand" aria-label="Read more about the payback bar" tabindex="-1"><span aria-hidden="true">+</span></button>
-        </div>
-
-      </div>
-
-      <div class="v2-cta v2-reveal">
-        <button type="button" class="v2-btn" data-book>Book a 15-minute call</button>
-      </div>
-    </div>
-  </section>
-
-  <!-- CHAPTER 5 · PROOF -->
-  <section class="v2-section" id="proof" aria-labelledby="proof-h">
-    <div class="v2-wrap">
-      <div class="v2-secintro v2-reveal">
-        <h2 id="proof-h">Trusted technologies. Measured at 200+ named sites.</h2>
-        <p class="v2-sub">The track record behind every fix we deploy.</p>
-      </div>
-
-      <div class="v2-ledger" id="v2-ledger" aria-hidden="true">
-        <div class="v2-ledger__col" style="--dur: 210s"></div>
-        <div class="v2-ledger__col" style="--dur: 260s"></div>
-        <div class="v2-ledger__col" style="--dur: 180s"></div>
-      </div>
-      <p class="v2-quiet">Hover to pause. Tap any result for details. <button type="button" class="v2-textlink" id="v2-record-open" aria-haspopup="dialog">Read the full record: 95 documented examples</button></p>
-    </div>
-  </section>
-
-  <!-- CHAPTER 6 · YOUR NUMBER -->
-  <section class="v2-section" id="your-number" aria-labelledby="number-h">
-    <div class="v2-wrap">
-      <div class="v2-secintro v2-reveal">
-        <h2 id="number-h">Run your own number.</h2>
-        <p class="v2-sub">One bill and four taps.</p>
-      </div>
-      <div class="v2-calc" data-v2-calc>
-        <p class="v2-calc__loading" aria-hidden="true">Loading the calculator&hellip;</p>
-        <iframe id="v2-calc-frame" src="../../overspend-calculator/?embed=1&v=1" title="Energy+ overspend calculator" loading="lazy"></iframe>
-      </div>
-    </div>
-  </section>
-
   <!-- CLOSE -->
   <section class="v2-close" aria-labelledby="close-h">
     <div class="v2-close__media" aria-hidden="true">
@@ -757,37 +757,6 @@
       </div>
     </div>
 
-    <div class="v2-wrap v2-team-wrap">
-      <div class="v2-team">
-        <h3 class="v2-team__title">Meet the people behind the numbers.</h3>
-        <div class="v2-team-grid" data-team-grid>
-          <article class="v2-person">
-            <span class="v2-person__photo"><img src="../../assets/img/daniel.jpeg" alt="Daniel Gutierrez" loading="lazy"></span>
-            <span class="v2-person__meta">
-              <h4>Daniel Gutierrez</h4>
-              <span class="v2-person__role">CEO + Founder</span>
-              <p class="v2-person__bio">Daniel leads every client relationship and sources, vets, and procures the technology behind every diagnosis. He has spent 19 years connecting people, capital, and opportunity across 14+ industries and 70+ specialized markets, including work as a director of FDA-registered clinical trials. He works fee-for-performance and is committed to putting profits back into American infrastructure.</p>
-            </span>
-          </article>
-          <article class="v2-person">
-            <span class="v2-person__photo"><img src="../../assets/img/ronson.jpeg" alt="Ronson Provido" loading="lazy"></span>
-            <span class="v2-person__meta">
-              <h4>Ronson Provido</h4>
-              <span class="v2-person__role">Principal Field Engineering Advisor</span>
-              <p class="v2-person__bio">Ronson advises on engineering for every install and coordinates the crews on your roof. He brings 20+ years in electrical engineering across design, commissioning, R&amp;D, and project management, with a portfolio that includes LAX and commercial and hospitality projects in several states. He is a licensed PE, qualified in Title 24 and LEED.</p>
-            </span>
-          </article>
-          <article class="v2-person">
-            <span class="v2-person__photo"><img src="../../assets/img/cj.jpeg" alt="CJ Metz" loading="lazy"></span>
-            <span class="v2-person__meta">
-              <h4>CJ Metz</h4>
-              <span class="v2-person__role">Strategic Account Manager</span>
-              <p class="v2-person__bio">CJ brings 23+ years in technology leadership, sales, and consulting. An Air Force veteran, he has led initiatives for Fortune 500 firms.</p>
-            </span>
-          </article>
-        </div>
-      </div>
-    </div>
   </section>
 
   <!-- FAQ -->
@@ -816,6 +785,19 @@
           </div>
         </details>
         
+      </div>
+    </div>
+  </section>
+
+  <!-- TEAM: compact strip -->
+  <section class="v2-section v7-team" id="team" aria-labelledby="team-h">
+    <div class="v2-wrap">
+      <h2 id="team-h" class="v7-team__h">The team</h2>
+      <div class="v7-team__grid">
+        <div class="v7-person"><img src="../../assets/img/daniel.jpeg" alt="" loading="lazy"><div><h3>Daniel Gutierrez</h3><p class="v7-person__role">CEO + Founder</p><p>Leads every client relationship and sources the technology behind every diagnosis.</p></div></div>
+        <div class="v7-person"><img src="../../assets/img/cliff-lab.jpg" alt="" loading="lazy"><div><h3>Cliff Suljak</h3><p class="v7-person__role">Chief Materials Engineer</p><p>Leads every diagnosis. Ran measurement for Sandia National Laboratories.</p></div></div>
+        <div class="v7-person"><img src="../../assets/img/ronson.jpeg" alt="" loading="lazy"><div><h3>Ronson Provido</h3><p class="v7-person__role">Principal Field Engineering Advisor</p><p>Licensed PE. Advises on engineering and coordinates crews on every install.</p></div></div>
+        <div class="v7-person"><img src="../../assets/img/cj.jpeg" alt="" loading="lazy"><div><h3>CJ Metz</h3><p class="v7-person__role">Strategic Account Manager</p><p>23+ years in technology leadership. Air Force veteran.</p></div></div>
       </div>
     </div>
   </section>
