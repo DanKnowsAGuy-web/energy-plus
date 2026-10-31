@@ -225,3 +225,8 @@ a.v7-door__tile:hover { background: #e7eef0; transform: translateY(-1px); }
   .v2 .v2-hero__sub { font-size: clamp(1.15rem, 0.9rem + 1.2vw, 1.4rem); }
   .v2 .v2-hero .v2-cta--hero { margin-top: 2rem; }
 }
+
+/* the guarantee: a statement, not a strip */
+.v2 .v2-floor { padding: clamp(1.2rem, 2.5vw, 1.6rem) clamp(1.4rem, 3vw, 2.2rem); }
+.v2 .v2-floor p { margin: 0 auto; max-width: 30ch; text-wrap: balance; text-align: center;
+  font-family: var(--font-sans); font-weight: 700; font-size: clamp(1.35rem, 1rem + 1.4vw, 1.9rem); line-height: 1.25; letter-spacing: -0.01em; color: #fff; }
