@@ -160,3 +160,7 @@ html { scroll-padding-top: 6rem; }
 /* footer lockup uses the same wordmark as the top bar */
 .v2-foot__mark { display: block; width: 190px; height: auto; fill: var(--ink); }
 .v2-foot__tagline { font-size: 1.05rem; color: var(--ink); }
+
+.v2-foot__tagline { font-weight: 600; }
+.v2-foot__tagline-sub { display: block; margin-top: 0.15rem; font-weight: 400; color: var(--body-c); }
+.v2-foot .v2-foot__tagline { margin-top: 0.9rem; }
