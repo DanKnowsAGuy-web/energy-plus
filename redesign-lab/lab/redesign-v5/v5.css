@@ -1,0 +1,112 @@
+/* Energy+ · redesign v5 · the story restructure
+   New pieces only: the map under the hero, the two-card hinge, the "why
+   nobody fixes this" beat, and the "we handle all of it" stack. Everything
+   else is v4 (v2.css + building.css). */
+
+/* ---------- the map: three ways the building overpays ---------- */
+.v5-map { background: #fff; padding-block: clamp(2rem, 4vw, 3rem); }
+.v5-map__h { font-size: clamp(1.5rem, 1.2rem + 1.2vw, 2.1rem); }
+.v5-map__list {
+  list-style: none; margin: 1.25rem 0 0; padding: 0;
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.75rem 1.5rem;
+}
+.v5-map__item { display: flex; align-items: center; gap: 0.75rem; min-width: 0; }
+.v5-map__ic {
+  flex: none; width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center;
+  background: var(--ochre-wash); color: var(--ochre-ink);
+}
+.v5-map__item:first-child .v5-map__ic { background: var(--petrol); color: #fff; }   /* the one we zoom into next */
+.v5-map__ic svg { width: 24px; height: 24px; }
+.v5-map__t { font-size: 1.15rem; font-weight: 600; color: var(--ink); }
+.v5-map__next {
+  display: inline-flex; gap: 0.4rem; margin-top: 1.25rem; font-size: 1rem; font-weight: 500;
+  color: var(--petrol); text-decoration: underline; text-underline-offset: 4px; text-decoration-thickness: 1.5px;
+}
+@media (max-width: 767.9px) {
+  .v5-map__list { grid-template-columns: 1fr; gap: 0.6rem; }
+  .v5-map__ic { width: 38px; height: 38px; border-radius: 10px; }
+  .v5-map__t { font-size: 1.05rem; }
+}
+
+/* ---------- the hinge: two cost cards ---------- */
+@media (min-width: 800px) {
+  .v5-costs-two { grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 860px; }
+}
+
+/* ---------- the villain: why nobody fixes this ---------- */
+.v5-why__grid { display: grid; gap: clamp(2rem, 5vw, 4rem); align-items: center; }
+@media (min-width: 900px) { .v5-why__grid { grid-template-columns: 1.1fr 0.9fr; } }
+.v5-why__list { list-style: none; margin: 0; padding: 0; display: grid; gap: 1.6rem; counter-reset: why; }
+.v5-why__list li { padding-top: 1.2rem; border-top: 1px solid rgb(255 255 255 / 0.2); }
+.v5-why__list h3 { font-size: var(--card-h); color: #fff; }
+.v5-why__list p { margin-top: 0.45rem; color: var(--dark-body); font-size: var(--body); }
+
+/* eight vendor chips, scattered and slightly crooked: the mess you'd be managing */
+.v5-vendors { position: relative; aspect-ratio: 5 / 4; width: 100%; max-width: 460px; justify-self: center; }
+.v5-vendors span {
+  position: absolute; left: var(--x); top: var(--y);
+  padding: 0.75rem 1.15rem; border-radius: 14px; background: #fff; color: var(--ink);
+  font-weight: 700; font-size: clamp(0.95rem, 0.85rem + 0.4vw, 1.15rem);
+  box-shadow: 0 14px 30px -14px rgb(0 0 0 / 0.55); white-space: nowrap;
+  transform: rotate(var(--r)); opacity: 1;
+}
+.v2-anim .v5-vendors span {
+  opacity: 0; transform: translate(calc((var(--i) - 3.5) * 14px), 40px) rotate(calc(var(--r) * -2));
+  transition: opacity 500ms var(--ease), transform 900ms var(--ease);
+  transition-delay: calc(var(--i) * 90ms);
+}
+.v2-anim .v5-vendors.is-in span { opacity: 1; transform: rotate(var(--r)); }
+.v2-anim .v5-vendors.is-in span:nth-child(odd) { animation: v5jitter 3.2s ease-in-out 1.4s infinite; }
+@keyframes v5jitter { 0%, 100% { transform: rotate(var(--r)); } 50% { transform: rotate(calc(var(--r) + 2.5deg)) translateY(-3px); } }
+@media (max-width: 899.9px) { .v5-vendors { max-width: 360px; } }
+@media (prefers-reduced-motion: reduce) { .v5-vendors span { animation: none !important; } }
+
+/* ---------- we handle all of it: the stack ---------- */
+.v5-stack {
+  list-style: none; margin: 0 0 clamp(3rem, 6vw, 4.5rem); padding: clamp(0.6rem, 1.5vw, 1rem) clamp(1rem, 2.5vw, 1.8rem);
+  background: #fff; border-radius: var(--r-card); box-shadow: var(--shadow-card); max-width: 860px;
+}
+.v5-stack li {
+  display: grid; grid-template-columns: 2.2rem 9.5rem minmax(0, 1fr); align-items: center; gap: 0.4rem 1rem;
+  padding: 0.95rem 0; border-top: 1px solid var(--rule-soft);
+}
+.v5-stack li:first-child { border-top: 0; }
+.v5-stack__check {
+  width: 2rem; height: 2rem; border-radius: 50%; display: grid; place-items: center;
+  border: 2px solid var(--rule); background: #fff;
+  transition: background 300ms var(--ease), border-color 300ms var(--ease), transform 300ms var(--ease);
+  transition-delay: calc(300ms + var(--i) * 260ms);
+}
+.v5-stack__check svg { width: 1.1rem; height: 1.1rem; fill: none; stroke: #fff; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round;
+  stroke-dasharray: 24; stroke-dashoffset: 24; transition: stroke-dashoffset 360ms var(--ease); transition-delay: calc(420ms + var(--i) * 260ms); }
+.v5-stack__name { font-size: 1.2rem; font-weight: 700; color: var(--ink); }
+.v5-stack__line { font-size: 1.05rem; color: var(--body-c); line-height: 1.45; }
+/* rows tick off one by one when the card arrives; without motion they arrive ticked */
+.v5-stack.is-in .v5-stack__check, .v2-reduced .v5-stack__check, .v2-static .v5-stack__check { background: var(--petrol); border-color: var(--petrol); }
+.v5-stack.is-in .v5-stack__check svg, .v2-reduced .v5-stack__check svg, .v2-static .v5-stack__check svg { stroke-dashoffset: 0; }
+@media (max-width: 639.9px) {
+  .v5-stack li { grid-template-columns: 2.2rem minmax(0, 1fr); }
+  .v5-stack__line { grid-column: 2; font-size: 1rem; }
+}
+
+/* the equipment, now a part inside "all of it" */
+.v5-subintro { max-width: 46rem; margin-bottom: clamp(1.5rem, 3vw, 2.2rem); }
+.v5-subintro h3 { font-size: var(--card-h); color: #fff; margin-top: 0.4rem; }
+.v5-subintro .v2-sub { margin-top: 0.7rem; color: var(--dark-body); font-size: var(--sub); line-height: 1.5; }
+
+/* ---------- the money: three small cards stack beside the large one ---------- */
+@media (min-width: 860px) {
+  .v2-bento--money .v2-card--lg { grid-row: span 3; }
+  .v2-bento--money .v2-card--sm { grid-column: span 6; }
+}
+
+/* phones: the vendor chips wrap as a loose crooked cluster instead of being placed */
+@media (max-width: 599.9px) {
+  .v5-vendors { aspect-ratio: auto; max-width: none; display: flex; flex-wrap: wrap; gap: 0.7rem 0.6rem; justify-content: center; padding-block: 0.5rem; }
+  .v5-vendors span { position: static; padding: 0.6rem 0.95rem; font-size: 0.95rem; }
+}
+
+/* Cliff: the narrow rotation slots size their big word to fit ("Northridge" was clipped) */
+@media (min-width: 860px) {
+  .v2-bento--cliff .v2-cliff-slot .v2-card__fig { font-size: clamp(1.5rem, 0.85rem + 1.15vw, 2.05rem); overflow-wrap: anywhere; }
+}

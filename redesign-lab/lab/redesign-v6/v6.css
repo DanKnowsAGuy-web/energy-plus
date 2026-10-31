@@ -1,0 +1,24 @@
+/* Energy+ · redesign v6 · copy pass
+   Only layout that the copy changes required: the money section is now two
+   cards (Day one + Your call), side by side on desktop. */
+@media (min-width: 860px) {
+  .v2-bento--money .v2-card--lg { grid-column: span 7; grid-row: auto; }
+  .v2-bento--money .v2-card--sm { grid-column: span 5; }
+}
+
+/* the three steps never scroll sideways: stacked on phones, three across on tablets */
+@media (max-width: 979.9px) {
+  .v6-steps .v2-carousel__track { overflow: visible; scroll-snap-type: none; padding-bottom: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.9rem; }
+  .v6-steps .v2-carousel__card { width: auto; }
+  .v6-steps .v2-carousel__progress { display: none; }
+}
+@media (max-width: 639.9px) {
+  .v6-steps .v2-carousel__track { grid-template-columns: 1fr; gap: 0.75rem; }
+  /* number and picture share the top line so each card stays short */
+  .v6-steps .v2-carousel__card { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; column-gap: 1rem; padding: 1.3rem 1.4rem; }
+  .v6-steps .v2-carousel__num { font-size: 2.2rem; }
+  .v6-steps .v2-examstep2 .v2-step-ico { margin-right: 2.4rem; }
+  .v6-steps .v2-step-ico { grid-column: 2; grid-row: 1; width: 72px; height: auto; margin-top: 0; }
+  .v6-steps .v2-carousel__card h3, .v6-steps .v2-carousel__card p:not(.v2-carousel__num) { grid-column: 1 / -1; }
+  .v6-steps .v2-carousel__card h3, .v6-steps .v2-carousel__card .v2-step-ico + h3 { margin-top: 0.6rem; }
+}

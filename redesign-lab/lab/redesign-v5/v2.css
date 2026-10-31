@@ -1,0 +1,1175 @@
+/* Energy+ · redesign v2 (draft, comparison fork only)
+   Brand tokens carried from the live site; new layout tokens are Pixel-store
+   inspired: pill controls, generous radii, bento cards, one big headline per
+   chapter. This file is scoped entirely to .v2 so it can never leak. */
+
+:root {
+  --petrol: #174e58;
+  --petrol-2: #1f5c67;
+  --ochre: #e0a21c;
+  --ochre-ink: #5a3f00;
+  --ochre-wash: #fbf1d9;
+  --paper: #f3f5f6;
+  --paper-2: #e9edf0;
+  --ink: #101416;
+  --body-c: #2b3236;
+  --dark-body: #e6eff0;
+  --faint: #6b747a;
+  --card: #ffffff;
+  --rule: #d3d9dd;
+  --rule-soft: #e3e8eb;
+
+  --font-sans: "Archivo", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, "Cascadia Mono", monospace;
+
+  --r-chip: 8px;
+  --r-card: 20px;
+  --r-media: 28px;
+  --r-pill: 999px;
+
+  --wrap: 1200px;
+  --gutter: 24px;
+
+  --h-1: clamp(2.6rem, 1.9rem + 3.2vw, 4.75rem);
+  --h-2: clamp(2.2rem, 1.7rem + 2.4vw, 3.6rem);
+  --sub: clamp(1.15rem, 1.05rem + 0.5vw, 1.45rem);
+  --chapter-sub: clamp(1.25rem, 1rem + 1vw, 1.6rem);
+  --card-h: clamp(1.5rem, 1.2rem + 1.2vw, 2.25rem);
+  --eyebrow: clamp(0.875rem, 0.85rem + 0.1vw, 0.95rem);
+  --body: clamp(1.125rem, 1.05rem + 0.35vw, 1.25rem);
+  --stat-fig: clamp(3rem, 2rem + 4vw, 5.5rem);
+
+  --ease: cubic-bezier(0.19, 1, 0.22, 1);
+  --dur-fast: 200ms;
+  --dur-med: 500ms;
+  --dur-slow: 900ms;
+  --stagger: 80ms;
+  --reveal-ms: var(--dur-slow);
+  --reveal-stagger: var(--stagger);
+
+  --shadow-card: 0 1px 0 rgb(16 20 22 / 0.04), 0 20px 44px -24px rgb(16 20 22 / 0.28);
+
+  /* one spacing rhythm for every section (hero and full-bleed photo bands opt out) */
+  --section-y: clamp(5rem, 3.5rem + 6vw, 9rem);
+}
+
+.v2 { box-sizing: border-box; }
+.v2 *, .v2 *::before, .v2 *::after { box-sizing: inherit; }
+.v2 {
+  background: var(--paper); color: var(--body-c);
+  font-family: var(--font-sans); font-size: var(--body); line-height: 1.5;
+  -webkit-font-smoothing: antialiased; overflow-x: hidden;
+}
+.v2 img, .v2 video { max-width: 100%; height: auto; display: block; }
+.v2 h1, .v2 h2, .v2 h3, .v2 h4 { color: var(--ink); font-weight: 700; font-stretch: 112%; line-height: 1.05; letter-spacing: -0.02em; margin: 0; text-wrap: balance; }
+.v2 h3, .v2 h4 { font-stretch: 100%; font-weight: 600; letter-spacing: -0.01em; }
+.v2 p { margin: 0; text-wrap: pretty; max-width: 62ch; }
+.v2 figcaption, .v2 .v2-card__cap, .v2 .v2-card__line, .v2 .v2-costcard__line { text-wrap: pretty; }
+.v2 a { color: inherit; }
+.v2 strong { color: var(--ink); font-weight: 600; }
+.v2 :where(button) { font: inherit; cursor: pointer; background: none; border: 0; }
+.v2 ::selection { background: var(--petrol); color: #fff; }
+.v2 :focus-visible { outline: 2px solid var(--petrol); outline-offset: 3px; }
+
+.v2-wrap { max-width: var(--wrap); margin-inline: auto; padding-inline: clamp(1.25rem, 4vw, calc(var(--gutter) * 1.4)); }
+.v2 [id] { scroll-margin-top: 88px; }
+
+.v2-eyebrow {
+  display: inline-flex; align-items: center; gap: 0.6rem;
+  font-family: var(--font-mono); font-size: var(--eyebrow); font-weight: 500;
+  letter-spacing: 0.1em; text-transform: uppercase; color: var(--petrol);
+  padding-bottom: 0.6rem; border-bottom: 1px solid var(--rule);
+}
+.v2-dark .v2-eyebrow { color: var(--ochre); border-color: rgb(255 255 255 / 0.2); }
+
+/* ---------- pill buttons ---------- */
+.v2-btn {
+  display: inline-flex; align-items: center; gap: 0.55rem;
+  background: var(--petrol); color: #fff; border: 1px solid var(--petrol);
+  border-radius: var(--r-pill); padding: 0.9rem 1.7rem;
+  font-weight: 600; font-size: 1rem; letter-spacing: 0;
+  transition: transform var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease), opacity var(--dur-fast) var(--ease);
+}
+.v2-btn:hover { background: var(--petrol-2); border-color: var(--petrol-2); }
+.v2-btn:active { transform: scale(0.97); }
+.v2-btn--lg { padding: 1.05rem 2.1rem; font-size: 1.02rem; }
+.v2-btn--light { background: #fff; color: var(--petrol); border-color: #fff; }
+.v2-btn--light:hover { background: #fff; opacity: 0.9; }
+.v2-btn--outline { background: transparent; color: var(--petrol); border-color: var(--petrol); }
+.v2-btn--outline:hover { background: var(--petrol); color: #fff; }
+
+.v2-textlink { background: none; border: 0; padding: 0.4rem 0.1rem; color: var(--ink); font-weight: 500; font-size: 1rem; text-decoration: underline; text-decoration-thickness: 1.5px; text-underline-offset: 4px; }
+.v2-textlink--light { color: #fff; text-decoration-color: rgb(255 255 255 / 0.5); }
+
+.v2-cta { display: flex; flex-wrap: wrap; align-items: center; gap: 1.1rem; margin-top: clamp(1.6rem, 3vw, 2.2rem); }
+
+/* SMS panel (mirrors live behavior) */
+.v2-sms { display: none; margin-top: 1rem; max-width: 30rem; background: #fff; border-radius: var(--r-card); padding: 1.1rem 1.2rem; box-shadow: var(--shadow-card); }
+.v2-sms.is-open { display: block; }
+.v2-sms__to { font-family: var(--font-sans); font-size: 0.9rem; font-weight: 600; letter-spacing: 0.04em; color: var(--body-c); }
+.v2-sms textarea { width: 100%; margin-top: 0.6rem; border: 1px solid var(--rule); border-radius: var(--r-chip); background: #fff; color: var(--body-c); font: inherit; font-size: 1rem; padding: 0.7rem; resize: none; }
+.v2-sms__foot { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-top: 0.7rem; flex-wrap: wrap; }
+.v2-sms__hint { font-size: 0.9rem; color: var(--body-c); }
+
+/* ---------- sticky pill header ---------- */
+.v2-bar {
+  position: fixed; top: 12px; left: 50%; transform: translateX(-50%) translateY(-140%);
+  z-index: 40; width: max-content; max-width: min(96vw, 1040px);
+  display: flex; align-items: center; justify-content: space-between; gap: 1.1rem;
+  background: color-mix(in srgb, #fff 88%, transparent);
+  backdrop-filter: blur(14px);
+  border-radius: var(--r-pill); padding: 0.5rem 0.6rem 0.5rem 1.1rem;
+  box-shadow: var(--shadow-card);
+  transition: transform var(--dur-med) var(--ease);
+}
+.v2-bar.is-visible { transform: translateX(-50%) translateY(0); }
+.v2-bar__mark { display: inline-flex; align-items: center; flex: none; }
+.v2-bar__mark img { height: 22px; width: auto; filter: brightness(0); }
+.v2-bar__mark-svg { height: 26px; width: auto; display: block; color: var(--ink); flex: none; }
+.v2-mark-letter { fill: var(--ink); opacity: 0; transform: translate(var(--lx, 0px), 6px); transform-box: fill-box; transform-origin: center; }
+/* NOTE: the mark glyph (fill-rule:evenodd, plus-and-bolt cutout) keeps a plain,
+   always-solid ink fill and only animates opacity. It used to animate as a
+   stroke-dasharray "draw" (fill:none -> stroke-dashoffset 1->0 -> fill), but that
+   technique is unreliable on a compound two-subpath shape (the outer plus and the
+   inner bolt cutout don't traverse the shared dash length in a visually
+   controllable way), so it could settle in a part-drawn, effectively unfilled
+   state. A simple opacity fade guarantees it always ends up solid ink.
+   Each letter's horizontal position lives in the --lx custom property (set inline
+   per <path>), not the SVG transform attribute, because a CSS `transform`
+   declaration replaces the presentation attribute entirely in modern browsers —
+   the glyph's own translate() attribute is left alone for the same reason. */
+.v2-mark-glyph { fill: var(--ink); opacity: 0; }
+.v2-bar__mark.is-drawing .v2-mark-glyph { animation: v2markGlyphIn var(--dur-slow) var(--ease) forwards; }
+.v2-bar__mark.is-drawing .v2-mark-letter { animation: v2markLetterIn var(--dur-med) var(--ease) forwards; }
+.v2-bar__mark.is-drawing .v2-mark-letter:nth-child(1) { animation-delay: calc(var(--dur-slow) + var(--stagger) * 0); }
+.v2-bar__mark.is-drawing .v2-mark-letter:nth-child(2) { animation-delay: calc(var(--dur-slow) + var(--stagger) * 1); }
+.v2-bar__mark.is-drawing .v2-mark-letter:nth-child(3) { animation-delay: calc(var(--dur-slow) + var(--stagger) * 2); }
+.v2-bar__mark.is-drawing .v2-mark-letter:nth-child(4) { animation-delay: calc(var(--dur-slow) + var(--stagger) * 3); }
+.v2-bar__mark.is-drawing .v2-mark-letter:nth-child(5) { animation-delay: calc(var(--dur-slow) + var(--stagger) * 4); }
+.v2-bar__mark.is-drawing .v2-mark-letter:nth-child(6) { animation-delay: calc(var(--dur-slow) + var(--stagger) * 5); }
+@keyframes v2markGlyphIn { to { opacity: 1; } }
+@keyframes v2markLetterIn { to { opacity: 1; transform: translate(var(--lx, 0px), 0); } }
+.v2-bar__mark.is-done .v2-mark-glyph { opacity: 1; }
+.v2-bar__mark.is-done .v2-mark-letter { opacity: 1; transform: translate(var(--lx, 0px), 0); }
+.v2-reduced .v2-bar__mark .v2-mark-glyph, .v2-static .v2-bar__mark .v2-mark-glyph { opacity: 1; }
+.v2-reduced .v2-bar__mark .v2-mark-letter, .v2-static .v2-bar__mark .v2-mark-letter { opacity: 1; transform: translate(var(--lx, 0px), 0); }
+/* failsafe: if the mark's draw-in class never gets applied (e.g. JS error), the
+   mark must still end up visible rather than staying at opacity:0 forever. */
+.v2-bar__mark:not(.is-drawing):not(.is-done) .v2-mark-glyph { animation: v2markGlyphIn 1ms linear 1.2s forwards; }
+.v2-bar__mark:not(.is-drawing):not(.is-done) .v2-mark-letter { animation: v2markLetterIn var(--dur-med) var(--ease) 1.2s forwards; }
+
+/* sticky bar section nav, desktop only */
+.v2-bar__nav { position: relative; display: none; align-items: center; gap: 1.4rem; padding-inline: 0.4rem; flex: none; }
+@media (min-width: 1100px) { .v2-bar__nav { display: flex; } }
+.v2-bar__nav a {
+  position: relative; font-family: var(--font-sans); font-weight: 500; font-size: 15px;
+  color: rgb(16 20 22 / 0.7); text-decoration: none; padding-block: 0.3rem; white-space: nowrap;
+  transition: color var(--dur-fast) var(--ease);
+}
+.v2-bar__nav a:hover { color: var(--ink); }
+.v2-bar__nav a.is-active { color: var(--ink); opacity: 1; }
+.v2-bar__nav-underline {
+  position: absolute; left: 0; bottom: -2px; height: 2px; width: 0; background: var(--ochre);
+  transition: transform var(--dur-med) var(--ease), width var(--dur-med) var(--ease), opacity var(--dur-fast) var(--ease);
+  opacity: 0; transform: translateX(0);
+}
+.v2-bar__nav-underline.is-shown { opacity: 1; }
+.v2-bar .v2-btn { padding: 0.65rem 1.25rem; font-size: 0.95rem; white-space: nowrap; flex: none; }
+@media (max-width: 560px) { .v2-bar { padding: 0.45rem 0.45rem 0.45rem 0.85rem; } .v2-bar .v2-btn { padding: 0.6rem 1rem; font-size: 0.9rem; } }
+@media (max-width: 979.9px) { .v2-bar { display: none; } }
+
+/* ---------- mobile bottom booking bar (below 980px) ---------- */
+.v2-mbar {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 41;
+  display: none; align-items: center; gap: 0.6rem;
+  background: color-mix(in srgb, #fff 94%, transparent); backdrop-filter: blur(14px);
+  border-top: 1px solid var(--rule); box-shadow: 0 -12px 30px -18px rgb(16 20 22 / 0.3);
+  padding: 0.65rem 0.75rem calc(0.65rem + env(safe-area-inset-bottom, 0px));
+  transform: translateY(110%); transition: transform var(--dur-med) var(--ease);
+}
+@media (max-width: 979.9px) { .v2-mbar { display: flex; } }
+.v2-mbar.is-visible { transform: translateY(0); }
+.v2-mbar.is-hidden-cta { transform: translateY(110%); }
+.v2-mbar__book { flex: 1; justify-content: center; padding: 0.85rem 1rem; font-size: 0.95rem; }
+.v2-mbar__text {
+  flex: none; width: 48px; height: 48px; border-radius: 50%; background: var(--paper-2); color: var(--petrol);
+  display: grid; place-items: center; transition: background var(--dur-fast) var(--ease);
+}
+.v2-mbar__text:hover { background: var(--ochre-wash); }
+.v2-mbar__text svg { width: 1.35rem; height: 1.35rem; }
+@media (max-width: 979.9px) { body.v2 { padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px)); } }
+
+/* ---------- floating preview badge(s) ---------- */
+.v2-preview-badges {
+  position: fixed; left: 16px; bottom: 16px; z-index: 40;
+  display: inline-flex; align-items: center; gap: 0.5rem;
+}
+.v2-preview-badge {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  background: var(--ink); color: #fff; border-radius: var(--r-pill);
+  padding: 0.55rem 1.05rem; font-family: var(--font-mono); font-size: 0.72rem;
+  letter-spacing: 0.03em; text-decoration: none; box-shadow: var(--shadow-card);
+}
+.v2-preview-badge--live { padding: 0.55rem 0.85rem; opacity: 0.85; }
+.v2-preview-badge:hover { background: #000; }
+.v2-preview-badge svg { width: 0.9em; height: 0.9em; }
+@media (max-width: 979.9px) { .v2-preview-badges { bottom: calc(84px + env(safe-area-inset-bottom, 0px)); } }
+@media (max-width: 560px) { .v2-preview-badge--live { display: none; } }
+
+/* ---------- photo cohesion: one shared grade across every photograph ----------
+   SVG illustrations, the bill card, and the logo are excluded on purpose. */
+.v2-graded,
+.v2-fix-img img,
+.v2-person__photo img,
+.v2-film__media img {
+  filter: saturate(0.82) contrast(1.06) brightness(0.98);
+}
+.v2-close__media img { filter: grayscale(1) saturate(0.82) contrast(1.06) brightness(0.56); }
+.v2-graded-wrap, .v2-fix-img, .v2-person__photo, .v2-film__media, .v2-close__media { position: relative; }
+.v2-graded-wrap::after, .v2-fix-img::after, .v2-film__media::after, .v2-close__media::after {
+  content: ""; position: absolute; inset: 0; background: var(--petrol);
+  mix-blend-mode: soft-light; opacity: 0.15; pointer-events: none;
+}
+/* portraits: lighter tint so skin stays natural */
+.v2-person__photo::after {
+  content: ""; position: absolute; inset: 0; background: var(--petrol);
+  mix-blend-mode: soft-light; opacity: 0.08; pointer-events: none;
+}
+
+/* ---------- hero ---------- */
+.v2-hero {
+  position: relative; background: var(--petrol); color: #fff; overflow: clip;
+  padding-block: clamp(4rem, 8vh, 7rem);
+  min-height: 88svh; display: flex; flex-direction: column; justify-content: center;
+}
+.v2-hero__media { position: absolute; inset: 0; z-index: 0; overflow: hidden; background: var(--petrol); }
+.v2-hero__poster { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.v2-hero__iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; pointer-events: none; opacity: 0; transition: opacity var(--dur-slow) var(--ease); }
+.v2-hero__media.is-loaded .v2-hero__iframe { opacity: 1; }
+.v2-hero__scrim {
+  position: absolute; inset: 0;
+  background:
+    linear-gradient(180deg, transparent 60%, rgb(23 78 88 / 0.97) 100%),
+    linear-gradient(180deg, rgb(23 78 88 / 0.72), rgb(23 78 88 / 0.88));
+}
+.v2-hero__copy { position: relative; z-index: 2; text-align: center; max-width: 46rem; margin-inline: auto; padding-inline: 1.25rem; }
+.v2-hero h1 { color: #fff; font-size: var(--h-1); max-width: 20ch; margin-inline: auto; }
+.v2-hero__sub { margin-top: 1.3rem; font-size: var(--sub); color: #c6d7da; max-width: 38ch; margin-inline: auto; line-height: 1.5; }
+.v2-hero__sub sup.v2-fn { color: rgb(255 255 255 / 0.7); }
+.v2-hero .v2-cta { justify-content: center; }
+.v2-hero .v2-cta--hero { align-items: baseline; gap: 1.4rem; }
+.v2-hero .v2-sms { margin-inline: auto; text-align: left; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .v2-hero h1, .v2-hero__sub, .v2-hero .v2-cta { opacity: 0; transform: translateY(18px); animation: v2rise 800ms var(--ease) forwards; }
+  .v2-hero__sub { animation-delay: 120ms; }
+  .v2-hero .v2-cta { animation-delay: 240ms; }
+}
+@keyframes v2rise { to { opacity: 1; transform: none; } }
+
+/* ---------- first-visit motion intro ----------
+   Full-viewport overlay (position fixed) that covers the hero while it plays; the real
+   hero underneath is rendered the whole time (H1 stays in the DOM for SEO/LCP). Below any
+   native <dialog>, which browsers always render above regular content regardless of z-index.
+   Lives as a direct child of <body> in the markup (not inside #hero): #hero has
+   `overflow: clip`, and overflow:clip clips out-of-flow descendants (fixed/absolute) to the
+   ancestor's box even though it doesn't change their containing block — so a fixed overlay
+   nested inside it gets visually cropped to the hero's box instead of the viewport. Width/
+   height are set explicitly (not just inset:0) so the overlay can't inherit a stray max-width
+   from an unrelated selector again the way `.v2-intro` briefly collided with the generic
+   section-intro wrapper class below (renamed to `.v2-secintro` to end that collision). */
+.v2-intro { position: fixed; inset: 0; width: 100vw; height: 100dvh; max-width: none; margin: 0; z-index: 200; background: var(--petrol); }
+.v2-intro[hidden] { display: none; }
+.v2-intro__frame { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; display: block; }
+@supports not (height: 100dvh) {
+  .v2-intro { height: 100vh; }
+}
+
+/* Set on <html> synchronously (see the inline script in <head>) before paint, so the hero
+   copy never plays its normal rise-in and then has to be undone. Stays set for the rest of
+   this pageview once the intro has shown; the two animated layers (hero media, sub/cta) are
+   then driven by inline styles from v2.js's hand-off, which always win over these rules. */
+.v2-intro-pending .v2-hero h1 { animation: none; opacity: 1; transform: none; }
+.v2-intro-pending .v2-hero__sub,
+.v2-intro-pending .v2-hero .v2-cta { animation: none; opacity: 0; transform: translateY(18px); }
+.v2-intro-pending .v2-hero__media { opacity: 0; transform: scale(1.05); }
+
+/* Only while the overlay is actually up; removed the moment the hand-off starts, so the
+   bars resume their normal scroll-driven behaviour right away. */
+.v2-intro-showing .v2-bar,
+.v2-intro-showing .v2-mbar { display: none; }
+
+/* The hero's buttons fade up once the overlay is gone (v2.js adds this after the hand-off's
+   overlay fade completes). Declared after .v2-intro-pending so it wins the specificity tie. */
+.v2-intro-buttons-in .v2-hero__sub,
+.v2-intro-buttons-in .v2-hero .v2-cta {
+  opacity: 1; transform: none;
+  transition: opacity 700ms var(--ease), transform 700ms var(--ease);
+}
+
+/* proof strip: quiet, non-interactive band directly under the hero */
+.v2-proofstrip { background: #ffffff; padding-block: 40px; }
+.v2-proofstrip__in {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem 2rem;
+}
+.v2-proofstrip__item { display: flex; align-items: center; gap: 0.9rem; }
+.v2-proofstrip__ic { display: inline-flex; flex: none; width: 24px; height: 24px; color: var(--ochre); }
+.v2-proofstrip__ic svg { width: 100%; height: 100%; }
+.v2-proofstrip__item p { font-family: var(--font-sans); font-size: 1.125rem; color: var(--ink); font-weight: 500; margin: 0; }
+@media (max-width: 767.9px) {
+  .v2-proofstrip { padding-block: 28px; }
+  .v2-proofstrip__in {
+    grid-template-columns: 1fr; gap: 0;
+  }
+  .v2-proofstrip__item { padding-block: 0.85rem; border-top: 1px solid var(--rule); }
+  .v2-proofstrip__item:first-child { border-top: 0; }
+}
+
+/* ---------- sections / chapters ---------- */
+/* one spacing token for every section; background sequence so no two adjacent
+   sections share a background unless they are intentionally one unit (the
+   three scene + its closing beat is one unit, and stays --paper throughout).
+   order (the #our-side bridge/photo band was removed, so this runs straight
+   from three-costs into diagnostician now): hero(petrol,own) > the-three(paper)
+   > three-costs(white) > diagnostician(paper) > the-exam(white) >
+   the-fixes(petrol,dark) > cash-flow(paper) > proof(white) > your-number(paper)
+   > close(petrol,own) > faq(white) > footer(paper) */
+.v2-section { padding-block: var(--section-y); background: var(--paper); }
+#the-three { background: var(--paper); }
+#three-costs.v2-costs { background: #ffffff; }
+#diagnostician { background: var(--paper); }
+#the-exam { background: #ffffff; }
+#cash-flow { background: var(--paper); }
+#proof { background: #ffffff; }
+#your-number { background: var(--paper); }
+.v2-faq { background: #ffffff; }
+.v2-dark { background: var(--petrol); color: #c6d7da; }
+.v2-dark h2, .v2-dark h3 { color: #fff; }
+.v2-dark strong { color: #fff; }
+.v2-secintro { max-width: 46rem; margin-bottom: clamp(2.5rem, 5vw, 4rem); }
+.v2-secintro h2 { font-size: var(--h-2); }
+.v2-secintro .v2-sub { margin-top: 1rem; font-size: var(--sub); color: var(--body-c); line-height: 1.5; }
+.v2-dark .v2-secintro .v2-sub { color: var(--dark-body); }
+
+/* reveal on enter */
+.v2-reveal { opacity: 0; transform: translateY(24px); transition: opacity var(--reveal-ms) var(--ease), transform var(--reveal-ms) var(--ease); }
+.v2-reveal.is-in { opacity: 1; transform: none; }
+.v2-static .v2-reveal, .v2-reduced .v2-reveal { opacity: 1; transform: none; transition: none; }
+
+/* ---------- chapter 1: pinned bill scene ---------- */
+.v2-pin {
+  display: grid; gap: clamp(2rem, 5vw, 4rem);
+}
+@media (min-width: 980px) { .v2-pin { grid-template-columns: 1.05fr 0.95fr; align-items: start; } }
+.v2-pin__chapters { display: flex; flex-direction: column; gap: clamp(3.5rem, 8vw, 6.5rem); }
+@media (min-width: 980px) {
+  .v2-pin__chapters { gap: clamp(2rem, 4vw, 3rem); }
+  .v2-chapter { min-height: 80vh; display: flex; flex-direction: column; justify-content: center; }
+}
+.v2-chapter__eyebrow { font-family: var(--font-mono); font-size: var(--eyebrow); letter-spacing: 0.08em; text-transform: uppercase; color: var(--petrol); font-weight: 600; }
+.v2-chapter h3 { font-size: clamp(1.7rem, 1.3rem + 1.6vw, 2.6rem); margin-top: 0.6rem; }
+.v2-chapter p { margin-top: 0.9rem; font-size: var(--body); line-height: 1.5; color: var(--body-c); }
+.v2-chapter { opacity: 0.18; transform: translateY(24px); transition: opacity var(--dur-med) var(--ease), transform var(--dur-med) var(--ease); }
+.v2-chapter.is-active { opacity: 1; transform: none; }
+.v2-chapter.is-active h3 { animation: v2ChapterIn 600ms var(--ease); }
+@keyframes v2ChapterIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+.v2-static .v2-chapter, .v2-reduced .v2-chapter { opacity: 1; transform: none; }
+
+.v2-pin__media { position: relative; }
+@media (min-width: 980px) {
+  .v2-pin__media { position: sticky; top: 96px; }
+  /* keep the sticky media column pinned for the full dwell of the final chapter:
+     without this, the chapters column runs out of height right as chapter 03
+     becomes active and the card unsticks early, sliding its top above the bar. */
+  .v2-pin__chapters { padding-bottom: 36rem; }
+}
+
+/* numeral + animated illustration, side by side above the eyebrow */
+.v2-chapter__head { display: flex; align-items: center; gap: 1rem; margin-bottom: 0.5rem; }
+.v2-chapter__num {
+  font-family: var(--font-sans); font-weight: 700; line-height: 1;
+  font-size: clamp(2.6rem, 2.1rem + 2vw, 4.5rem); color: var(--ochre); letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.4; transition: opacity var(--dur-med) var(--ease);
+}
+.v2-chapter.is-active .v2-chapter__num { opacity: 1; }
+.v2-illust { width: clamp(200px, 20vw, 260px); aspect-ratio: 260 / 150; flex: none; }
+.v2-illust svg { width: 100%; height: 100%; display: block; overflow: visible; }
+
+/* ---------- illustration animations ---------- */
+/* price: tag with rolling rate, a "rate reset" stamp drops in */
+.v2-illust--price .price-roll { transform: translateY(0); }
+.v2-illust--price .price-stamp { opacity: 0; transform: translateY(-26px); transform-box: fill-box; transform-origin: center; }
+.v2-illust--price.is-playing .price-stamp { animation: v2stampDrop 480ms var(--ease) forwards; animation-delay: 80ms; }
+.v2-illust--price.is-playing .price-roll { animation: v2priceRoll 620ms var(--ease) forwards; animation-delay: 420ms; }
+@keyframes v2stampDrop { 0% { opacity: 0; transform: translateY(-26px); } 65% { opacity: 1; transform: translateY(4px); } 100% { opacity: 1; transform: translateY(0); } }
+@keyframes v2priceRoll { to { transform: translateY(-58px); } }
+
+/* peak: load line draws, spike shoots to 250kW, then a ceiling drops to 150kW and clips it, ochre wash marks the removed slice */
+.v2-illust--peak .load-line { stroke-dashoffset: 0; }
+.v2-illust--peak .spike-tall { opacity: 1; }
+.v2-illust--peak .spike-clip { opacity: 0; }
+.v2-illust--peak .ceiling, .v2-illust--peak .wash { opacity: 0; }
+.v2-illust--peak .ceiling { transform: translateY(-8px); transition: none; }
+.v2-illust--peak.is-playing .load-line { stroke-dashoffset: 1; animation: v2lineDraw 700ms var(--ease) forwards; }
+.v2-illust--peak.is-playing .spike-tall, .v2-illust--peak.is-playing .label-250 { animation: v2fadeOut 260ms var(--ease) forwards; animation-delay: 650ms; }
+.v2-illust--peak.is-playing .spike-clip { animation: v2fadeIn 260ms var(--ease) forwards; animation-delay: 650ms; }
+.v2-illust--peak.is-playing .ceiling { animation: v2ceilDrop 420ms var(--ease) forwards; animation-delay: 700ms; }
+.v2-illust--peak.is-playing .wash { animation: v2fadeIn 400ms var(--ease) forwards; animation-delay: 800ms; }
+@keyframes v2lineDraw { to { stroke-dashoffset: 0; } }
+@keyframes v2fadeOut { to { opacity: 0; } }
+@keyframes v2fadeIn { to { opacity: 1; } }
+@keyframes v2ceilDrop { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+
+/* equipment: gauge needle sweeps from OFF to CALIBRATED, kWh readout rolls down, comfort chip holds steady and pulses once it lands */
+.v2-illust--equipment .gauge-needle { transform: translate(95px,88px) rotate(-55deg); }
+.v2-illust--equipment .kwh-roll { transform: translateY(0); }
+.v2-illust--equipment .comfort-chip { transform-box: fill-box; transform-origin: center; }
+.v2-illust--equipment.is-playing .gauge-needle { animation: v2needleSweep 900ms cubic-bezier(0.19,1,0.22,1) forwards; }
+.v2-illust--equipment.is-playing .kwh-roll { animation: v2kwhRoll 560ms var(--ease) forwards; animation-delay: 400ms; }
+.v2-illust--equipment.is-playing .comfort-chip { animation: v2chipPulse 480ms var(--ease) forwards; animation-delay: 900ms; }
+@keyframes v2needleSweep { to { transform: translate(95px,88px) rotate(55deg); } }
+@keyframes v2kwhRoll { to { transform: translateY(-20px); } }
+@keyframes v2chipPulse { 0% { transform: scale(1); } 45% { transform: scale(1.1); } 100% { transform: scale(1); } }
+
+.v2-reduced .v2-illust, .v2-static .v2-illust { animation: none !important; }
+.v2-reduced .v2-illust *, .v2-static .v2-illust * { animation: none !important; transition: none !important; }
+.v2-reduced .v2-illust--price .price-stamp, .v2-static .v2-illust--price .price-stamp { opacity: 1; transform: none; }
+.v2-reduced .v2-illust--price .price-roll, .v2-static .v2-illust--price .price-roll { transform: translateY(-58px); }
+.v2-reduced .v2-illust--peak .spike-tall, .v2-static .v2-illust--peak .spike-tall,
+.v2-reduced .v2-illust--peak .label-250, .v2-static .v2-illust--peak .label-250 { opacity: 0; }
+.v2-reduced .v2-illust--peak .spike-clip, .v2-static .v2-illust--peak .spike-clip,
+.v2-reduced .v2-illust--peak .ceiling, .v2-static .v2-illust--peak .ceiling,
+.v2-reduced .v2-illust--peak .wash, .v2-static .v2-illust--peak .wash { opacity: 1; }
+.v2-reduced .v2-illust--equipment .gauge-needle, .v2-static .v2-illust--equipment .gauge-needle { transform: translate(95px,88px) rotate(55deg); }
+.v2-reduced .v2-illust--equipment .kwh-roll, .v2-static .v2-illust--equipment .kwh-roll { transform: translateY(-20px); }
+
+@media (max-width: 979.9px) {
+  .v2-chapter__num { font-size: 2.2rem; }
+  .v2-illust { width: 180px; height: auto; }
+}
+
+.v2-billcard { position: relative; z-index: 1; background: #fff; border-radius: var(--r-media); padding: clamp(1.5rem, 2.8vw, 2.2rem); box-shadow: var(--shadow-card); overflow: hidden; }
+
+.v2-billcard__eyebrow { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--faint); }
+.v2-billcard__total-row { display: flex; align-items: baseline; gap: 0.6rem; margin-top: 0.6rem; }
+.v2-billcard__total {
+  font-family: var(--font-sans); font-weight: 700; font-size: clamp(3rem, 2rem + 4vw, 5.5rem);
+  color: var(--ink); letter-spacing: -0.02em; font-variant-numeric: tabular-nums; line-height: 1;
+}
+.v2-billcard__permo { font-family: var(--font-sans); font-weight: 600; font-size: 1rem; color: var(--faint); }
+.v2-billcard__pill {
+  display: inline-flex; margin-top: 0.5rem; font-family: var(--font-mono); font-weight: 700; font-size: 0.85rem;
+  color: #fff; background: var(--petrol); border-radius: var(--r-pill); padding: 0.35rem 0.8rem;
+  opacity: 0; transform: translateY(4px); transition: opacity var(--dur-med) var(--ease), transform var(--dur-med) var(--ease);
+}
+.v2-billcard__pill.is-shown { opacity: 1; transform: none; }
+.v2-static .v2-billcard__pill, .v2-reduced .v2-billcard__pill { opacity: 1; transform: none; }
+
+.v2-billbar { margin-top: 1.5rem; }
+.v2-billbar__track {
+  position: relative; height: 56px; border-radius: 14px; overflow: hidden; display: flex;
+  background: var(--paper-2);
+}
+.v2-billbar__seg { display: block; height: 100%; width: 0; transition: width var(--dur-slow) var(--ease); }
+.v2-billbar__seg--energy { background: var(--petrol); }
+.v2-billbar__seg--demand { background: var(--ochre); }
+.v2-billbar__seg--other { background: #9aa4aa; }
+.v2-billbar__saved {
+  display: block; height: 100%; width: 0; flex: none; transition: width var(--dur-slow) var(--ease);
+  background-image: repeating-linear-gradient(135deg, rgb(23 78 88 / 0.22) 0 6px, transparent 6px 12px);
+  background-color: rgb(23 78 88 / 0.06);
+  border-left: 1px dashed rgb(23 78 88 / 0.35);
+}
+.v2-billbar__labels { display: flex; flex-wrap: wrap; gap: 0.4rem 1.4rem; margin-top: 0.9rem; }
+.v2-billbar__label {
+  display: inline-flex; align-items: center; gap: 0.45rem;
+  font-family: var(--font-sans); font-size: 0.95rem; color: var(--body-c);
+}
+.v2-billbar__label b { font-family: var(--font-mono); font-weight: 700; color: var(--ink); font-variant-numeric: tabular-nums; }
+.v2-billbar__dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; flex: none; }
+.v2-billbar__dot--energy { background: var(--petrol); }
+.v2-billbar__dot--demand { background: var(--ochre); }
+.v2-billbar__dot--other { background: #9aa4aa; }
+
+.v2-billcard__change {
+  margin-top: 1rem; font-family: var(--font-sans); font-weight: 600; font-size: 1.15rem; color: var(--ochre-ink);
+  min-height: 1.4em; opacity: 0; transform: translateY(6px);
+  transition: opacity var(--dur-med) var(--ease), transform var(--dur-med) var(--ease);
+}
+.v2-billcard__change.is-shown { opacity: 1; transform: none; }
+.v2-static .v2-billcard__change, .v2-reduced .v2-billcard__change { opacity: 1; transform: none; }
+
+.v2-billcard__lineitems { display: inline-block; margin-top: 1.1rem; font-size: 0.9rem; color: var(--faint); text-decoration-color: var(--rule); }
+.v2-billcard__lineitems:hover { color: var(--petrol); text-decoration-color: currentColor; }
+
+/* line-items dialog: reuses .v2-card-sheet chrome, adds the itemized bill rows */
+.v2-billsheet__body { max-width: 34rem; }
+.v2-bill__sub { margin-top: 0.5rem; font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--faint); }
+.v2-bill__rows { display: flex; flex-direction: column; margin-top: 1.3rem; border-top: 1px solid var(--rule); }
+.v2-bill__row { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; padding: 0.7rem 0; border-bottom: 1px solid var(--rule); }
+.v2-bill__label { font-family: var(--font-sans); font-size: 0.95rem; color: var(--body-c); line-height: 1.4; min-width: 0; }
+.v2-bill__math { display: block; margin-top: 0.2rem; font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.01em; color: var(--faint); font-variant-numeric: tabular-nums; }
+.v2-bill__amt { position: relative; flex: none; font-family: var(--font-mono); font-size: 0.95rem; font-weight: 600; color: var(--ink); text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.v2-bill__old { display: none; color: var(--faint); text-decoration: line-through; font-weight: 500; margin-right: 0.4rem; }
+.v2-bill__new { display: inline-block; }
+.v2-bill__new.is-changed { color: var(--ochre-ink); font-weight: 700; }
+.v2-billsheet .v2-bill__old:not(:empty) { display: inline; }
+
+.v2-bill__total { margin-top: 0.3rem; padding-top: 0.9rem; border-top: 2px solid var(--ink); }
+.v2-bill__total-row { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; }
+.v2-bill__total-label { font-family: var(--font-sans); font-weight: 700; font-size: 1rem; color: var(--ink); }
+.v2-bill__total-amt { font-family: var(--font-mono); font-weight: 700; font-size: clamp(1.3rem, 1rem + 1.2vw, 1.7rem); color: var(--ink); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.v2-bill__total-amt .v2-bill__old { font-size: 0.62em; }
+.v2-billsheet__note { margin-top: 1.1rem; font-size: 0.8rem; color: var(--faint); }
+
+.v2-progress3 { display: flex; gap: 10px; margin-top: 1.4rem; position: relative; z-index: 1; }
+.v2-progress3__seg { flex: 1; display: flex; flex-direction: column; gap: 0.5rem; }
+.v2-progress3__seg .bar { height: 6px; border-radius: 999px; background: var(--rule); overflow: hidden; }
+.v2-progress3__seg .bar::after { content: ""; display: block; height: 100%; width: 0; background: var(--ochre); transition: width var(--dur-med) var(--ease); border-radius: 999px; }
+.v2-progress3__seg.is-fill .bar::after, .v2-progress3__seg.is-done .bar::after { width: 100%; }
+.v2-progress3__seg label { font-family: var(--font-mono); font-size: 1rem; letter-spacing: 0.04em; color: var(--faint); text-transform: uppercase; }
+.v2-progress3__seg.is-fill label, .v2-progress3__seg.is-done label { color: var(--ink); font-weight: 600; }
+
+.v2-closing-beat { text-align: center; padding-top: clamp(4rem, 8vw, 7rem); }
+.v2-closing-beat h3 { font-size: var(--h-2); max-width: 22ch; margin-inline: auto; opacity: 0; transform: scale(0.92); transition: opacity var(--dur-slow) var(--ease), transform var(--dur-slow) var(--ease); }
+.v2-closing-beat.is-in h3, .v2-static .v2-closing-beat h3, .v2-reduced .v2-closing-beat h3 { opacity: 1; transform: none; }
+.v2-closing-beat p { margin-top: 0.9rem; font-size: var(--sub); color: var(--body-c); margin-inline: auto; max-width: 38ch; }
+
+/* mobile: sticky reduced bill + stacked chapters */
+@media (max-width: 979.9px) {
+  .v2-pin { display: flex; flex-direction: column; }
+  .v2-pin__media {
+    order: -1;
+    position: sticky; top: 76px; z-index: 3; margin-bottom: 1.25rem;
+    max-height: 40vh; overflow: hidden;
+    display: flex; flex-direction: column; align-items: center; gap: 0.6rem;
+    background: var(--paper); padding-bottom: 0.6rem;
+  }
+  .v2-billcard { max-width: clamp(260px, 84vw, 400px); margin-inline: auto; padding: 0.85rem 0.9rem; }
+  .v2-billcard__eyebrow { font-size: 0.6rem; }
+  .v2-billcard__total { font-size: clamp(2rem, 1.4rem + 4vw, 2.6rem); }
+  .v2-billcard__permo { font-size: 0.75rem; }
+  .v2-billcard__pill { margin-top: 0.35rem; font-size: 0.68rem; padding: 0.3rem 0.65rem; }
+  .v2-billbar { margin-top: 0.6rem; }
+  .v2-billbar__track { height: 44px; border-radius: 12px; }
+  .v2-billbar__labels { margin-top: 0.5rem; gap: 0.3rem 0.9rem; }
+  .v2-billbar__label { font-size: 0.72rem; }
+  .v2-billcard__change { margin-top: 0.5rem; font-size: 0.85rem; min-height: 1.2em; }
+  .v2-billcard__lineitems { margin-top: 0.5rem; font-size: 0.75rem; }
+  .v2-progress3 { width: 100%; max-width: clamp(260px, 84vw, 400px); margin-top: 0; }
+  .v2-pin__chapters { gap: 1.4rem; }
+  .v2-chapter {
+    background: var(--card); border-radius: var(--r-card);
+    padding: 1.3rem 1.2rem; box-shadow: var(--shadow-card);
+    opacity: 1; transform: none;
+  }
+  .v2-chapter:not(.is-active) { opacity: 0.55; }
+  .v2-progress3__seg label { font-size: 0.8125rem; }
+}
+
+/* static / reduced-motion fallback: bill once, three stacked cards */
+.v2-static .v2-pin__media, .v2-reduced .v2-pin__media { position: static; }
+.v2-static .v2-chapter, .v2-reduced .v2-chapter { opacity: 1 !important; transform: none !important; }
+
+/* ---------- bento (chapter 2, chapter 4) ---------- */
+.v2-bento { display: grid; gap: var(--gutter); grid-template-columns: repeat(12, 1fr); }
+.v2-card {
+  background: #fff; border-radius: var(--r-card); padding: clamp(1.6rem, 3vw, 2.2rem);
+  box-shadow: var(--shadow-card); position: relative;
+}
+.v2-card--media { padding: 0; overflow: hidden; }
+.v2-card--media img, .v2-card--media video { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: var(--r-media); }
+.v2-card h3 { font-size: var(--card-h); }
+.v2-card p { margin-top: 0.55rem; font-size: var(--body); line-height: 1.5; }
+.v2-card__fig { font-family: var(--font-sans); font-weight: 700; font-size: var(--stat-fig); line-height: 1; color: var(--petrol); letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.v2-card__line { margin-top: 0.6rem; font-size: 1.125rem; line-height: 1.5; color: var(--body-c); font-weight: 500; }
+
+/* ---------- Cliff bento (dense, expandable) ---------- */
+.v2-bento--cliff { grid-template-columns: repeat(12, 1fr); align-items: start; grid-auto-flow: row dense; }
+.v2-bento--cliff .v2-card { padding: clamp(1.4rem, 2.6vw, 1.9rem); overflow: hidden; cursor: pointer; }
+.v2-bento--cliff .v2-card--photo {
+  grid-column: span 12; aspect-ratio: 16/11; padding: 0; position: relative; cursor: default;
+}
+@media (min-width: 860px) { .v2-bento--cliff .v2-card--photo { grid-column: span 6; grid-row: span 2; aspect-ratio: auto; } }
+.v2-bento--cliff .v2-card--photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.v2-bento--cliff .v2-card--photo__cap {
+  position: absolute; left: 0; right: 0; bottom: 0; padding: 1.6rem 1.6rem 1.4rem;
+  background: linear-gradient(to top, rgb(16 20 22 / 0.88), rgb(16 20 22 / 0));
+  color: #fff;
+}
+.v2-bento--cliff .v2-card--photo__cap h3 { color: #fff; font-size: clamp(1.4rem, 1.2rem + 0.8vw, 1.9rem); }
+.v2-bento--cliff .v2-card--photo__cap p { color: #e6eff0; margin-top: 0.2rem; font-size: 1rem; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; }
+.v2-bento--cliff .v2-card--film { grid-column: span 12; }
+
+/* ---------- Cliff credentials: 6 cards, 4 visible slots that rotate ----------
+   Default markup (no JS, reduced motion, ?static=1): every card is a normal,
+   always-visible grid item, a plain 2 to 3 column grid, no rotation, no holes.
+   JS enhancement (v2.js): assigns each card one of 4 explicit grid positions
+   (.v2-cliff-slot--p0..p3) and crossfades which card holds a given position
+   every ~5s, so the position itself never moves, only its occupant does. */
+.v2-cliff-slot { grid-column: span 6; opacity: 1; transition: opacity 320ms var(--ease); }
+@media (min-width: 640px) { .v2-cliff-slot { grid-column: span 4; } }
+.v2-cliff-slot.v2-cliff-in, .v2-cliff-slot.v2-cliff-out { opacity: 0; }
+
+/* JS-enhanced positions (only assigned once rotation is active) */
+@media (min-width: 640px) and (max-width: 859.9px) {
+  .v2-cliff-slot--p0, .v2-cliff-slot--p1, .v2-cliff-slot--p2, .v2-cliff-slot--p3 { grid-column: span 6; }
+}
+@media (max-width: 639.9px) {
+  .v2-cliff-slot--p0, .v2-cliff-slot--p1, .v2-cliff-slot--p2, .v2-cliff-slot--p3 { grid-column: span 6; }
+}
+@media (min-width: 860px) {
+  .v2-cliff-slot--p0 { grid-column: 7 / 10; grid-row: 1; }
+  .v2-cliff-slot--p1 { grid-column: 10 / 13; grid-row: 1; }
+  .v2-cliff-slot--p2 { grid-column: 7 / 10; grid-row: 2; }
+  .v2-cliff-slot--p3 { grid-column: 10 / 13; grid-row: 2; }
+}
+/* reduced motion / ?static=1: show the full 6-card grid, no rotation, no crossfade */
+.v2-static .v2-bento--cliff .v2-card--photo, .v2-reduced .v2-bento--cliff .v2-card--photo {
+  grid-column: span 12 !important; grid-row: auto !important; aspect-ratio: 16/11 !important;
+}
+.v2-static .v2-cliff-slot, .v2-reduced .v2-cliff-slot {
+  grid-column: span 6 !important; grid-row: auto !important; opacity: 1 !important; transition: none;
+}
+@media (min-width: 640px) {
+  .v2-static .v2-cliff-slot, .v2-reduced .v2-cliff-slot { grid-column: span 4 !important; }
+}
+.v2-static .v2-cliff-dots, .v2-reduced .v2-cliff-dots { display: none; }
+
+.v2-cliff-dots { display: flex; justify-content: center; gap: 0.5rem; margin-top: clamp(1.4rem, 3vw, 2rem); }
+.v2-cliff-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--rule); transition: background 300ms var(--ease), transform 300ms var(--ease); }
+.v2-cliff-dot.is-on { background: var(--ochre); transform: scale(1.2); }
+
+.v2-card--stat .v2-card__eyebrow { font-family: var(--font-mono); font-size: var(--eyebrow); letter-spacing: 0.08em; text-transform: uppercase; color: var(--faint); padding-right: 2.6rem; text-wrap: pretty; }
+.v2-card--stat .v2-card__fig { margin-top: 0.4rem; font-size: clamp(2.25rem, 1.8rem + 2.4vw, 3.4rem); }
+.v2-card--stat .v2-card__fig--word { font-size: clamp(1.6rem, 1.2rem + 1.8vw, 2.5rem); }
+.v2-card--stat .v2-card__cap { margin-top: 0.6rem; font-size: 1.125rem; line-height: 1.5; color: var(--body-c); font-weight: 500; }
+.v2-card--stat .v2-card__detail { margin-top: 0.9rem; font-size: 1.0625rem; line-height: 1.55; color: var(--body-c); max-height: 0; opacity: 0; overflow: hidden; transition: max-height var(--dur-med) var(--ease), opacity var(--dur-fast) var(--ease); }
+.v2-card--stat.is-open .v2-card__detail { max-height: 40rem; opacity: 1; }
+
+.v2-card__expand {
+  position: absolute; top: 1.1rem; right: 1.1rem; width: 2.4rem; height: 2.4rem; min-width: 44px; min-height: 44px;
+  border-radius: 50%; background: var(--paper-2); color: var(--ink); display: grid; place-items: center;
+  font-size: 1.3rem; line-height: 1; transition: transform var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease);
+}
+.v2-card--stat:hover .v2-card__expand { background: var(--ochre-wash); }
+.v2-card--stat.is-open .v2-card__expand { transform: rotate(45deg); background: var(--ochre); color: var(--ink); }
+
+.v2-bento--cliff .v2-card--stat.is-open { grid-column: span 12; }
+
+/* ---------- card detail sheet (shared by Cliff bento + money bento "+") ---------- */
+.v2 dialog.v2-card-sheet {
+  border: 0; padding: 0; width: min(92vw, 720px); max-width: 720px; max-height: min(86vh, 660px);
+  border-radius: 28px; background: var(--paper); color: var(--body-c); overflow: hidden; display: none;
+  opacity: 0; transform: scale(0.96); transition: opacity var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease);
+}
+.v2 dialog.v2-card-sheet[open] { display: flex; }
+.v2 dialog.v2-card-sheet.is-in { opacity: 1; transform: scale(1); }
+.v2-card-sheet::backdrop { background: rgb(16 20 22 / 0); transition: background var(--dur-fast) var(--ease); }
+.v2 dialog.v2-card-sheet.is-in::backdrop { background: rgb(16 20 22 / 0.55); }
+.v2-card-sheet__body { padding: clamp(2rem, 4vw, 2.8rem); position: relative; overflow-y: auto; width: 100%; }
+.v2-card-sheet__close {
+  position: absolute; top: 1rem; right: 1rem; width: 44px; height: 44px; min-width: 44px; min-height: 44px;
+  border-radius: 50%; background: var(--paper-2); color: var(--ink); font-size: 1.4rem; line-height: 1;
+  display: grid; place-items: center; z-index: 2;
+}
+.v2-card-sheet__close:hover { background: var(--ink); color: #fff; }
+.v2-card-sheet__eyebrow { font-family: var(--font-mono); font-size: var(--eyebrow); letter-spacing: 0.08em; text-transform: uppercase; color: var(--faint); padding-right: 3rem; }
+.v2-card-sheet__fig { margin-top: 0.5rem; font-family: var(--font-sans); font-weight: 700; font-size: clamp(2.25rem, 1.8rem + 2.4vw, 3.4rem); color: var(--petrol); letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.v2-card-sheet__cap { margin-top: 0.6rem; font-size: 1.35rem; font-weight: 600; color: var(--ink); line-height: 1.3; max-width: none; }
+.v2-card-sheet__eyebrow:empty, .v2-card-sheet__fig:empty { display: none; }
+.v2-card-sheet__visual { margin-top: 1.1rem; }
+.v2-card-sheet__visual[hidden] { display: none; }
+.v2-card-sheet__visual .v2-examchart { margin-top: 0; }
+.v2-card-sheet__detail { margin-top: 1.1rem; font-size: 20px; line-height: 1.55; color: var(--body-c); max-width: none; }
+.v2-card-sheet__detail:empty { display: none; }
+
+@media (max-width: 700px) {
+  .v2 dialog.v2-card-sheet {
+    width: 100vw; max-width: none; max-height: 88vh; margin: auto 0 0;
+    border-radius: 28px 28px 0 0; transform: translateY(100%);
+  }
+  .v2 dialog.v2-card-sheet.is-in { transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .v2-card-sheet, .v2-card-sheet::backdrop { transition: none !important; }
+}
+
+.v2-filmcard { position: relative; display: block; width: 100%; aspect-ratio: 16/10; padding: 0; cursor: pointer; }
+.v2-filmcard img { filter: brightness(0.72); transition: transform var(--dur-slow) var(--ease); }
+.v2-filmcard:hover img { transform: scale(1.03); }
+.v2-filmcard__play { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 4rem; height: 4rem; border-radius: 50%; background: #fff; color: var(--petrol); display: grid; place-items: center; }
+.v2-filmcard__play svg { width: 1.5rem; height: 1.5rem; margin-left: 0.15rem; }
+.v2-filmcard__label { position: absolute; left: 1rem; bottom: 0.9rem; color: #fff; font-family: var(--font-mono); font-size: 1rem; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; }
+.v2-filmcard iframe { width: 100%; height: 100%; border: 0; display: block; }
+
+@media (max-width: 639.9px) {
+  .v2-bento--cliff { grid-auto-flow: row; }
+}
+
+/* ---------- progress carousel (chapter 3 + chapter 4 mobile) ---------- */
+.v2-carousel { position: relative; }
+.v2-carousel__track {
+  display: flex; gap: var(--gutter);
+}
+.v2-carousel__card {
+  position: relative; flex: 0 0 auto; width: min(320px, 78vw);
+  background: #fff; border-radius: var(--r-card); padding: clamp(1.6rem, 3vw, 2.2rem);
+  box-shadow: var(--shadow-card);
+}
+.v2-carousel__card[data-expand-card] { cursor: pointer; }
+.v2-carousel__card[data-expand-card]:hover .v2-card__expand,
+.v2-carousel__card[data-expand-card]:focus-visible .v2-card__expand { background: var(--ochre-wash); }
+.v2-carousel__num { font-family: var(--font-sans); font-weight: 700; font-size: clamp(2.4rem, 2rem + 2vw, 3.4rem); color: var(--petrol); line-height: 1; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.v2-carousel__card h3 { margin-top: 0.9rem; font-size: var(--card-h); }
+.v2-carousel__card p { margin-top: 0.6rem; font-size: var(--body); line-height: 1.5; }
+.v2-carousel__card p.v2-card__cap { padding-right: 2.6rem; }
+.v2-carousel__track-outer { overflow: hidden; }
+.v2-carousel__progress { height: 2px; background: var(--rule); margin-top: 1.6rem; border-radius: 999px; overflow: hidden; }
+.v2-carousel__progress span { display: block; height: 100%; width: 20%; background: var(--petrol); transition: transform 80ms linear; transform-origin: left; }
+
+@media (max-width: 979.9px) {
+  .v2-carousel__track { overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 0.5rem; -webkit-overflow-scrolling: touch; }
+  .v2-carousel__track::-webkit-scrollbar { display: none; }
+  .v2-carousel__card { scroll-snap-align: start; width: 82vw; }
+}
+
+.v2-floor {
+  margin-top: clamp(2rem, 4vw, 3rem);
+  background: var(--petrol); border: 1.5px solid var(--ochre); border-radius: var(--r-card);
+  padding: clamp(1.6rem, 3vw, 2.4rem); color: #fff; text-align: center;
+}
+.v2-floor p { margin-inline: auto; max-width: 42ch; font-size: 1.15rem; font-weight: 500; color: #fff; }
+
+/* ---------- chapter 4: fixes (dark) ---------- */
+.v2-readout { margin-top: clamp(1.6rem, 3vw, 2.2rem); font-family: var(--font-sans); font-weight: 700; line-height: 1; font-size: clamp(3rem, 2rem + 5.5vw, 6rem); color: var(--ochre); letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.v2-readout small { display: block; margin-top: 0.7rem; font-family: var(--font-sans); font-size: var(--body); line-height: 1.5; letter-spacing: normal; font-weight: 500; color: var(--dark-body); }
+
+/* ---------- film block (inside the fixes chapter) ---------- */
+.v2-film { margin-top: clamp(2.5rem, 5vw, 4rem); }
+.v2-film__intro { max-width: 40rem; margin-bottom: clamp(1.4rem, 3vw, 2rem); }
+.v2-film__intro h3 { font-size: var(--card-h); color: #fff; }
+.v2-film__intro .v2-sub { margin-top: 0.6rem; }
+.v2-film__media {
+  position: relative; display: block; width: 100%; aspect-ratio: 16/9;
+  border-radius: 28px; overflow: hidden; cursor: pointer; padding: 0;
+}
+.v2-film__media img { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.68); transition: transform var(--dur-slow) var(--ease); }
+.v2-film__media:hover img { transform: scale(1.03); }
+.v2-film__media iframe { width: 100%; height: 100%; border: 0; display: block; }
+.v2-film__play {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  width: 80px; height: 80px; border-radius: 50%; background: #fff; color: var(--petrol);
+  display: grid; place-items: center; box-shadow: 0 0 0 6px rgb(224 162 28 / 0.55);
+}
+.v2-film__play svg { width: 1.9rem; height: 1.9rem; margin-left: 0.2rem; }
+.v2-film__len {
+  position: absolute; right: 1.1rem; bottom: 1rem; color: #fff;
+  font-family: var(--font-mono); font-size: 0.9rem; font-weight: 600; letter-spacing: 0.04em;
+  background: rgb(16 20 22 / 0.55); padding: 0.35rem 0.7rem; border-radius: 999px;
+}
+
+.v2-bento--fixes { margin-top: clamp(2.5rem, 5vw, 4rem); }
+.v2-bento--fixes .v2-card { background: #fff; color: var(--body-c); }
+.v2-bento--fixes .v2-card h3 { color: var(--ink); }
+.v2-bento--fixes .v2-card--suncore { grid-column: span 12; }
+@media (min-width: 860px) { .v2-bento--fixes .v2-card--suncore { grid-column: span 12; display: grid; grid-template-columns: 1.1fr 1fr; gap: var(--gutter); align-items: center; padding: clamp(1rem, 2vw, 1.4rem); } }
+.v2-bento--fixes .v2-card--suncore .v2-card--media { grid-column: 1; aspect-ratio: 16/10; }
+.v2-bento--fixes .v2-card--suncore .v2-suncore-copy { grid-column: 2; padding: 1rem 1.2rem 1rem 0; }
+@media (max-width: 859.9px) { .v2-bento--fixes .v2-card--suncore { display: block; } .v2-bento--fixes .v2-card--suncore .v2-card--media { aspect-ratio: 16/9; margin-bottom: 1.2rem; } .v2-bento--fixes .v2-card--suncore .v2-suncore-copy { padding: 0 0.4rem 0.8rem; } }
+.v2-fix-small { grid-column: span 12; }
+@media (min-width: 640px) { .v2-fix-small { grid-column: span 6; } }
+@media (min-width: 1040px) { .v2-fix-small { grid-column: span 3; } }
+.v2-fix-small .v2-card__fit { font-family: var(--font-sans); font-size: var(--eyebrow); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--faint); }
+.v2-fix-small .v2-card__fig { margin-top: 0.7rem; font-family: var(--font-mono); font-weight: 700; font-size: 1.3rem; color: var(--ochre-ink); background: var(--ochre-wash); display: inline-block; padding: 0.3rem 0.6rem; border-radius: var(--r-chip); }
+.v2-fix-small .v2-fix-img { border-radius: var(--r-chip); overflow: hidden; margin-bottom: 1rem; aspect-ratio: 3/2; }
+.v2-fix-small .v2-fix-img img { width: 100%; height: 100%; object-fit: cover; }
+.v2-quiet { margin-top: clamp(1.6rem, 3vw, 2.4rem); font-size: 1rem; }
+.v2-quiet a { text-decoration: underline; text-underline-offset: 3px; }
+.v2-dark .v2-quiet { color: #c6d7da; }
+.v2-dark .v2-quiet a { color: #fff; }
+
+@media (max-width: 979.9px) {
+  .v2-bento--fixes { display: none; }
+}
+.v2-fixes-carousel { display: none; margin-top: clamp(2.5rem, 5vw, 4rem); }
+@media (max-width: 979.9px) { .v2-fixes-carousel { display: block; } }
+.v2-fixes-carousel .v2-carousel__card { width: min(300px, 80vw); }
+.v2-fixes-carousel .v2-fix-img { border-radius: var(--r-chip); overflow: hidden; margin-bottom: 1rem; aspect-ratio: 3/2; }
+.v2-fixes-carousel .v2-fix-img img { width: 100%; height: 100%; object-fit: cover; }
+.v2-fixes-carousel .v2-card__fit { font-family: var(--font-sans); font-size: 0.74rem; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: var(--faint); }
+.v2-fixes-carousel .v2-card__fig { margin-top: 0.7rem; font-family: var(--font-mono); font-weight: 600; font-size: 1.05rem; color: var(--ochre-ink); }
+
+/* ---------- money bento (cash flow + incentives) ---------- */
+.v2-bento--money { grid-auto-flow: row dense; align-items: stretch; }
+.v2-bento--money .v2-card--lg { grid-column: span 12; display: flex; flex-direction: column; justify-content: flex-start; }
+.v2-bento--money .v2-card--sm { grid-column: span 6; }
+@media (min-width: 860px) {
+  .v2-bento--money .v2-card--lg { grid-column: span 6; grid-row: span 2; }
+  .v2-bento--money .v2-card--sm { grid-column: span 3; }
+}
+@media (max-width: 639.9px) {
+  .v2-bento--money .v2-card--lg, .v2-bento--money .v2-card--sm { grid-column: span 12; }
+}
+.v2-bento--money { margin-top: clamp(2rem, 4vw, 3rem); }
+
+/* hero card of the money bento: biggest stat size, top-aligned, chart fills the rest */
+.v2-bento--money .v2-card--lg .v2-card__fig { font-size: var(--stat-fig); margin-top: 0.5rem; }
+.v2-bento--money .v2-card--lg .v2-card__cap { font-size: 20px; }
+.v2-money-chart { margin-top: clamp(1.4rem, 3vw, 2.2rem); flex: 1; display: flex; flex-direction: column; min-height: 8rem; }
+.v2-money-chart svg { width: 100%; height: 100%; flex: 1; display: block; overflow: visible; }
+.v2-money-chart__note { margin-top: 0.5rem; font-size: 14px; color: var(--faint); }
+
+/* ---------- proof ledger (chapter 5) ---------- */
+.v2-ledger {
+  margin-top: clamp(1.8rem, 4vw, 2.6rem);
+  display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;
+  height: 26rem; overflow: hidden; cursor: pointer;
+  -webkit-mask-image: linear-gradient(to bottom, transparent, black 9%, black 91%, transparent);
+  mask-image: linear-gradient(to bottom, transparent, black 9%, black 91%, transparent);
+}
+@media (max-width: 820px) { .v2-ledger { grid-template-columns: 1fr 1fr; } .v2-ledger__col:nth-child(3) { display: none; } }
+@media (max-width: 540px) { .v2-ledger { grid-template-columns: 1fr; height: 22rem; } .v2-ledger__col:nth-child(2) { display: none; } }
+.v2-ledger__col { display: flex; flex-direction: column; }
+.v2-ledger__card { flex: none; background: #fff; border-radius: var(--r-card); padding: 0.9rem 1.05rem 1rem; margin-bottom: 1rem; box-shadow: var(--shadow-card); }
+.v2-ledger__card .r { display: block; font-family: var(--font-mono); font-weight: 700; font-size: 1.4rem; color: var(--petrol); font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+.v2-ledger__card .n { display: block; margin-top: 0.25rem; font-weight: 600; color: var(--ink); font-size: 1rem; line-height: 1.35; }
+.v2-ledger__card .w { display: block; margin-top: 0.2rem; font-size: 0.95rem; color: var(--faint); line-height: 1.4; }
+@keyframes v2ledgerDrift { to { transform: translateY(-50%); } }
+.v2-anim .v2-ledger__col { animation: v2ledgerDrift var(--dur, 220s) linear infinite; }
+.v2-ledger:hover .v2-ledger__col { animation-play-state: paused; }
+
+/* record sheet dialog */
+.v2 dialog.v2-sheet { border: 0; padding: 0; width: 100vw; height: 100dvh; max-width: none; max-height: none; background: var(--paper); color: var(--body-c); display: none; flex-direction: column; }
+.v2 dialog.v2-sheet[open] { display: flex; }
+.v2 dialog::backdrop { background: rgb(16 20 22 / 0.7); }
+.v2-sheet__bar { flex: none; display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1rem clamp(1.25rem, 4vw, 2.5rem); border-bottom: 1px solid var(--ink); }
+.v2-sheet__bar h2 { font-size: 1.4rem; }
+.v2-sheet__close { flex: none; width: 2.5rem; height: 2.5rem; border-radius: var(--r-chip); border: 1px solid var(--ink); background: #fff; color: var(--ink); font-size: 1.3rem; line-height: 1; }
+.v2-sheet__close:hover { background: var(--ink); color: #fff; }
+.v2-sheet__body { flex: 1; overflow-y: auto; padding: clamp(1.5rem, 4vw, 2.5rem) clamp(1.25rem, 4vw, 2.5rem); }
+.v2-sheet__note { flex: none; padding: 0.9rem clamp(1.25rem, 4vw, 2.5rem); border-top: 1px solid var(--rule); font-size: 0.78rem; color: var(--faint); max-width: none; }
+.v2-rec-group { max-width: 60rem; margin: 0 auto 2.5rem; }
+.v2-rec-group h3 { font-family: var(--font-mono); font-size: 0.9375rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink); padding-bottom: 0.5rem; border-bottom: 1px solid var(--ink); }
+.v2-rec-group h3 span { float: right; color: var(--faint); }
+.v2-rec-group ul { list-style: none; margin: 0; padding: 0; }
+.v2-rec-group li { display: grid; grid-template-columns: 7.5rem 1fr minmax(0, 16rem); gap: 0.3rem 1.2rem; padding: 0.7rem 0; border-bottom: 1px solid var(--rule-soft); font-size: 0.9375rem; }
+.v2-rec-group .r { font-family: var(--font-mono); font-weight: 600; color: var(--petrol); font-variant-numeric: tabular-nums; }
+.v2-rec-group .n b { display: block; font-weight: 600; color: var(--ink); }
+.v2-rec-group .n span { color: var(--faint); }
+.v2-rec-group .b { color: var(--body-c); }
+@media (max-width: 640px) { .v2-rec-group li { grid-template-columns: 5.5rem 1fr; } .v2-rec-group .b { grid-column: 2; } }
+
+/* ---------- calculator (chapter 6) ----------
+   matches the live page's plain .calc treatment: no outer card, no radius/shadow
+   clipping the calculator's own card, no padding squeezing its content. */
+.v2-calc { position: relative; margin-top: clamp(1.8rem, 4vw, 2.6rem); }
+.v2-calc__loading { position: absolute; inset: 0; display: grid; place-items: center; font-family: var(--font-mono); font-size: 0.875rem; color: var(--faint); }
+.v2-calc iframe { position: relative; display: block; width: 100%; min-height: 420px; height: 520px; border: 0; background: transparent; transition: height var(--dur-med) var(--ease); }
+
+/* ---------- close ---------- */
+.v2-close { position: relative; background: var(--petrol); color: #fff; overflow: clip; padding-block: var(--section-y); }
+.v2-close__media { position: absolute; inset: 0; }
+.v2-close__media img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(1) contrast(1.06) brightness(0.55); }
+.v2-close__scrim { position: absolute; inset: 0; background: linear-gradient(to top, rgb(23 78 88 / 0.92), rgb(23 78 88 / 0.55)); }
+.v2-close__in { position: relative; text-align: center; max-width: 42rem; margin-inline: auto; }
+.v2-close h2 { color: #fff; font-size: var(--h-2); }
+.v2-close__sub { margin-top: 1rem; font-size: var(--sub); color: #c6d7da; }
+.v2-close .v2-cta { justify-content: center; }
+.v2-close .v2-sms { margin-inline: auto; text-align: left; }
+
+.v2-team-wrap { position: relative; max-width: 1200px; margin-top: clamp(3rem, 6vw, 4.5rem); }
+.v2-team { margin-top: 0; border-top: 1px solid rgb(255 255 255 / 0.2); padding-top: clamp(2.5rem, 5vw, 3.5rem); text-align: left; }
+.v2-team__title { font-family: var(--font-sans); font-weight: 700; font-size: var(--h-2); color: #fff; margin-bottom: 48px; letter-spacing: -0.02em; max-width: 20ch; }
+.v2-team-grid { display: grid; gap: 24px; align-items: stretch; }
+@media (min-width: 700px) { .v2-team-grid { grid-template-columns: repeat(3, 1fr); } }
+.v2-person {
+  display: flex; flex-direction: column; height: 100%; text-align: left; background: rgb(255 255 255 / 0.06); border: 1px solid rgb(255 255 255 / 0.14);
+  border-radius: 28px; overflow: hidden; padding: 0;
+}
+.v2-person__photo { display: block; width: 100%; aspect-ratio: 4/5; overflow: hidden; flex: none; }
+.v2-person__photo img { width: 100%; height: 100%; object-fit: cover; object-position: center 15%; display: block; }
+.v2-person__meta { display: flex; flex-direction: column; flex: 1; padding: 1.4rem 1.4rem 1.6rem; }
+.v2-person h4 { font-size: 1.6rem; font-weight: 700; color: #fff; line-height: 1.15; }
+.v2-person__role { display: block; font-family: var(--font-sans); font-size: 1.1rem; font-weight: 500; color: var(--dark-body); margin: 0.4rem 0 0; }
+.v2-person__bio {
+  margin-top: 0.9rem; font-family: var(--font-sans); font-size: 1.125rem; line-height: 1.55;
+  color: var(--dark-body); max-width: none;
+}
+.v2-team__title.v2-team__title { color: #fff; }
+
+/* ---------- FAQ ---------- */
+.v2-faq-list { margin-top: clamp(1.6rem, 3vw, 2.4rem); border-top: 1px solid var(--rule); }
+.v2-faq-list details { border-bottom: 1px solid var(--rule); }
+.v2-faq-list summary {
+  list-style: none; display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+  padding: 1.3rem 0.2rem; cursor: pointer; font-weight: 600; color: var(--ink); font-size: 1.2rem;
+}
+.v2-faq-list summary::-webkit-details-marker { display: none; }
+.v2-faq-list summary .v2-chev { flex: none; transition: transform var(--dur-fast) var(--ease); color: var(--faint); }
+.v2-faq-list details[open] summary .v2-chev { transform: rotate(180deg); }
+.v2-faq-list .v2-faq-body { padding: 0 0.2rem 1.5rem; font-size: var(--body); line-height: 1.5; color: var(--body-c); }
+
+/* ---------- footer ---------- */
+.v2-foot { border-top: 1px solid var(--ink); padding-block: clamp(3rem, 6vw, 5rem); background: var(--paper); }
+.v2-foot img { height: 26px; width: auto; filter: brightness(0); }
+.v2-foot__tagline { margin-top: 1rem; color: var(--body-c); font-size: 1rem; }
+.v2-foot__notes { margin-top: 2.2rem; font-size: 0.9375rem; color: var(--faint); }
+.v2-foot__notes p { max-width: 75ch; }
+.v2-foot__notes ul { list-style: none; margin: 1rem 0 0; padding: 0; }
+.v2-foot__notes li { display: grid; grid-template-columns: 1.6rem 1fr; gap: 0.6rem; padding: 0.45rem 0; max-width: 75ch; }
+.v2-foot__notes .n { font-family: var(--font-mono); font-weight: 600; color: var(--ink); }
+.v2-disclosures { margin-top: 2rem; border-top: 1px solid var(--rule); border-radius: 0; }
+.v2-disclosures summary { padding: 1rem 0; cursor: pointer; font-weight: 600; color: var(--ink); list-style: none; display: flex; justify-content: space-between; }
+.v2-disclosures summary::-webkit-details-marker { display: none; }
+.v2-disclosures .v2-chev { transition: transform var(--dur-fast) var(--ease); color: var(--faint); }
+.v2-disclosures[open] .v2-chev { transform: rotate(180deg); }
+.v2-disclosures__body { font-size: 0.9375rem; color: var(--faint); padding-bottom: 1.5rem; }
+@media (min-width: 900px) { .v2-disclosures__body { columns: 2; column-gap: 3rem; } }
+.v2-disclosures__body h4 { font-size: 0.9375rem; color: var(--body-c); margin-top: 1rem; break-after: avoid; }
+.v2-disclosures__body p { margin-top: 0.4rem; max-width: none; }
+.v2-foot__meta { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem; margin-top: 2.5rem; color: var(--faint); font-family: var(--font-mono); font-size: 0.9375rem; }
+sup.v2-fn { font-family: var(--font-mono); font-size: 0.6em; font-weight: 500; color: var(--faint); margin-left: 0.12em; }
+sup.v2-fn a { color: inherit; text-decoration: none; }
+
+/* expanded stat card always takes the full row, regardless of its position */
+.v2-bento--cliff .v2-card--stat.is-open,
+.v2-bento--cliff .v2-card--stat:nth-child(n).is-open { grid-column: span 12 !important; }
+
+/* ---------- three costs ---------- */
+.v2-costs-grid { display: grid; gap: var(--gutter); grid-template-columns: 1fr; }
+@media (min-width: 800px) { .v2-costs-grid { grid-template-columns: repeat(3, 1fr); align-items: stretch; } }
+.v2-costcard {
+  --card-pad: clamp(1.8rem, 3vw, 2.4rem);
+  background: #fff; border-radius: var(--r-card); box-shadow: var(--shadow-card);
+  padding: var(--card-pad); display: flex; flex-direction: column;
+  min-height: 20rem;
+  opacity: 0; transform: translateY(40px);
+  transition: opacity var(--dur-med) var(--ease), transform var(--dur-med) var(--ease);
+}
+.v2-costcard.is-in { opacity: 1; transform: none; }
+.v2-static .v2-costcard, .v2-reduced .v2-costcard { opacity: 1; transform: none; transition: none; }
+
+.v2-costcard__visual {
+  margin: calc(-1 * var(--card-pad)) calc(-1 * var(--card-pad)) 1.5rem;
+  border-radius: var(--r-card) var(--r-card) 0 0;
+  overflow: hidden; background: var(--paper-2);
+  height: clamp(160px, 18vw, 200px);
+}
+.v2-costcard__visual svg { width: 100%; height: 100%; display: block; overflow: visible; }
+@media (max-width: 799px) { .v2-costcard__visual { height: 160px; } }
+
+.v2-costcard__label { font-family: var(--font-mono); font-size: var(--eyebrow); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--faint); }
+.v2-costcard__stat {
+  margin-top: 0.5rem; font-family: var(--font-sans); font-weight: 700;
+  font-size: clamp(2.4rem, 1.8rem + 3vw, 3.6rem); line-height: 1.05; color: var(--petrol);
+  letter-spacing: -0.02em; font-variant-numeric: tabular-nums;
+}
+.v2-costcard__stat-line { display: block; }
+.v2-costcard__line { margin-top: 0.8rem; font-size: 1.0625rem; line-height: 1.5; color: var(--body-c); }
+
+/* card 1: 12 monthly bill bars drop below the 30% minimum line, staggered */
+.v2-bar-monthly {
+  transform-box: fill-box; transform-origin: bottom; transform: scaleY(1);
+  transition: transform var(--dur-slow) var(--ease); transition-delay: var(--d, 0ms);
+}
+.v2-viz--energy.is-in .v2-bar-monthly { transform: scaleY(0.64); }
+.v2-viz-threshold-label { letter-spacing: 0.03em; }
+
+/* card 2: 12-month calendar, 4 breakdown dots flip into checkmarks; readout rolls */
+.v2-cal-dot--flip {
+  transform-box: fill-box; transform-origin: center;
+  transition: transform var(--dur-med) var(--ease), opacity var(--dur-med) var(--ease);
+  transition-delay: var(--d, 0ms);
+}
+.v2-viz--maintenance.is-in .v2-cal-dot--flip { transform: scale(0) rotate(180deg); opacity: 0; }
+.v2-cal-check {
+  opacity: 0; transform: scale(0) rotate(-180deg);
+  transform-box: fill-box; transform-origin: center;
+  transition: transform var(--dur-med) var(--ease), opacity var(--dur-med) var(--ease);
+  transition-delay: var(--d, 0ms);
+}
+.v2-viz--maintenance.is-in .v2-cal-check { opacity: 1; transform: scale(1) rotate(0deg); }
+.v2-cal-roll { transform: translateY(0); transition: transform var(--dur-med) var(--ease); transition-delay: 620ms; }
+.v2-viz--maintenance.is-in .v2-cal-roll { transform: translateY(-17px); }
+
+/* card 3: rooftop unit + timeline, flag slides from yr12 to yr22 as the ochre segment fills */
+.v2-replace-flag {
+  transform: translateX(154.4px); transition: transform var(--dur-slow) var(--ease);
+}
+.v2-viz--replacement.is-in .v2-replace-flag { transform: translateX(266.4px); }
+.v2-life-segment { transition: width var(--dur-slow) var(--ease); }
+.v2-viz--replacement.is-in .v2-life-segment { width: 112px; }
+.v2-life-segment-label { opacity: 0; transition: opacity var(--dur-med) var(--ease); transition-delay: 350ms; }
+.v2-viz--replacement.is-in .v2-life-segment-label { opacity: 1; }
+
+.v2-static .v2-bar-monthly, .v2-reduced .v2-bar-monthly,
+.v2-static .v2-cal-dot--flip, .v2-reduced .v2-cal-dot--flip,
+.v2-static .v2-cal-check, .v2-reduced .v2-cal-check,
+.v2-static .v2-cal-roll, .v2-reduced .v2-cal-roll,
+.v2-static .v2-replace-flag, .v2-reduced .v2-replace-flag,
+.v2-static .v2-life-segment, .v2-reduced .v2-life-segment,
+.v2-static .v2-life-segment-label, .v2-reduced .v2-life-segment-label { transition: none; }
+
+/* the pin spacer should feel like normal scroll, not a stall: keep the section's own height modest */
+[data-costs-pin] { position: relative; }
+
+/* ---------- fixes chapter: static technology field ----------
+   Replaces the removed #our-side bridge section's scroll-pinned technology wall. This is
+   a plain wrapped cloud of tiles, no absolute positioning, no ScrollTrigger pin/scrub:
+   just a single fade/stagger-in on enter, driven by the generic .v2-reveal mechanism on
+   the container and a per-tile CSS transition-delay (--d) for the stagger. */
+.v2-techfield {
+  display: flex; flex-wrap: wrap; gap: 0.55rem 0.6rem;
+  margin-top: clamp(1.6rem, 3vw, 2.4rem); max-width: 62rem;
+}
+.v2-techfield__tile {
+  display: inline-flex; align-items: center;
+  padding: 0.5rem 0.95rem; border-radius: var(--r-pill);
+  background: rgb(255 255 255 / 0.08); border: 1px solid rgb(255 255 255 / 0.22);
+  color: rgb(255 255 255 / 0.82); font-family: var(--font-sans); font-weight: 500; font-size: 14px;
+  white-space: nowrap;
+  opacity: 0; transform: translateY(10px);
+  transition: opacity 420ms var(--ease), transform 420ms var(--ease);
+  transition-delay: var(--d, 0ms);
+}
+.v2-techfield.is-in .v2-techfield__tile { opacity: 1; transform: none; }
+.v2-techfield__tile.is-fit {
+  background: rgb(224 162 28 / 0.16); border-color: var(--ochre); color: #fff;
+  font-weight: 700; font-size: 15px;
+}
+.v2-static .v2-techfield__tile, .v2-reduced .v2-techfield__tile {
+  opacity: 1 !important; transform: none !important; transition: none;
+}
+@media (max-width: 767.9px) {
+  .v2-techfield__tile:not(.is-fit):not([data-mobile-keep]) { display: none; }
+}
+
+/* ---------- exam proof chart ---------- */
+.v2-examchart { margin-top: clamp(2rem, 4vw, 3rem); }
+.v2-examchart svg { width: 100%; height: auto; display: block; overflow: visible; }
+.v2-examchart figcaption { margin-top: 0.8rem; font-size: 1rem; color: var(--faint); }
+.v2-examchart-before, .v2-examchart-after { stroke-dashoffset: 1; }
+.v2-examchart.is-in .v2-examchart-before { animation: v2examDraw 1100ms var(--ease) forwards; }
+.v2-examchart.is-in .v2-examchart-install { animation: v2fadeIn 400ms var(--ease) forwards; animation-delay: 1000ms; }
+.v2-examchart.is-in .v2-examchart-install-label { animation: v2fadeIn 400ms var(--ease) forwards; animation-delay: 1000ms; }
+.v2-examchart.is-in .v2-examchart-after { animation: v2examDraw 1100ms var(--ease) forwards; animation-delay: 1250ms; }
+@keyframes v2examDraw { to { stroke-dashoffset: 0; } }
+.v2-static .v2-examchart-before, .v2-reduced .v2-examchart-before,
+.v2-static .v2-examchart-after, .v2-reduced .v2-examchart-after { stroke-dashoffset: 0; }
+.v2-static .v2-examchart-install, .v2-reduced .v2-examchart-install,
+.v2-static .v2-examchart-install-label, .v2-reduced .v2-examchart-install-label { opacity: 1; }
+
+@media (prefers-reduced-motion: reduce) {
+  .v2-reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
+  .v2-bar { transition: none; }
+}
+
+/* ---------- v4: Cliff credentials on phones ----------
+   Two columns were too narrow for the big figures ("Northridge", "3 emirates")
+   and wrapped the eyebrows into three or four lines. Below 640px the six cards
+   become one swipeable row, the same pattern as the steps and fixes carousels.
+   On wider screens the wrapper is display:contents, so the bento grid and the
+   desktop rotation are exactly as before. */
+.v2-cliff-cards { display: contents; }
+@media (max-width: 639.9px) {
+  .v2-bento--cliff { display: block; }
+  .v2-bento--cliff .v2-card--photo { margin-bottom: 1rem; }
+  .v2-cliff-cards {
+    display: flex; gap: 0.9rem; overflow-x: auto; scroll-snap-type: x mandatory;
+    margin-inline: -1.25rem; padding: 0.25rem 1.25rem 1rem; scroll-padding-inline: 1.25rem;
+    -webkit-overflow-scrolling: touch; scrollbar-width: none;
+  }
+  .v2-cliff-cards::-webkit-scrollbar { display: none; }
+  .v2-cliff-cards .v2-cliff-slot {
+    flex: 0 0 min(78vw, 20rem); scroll-snap-align: start;
+    opacity: 1 !important; transform: none !important;
+  }
+  .v2-cliff-dots { display: none; }
+}
+/* v4: the rotation shows four of the six credentials at a time. v3 never hid
+   the two waiting their turn, so they fell to a stray third row on desktop and
+   tablet. While rotation runs (.v2-anim, 640px+), a card without a slot
+   position is hidden; reduced motion and ?static keep the full six-card grid. */
+@media (min-width: 640px) {
+  .v2-anim .v2-bento--cliff .v2-cliff-slot:not(.v2-cliff-slot--p0):not(.v2-cliff-slot--p1):not(.v2-cliff-slot--p2):not(.v2-cliff-slot--p3) { display: none; }
+}
+
+/* ======================================================================
+   v4 review pass
+   ====================================================================== */
+
+/* ---------- bill card ---------- */
+/* legend: a little air when "Other" wraps to its own line */
+.v2-billbar__labels { row-gap: 0.55rem; margin-bottom: 0.35rem; }
+
+/* phones: the card rides higher and slimmer so the chapter cards get the screen */
+@media (max-width: 979.9px) {
+  .v2-pin__media {
+    top: calc(8px + env(safe-area-inset-top, 0px));
+    max-height: none; padding-top: 0.25rem; padding-bottom: 0.5rem; gap: 0.45rem;
+  }
+  .v2-billcard { position: relative; width: 100%; padding: 0.75rem 0.9rem 0.7rem; }
+  .v2-billcard__total { font-size: clamp(1.9rem, 1.3rem + 4vw, 2.4rem); }
+  .v2-billbar { margin-top: 0.5rem; }
+  .v2-billbar__track { height: 28px; border-radius: 9px; }
+  .v2-billbar__labels { display: none; }                 /* the key costs a line we need */
+  .v2-billcard__change { margin-top: 0.45rem; min-height: 1.2em; }
+  .v2-billcard__lineitems { position: absolute; right: 0.9rem; bottom: 0.7rem; margin: 0; }
+  .v2-progress3 { width: 100%; }
+  /* the draft badge sat on top of the text being read */
+  .v2-preview-badges { display: none; }
+  .v2-progress3 { gap: 6px; }
+  .v2-progress3__seg { gap: 0.3rem; }
+  .v2-progress3__seg .bar { height: 4px; }
+  .v2-progress3__seg label { font-size: 0.72rem; }
+
+  /* every chapter card stays readable, scrolling back up included */
+  .v2-chapter:not(.is-active) { opacity: 1; }
+  .v2-pin__chapters { padding-bottom: 22vh; }
+}
+
+/* ---------- chapter 02 illustration: one afternoon of 15-minute reads ---------- */
+.v2-illust--peak .pk-bar { fill: #174e58; opacity: 0.28; transform-box: fill-box; transform-origin: bottom; }
+.v2-illust--peak .pk-spike { fill: #e0a21c; transform-box: fill-box; transform-origin: bottom; }
+.v2-illust--peak .pk-ceil { opacity: 0; }
+.v2-illust--peak.is-playing .pk-bar { animation: pkRise 520ms var(--ease) both; animation-delay: calc(var(--i) * 30ms); }
+.v2-illust--peak.is-playing .pk-spike { animation: pkSpike 1500ms var(--ease) forwards; }
+.v2-illust--peak.is-playing .pk-250 { animation: v2fadeOut 300ms var(--ease) forwards; animation-delay: 1050ms; }
+.v2-illust--peak.is-playing .pk-ceil { animation: v2ceilDrop 420ms var(--ease) forwards; animation-delay: 750ms; }
+@keyframes pkRise { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+@keyframes pkSpike {
+  0% { transform: scaleY(0); fill: #e0a21c; }
+  35% { transform: scaleY(1); fill: #e0a21c; }
+  60% { transform: scaleY(1); fill: #e0a21c; }
+  100% { transform: scaleY(0.551); fill: #174e58; }
+}
+.v2-reduced .v2-illust--peak .pk-spike, .v2-static .v2-illust--peak .pk-spike { transform: scaleY(0.551); fill: #174e58; }
+.v2-reduced .v2-illust--peak .pk-250, .v2-static .v2-illust--peak .pk-250 { opacity: 0; }
+.v2-reduced .v2-illust--peak .pk-ceil, .v2-static .v2-illust--peak .pk-ceil { opacity: 1; }
+
+/* ---------- three costs: the number, what it measures, then one sentence ---------- */
+.v2-costcard__stat { white-space: nowrap; }
+.v2-costcard__unit { margin-top: 0.35rem; font-size: 1.15rem; font-weight: 600; color: var(--ink); }
+.v2-costcard__line { margin-top: 0.6rem; }
+/* the replacement flag travels slowly enough to watch */
+.v2-replace-flag { transition: transform 2400ms cubic-bezier(0.45, 0, 0.2, 1) 300ms; }
+.v2-life-segment { transition: width 2400ms cubic-bezier(0.45, 0, 0.2, 1) 300ms; }
+.v2-life-segment-label { transition-delay: 1900ms; }
+
+/* ---------- the three steps: a small picture each ---------- */
+.v2-step-ico { display: block; width: 96px; height: 64px; margin-top: 1rem; }
+.v2-carousel__card .v2-step-ico + h3 { margin-top: 0.7rem; }
+
+/* ---------- fix cards: the "For ..." line reads as a plain caption under the name ---------- */
+.v2-fix-small .v2-card__fit,
+.v2-fixes-carousel .v2-card__fit,
+.v2-suncore-copy .v2-card__fit {
+  margin-top: 0.35rem; font-family: var(--font-sans); font-size: 1rem; font-weight: 500;
+  letter-spacing: 0; text-transform: none; color: var(--faint);
+}
+.v2-fix-small .v2-card__fig, .v2-fixes-carousel .v2-card__fig { margin-top: 0.8rem; }
+/* the fixes carousel (phones) sits in the dark section, whose white h3 made the
+   product names vanish on the white cards; v3 has the same bug */
+.v2-fixes-carousel .v2-carousel__card h3 { color: var(--ink); }

@@ -1,0 +1,160 @@
+/* Energy+ motion hero (draft). Brand tokens from the approved precision-instrument comp. */
+:root {
+  --ink: #101416;
+  --paper: #F3F5F6;
+  --petrol: #174E58;
+  --petrol-2: #1F5C67;
+  --ochre: #E0A21C;
+  --red: #C2513F;
+  --lbl: 15px;
+  --num: 56px;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: var(--ink);
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: geometricPrecision;
+}
+
+.stage {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  background: var(--ink);
+}
+
+.world {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: block;
+  overflow: visible;
+}
+
+.dollar {
+  font-family: "Archivo", sans-serif;
+  font-weight: 800;
+  font-variation-settings: "wdth" 62, "wght" 800;
+}
+
+/* Type pinned to world points */
+.hud {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.mask { display: block; overflow: hidden; }
+.in { display: block; }
+
+.lbl {
+  position: absolute;
+  left: 0;
+  top: 0;
+  font-family: "Geist Mono", ui-monospace, monospace;
+  font-weight: 400;
+  font-size: var(--lbl);
+  line-height: 1.25;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--paper);
+  white-space: nowrap;
+  will-change: transform;
+}
+
+.num {
+  position: absolute;
+  left: 0;
+  top: 0;
+  font-family: "Archivo", sans-serif;
+  font-weight: 700;
+  font-size: var(--num);
+  font-variant-numeric: tabular-nums lining-nums;
+  font-feature-settings: "tnum" 1, "lnum" 1;
+  font-variation-settings: "wdth" var(--nw, 112), "wght" 700;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  color: var(--ochre);
+  white-space: nowrap;
+  visibility: hidden;
+}
+.num .in { transform-origin: 50% 55%; }
+
+/* Headline: real HTML text, hands off to a page hero later */
+.head {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  margin: 0;
+  padding: 0 16px;
+  text-align: center;
+  color: var(--paper);
+  font-family: "Archivo", sans-serif;
+  font-weight: 700;
+  font-size: 48px;
+  line-height: 1.04;
+  letter-spacing: -0.022em;
+  font-variation-settings: "wdth" var(--wdth, 112), "wght" 700;
+}
+.head .line {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.16em;
+  margin-bottom: -0.16em;
+}
+.head .in {
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.rule {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 64px;
+  height: 2px;
+  margin-left: -32px;
+  background: var(--ochre);
+  transform: scaleX(0);
+  transform-origin: 50% 50%;
+}
+
+/* Skip: a quiet control, not part of the picture. Sized for a 44px tap target
+   (redesign-v3's own skip trigger: click/wheel/touchmove/keydown anywhere in
+   the piece also skips; this button is just the visible, discoverable one). */
+.skip {
+  position: absolute;
+  right: max(16px, env(safe-area-inset-right));
+  bottom: max(16px, env(safe-area-inset-bottom));
+  min-width: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font: 500 14px/1 "Archivo", sans-serif;
+  letter-spacing: 0.02em;
+  color: rgba(243, 245, 246, 0.62);
+  background: transparent;
+  border: 1px solid rgba(243, 245, 246, 0.2);
+  border-radius: 999px;
+  padding: 8px 16px;
+  cursor: pointer;
+}
+.skip:hover { color: var(--paper); border-color: rgba(243, 245, 246, 0.45); }
+.skip:focus-visible { outline: 2px solid var(--ochre); outline-offset: 2px; }
+
+.is-capture .skip { display: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .skip { display: none; }
+}
