@@ -14,6 +14,7 @@
 <link rel="stylesheet" href="v6.css">
 <link rel="stylesheet" href="v7.css">
 <link rel="stylesheet" href="peak-story.css">
+<link rel="stylesheet" href="bill.css">
 <script>
 /* First-visit motion intro: OFF by default. Opt-in only via ?intro=1 (the localStorage
    "seen" flag is no longer read at all, so no visitor gets it without asking for it).
@@ -124,19 +125,27 @@
   </section>
 
   <!-- CHAPTER 1 · THE THREE (pinned bill scene) -->
-  <section class="v2-section v4-has-scene" id="the-three" aria-labelledby="three-h" data-pin-scene>
+  <section class="v2-section v8-bill" id="the-three" aria-labelledby="three-h">
     <div class="v2-wrap">
       <div class="v2-secintro v2-reveal">
         <h2 id="three-h">Start with the bill.</h2>
-        <p class="v2-sub">Three things on it make you overpay.</p>
+        <p class="v2-sub">A typical month for a 60,000 sq ft building. Three things on it make you overpay.</p>
+      </div>
+      <div class="v8-open v2-reveal">
+        <div class="v8-open__top"><span class="v8-k">Monthly bill</span><span class="v8-total">$10,384</span></div>
+        <div class="v8-bar" aria-hidden="true"><span class="v8-seg v8-seg--energy" style="--w:59.32%"></span><span class="v8-seg v8-seg--peak" style="--w:33.71%"></span><span class="v8-seg v8-seg--other" style="--w:6.97%"></span></div>
+        <div class="v8-legend"><span><i class="v8-dot v8-dot--energy"></i>Energy <b>$6,160</b></span><span><i class="v8-dot v8-dot--peak"></i>Peak <b>$3,500</b></span><span><i class="v8-dot v8-dot--other"></i>Other <b>$724</b></span></div>
       </div>
 
-      <div class="v2-pin">
-        <div class="v2-pin__chapters">
-          <article class="v2-chapter" data-highlight="energy,tag1" data-num="01">
-            <div class="v2-chapter__head">
-              <span class="v2-chapter__num" aria-hidden="true">01</span>
-              <span class="v2-illust v2-illust--price" data-illust aria-hidden="true">
+      <article class="v8-cut" data-cut="price">
+        <div class="v8-cut__text">
+          <span class="v8-cut__num" aria-hidden="true">01</span>
+          <p class="v8-cut__eyebrow">The price</p>
+          <h3>You pay too much for every kilowatt-hour.</h3>
+          <p>Utilities offer several rates. Many buildings sit on the wrong one or pay fees they don&rsquo;t need. Fix that, and every kilowatt-hour costs less.</p>
+        </div>
+        <div class="v8-cut__viz v8-cut__viz--price">
+          <span class="v2-illust v2-illust--price" data-v8-play aria-hidden="true">
                 <svg viewBox="0 0 260 150" role="img" aria-hidden="true">
                   <path class="tag-shape" d="M52,22 L222,22 Q234,22 234,34 L234,116 Q234,128 222,128 L52,128 L16,75 Z" fill="#fff" stroke="#174e58" stroke-width="4" stroke-linejoin="round"/>
                   <circle cx="52" cy="75" r="8" fill="#fff" stroke="#174e58" stroke-width="4"/>
@@ -156,45 +165,22 @@
                   <defs><clipPath id="v2clipPrice"><rect x="74" y="46" width="148" height="58"/></clipPath></defs>
                 </svg>
               </span>
-            </div>
-            <p class="v2-chapter__eyebrow">The price</p>
-            <h3>You pay too much for every kilowatt-hour.</h3>
-            <p>Utilities offer several rates. Many buildings sit on the wrong one or pay fees they don&rsquo;t need. Fix that, and every kilowatt-hour costs less.</p>
-          </article>
-          <article class="v2-chapter" data-highlight="demand,tag2" data-num="02">
-            <div class="v2-chapter__head">
-              <span class="v2-chapter__num" aria-hidden="true">02</span>
-              <span class="v2-illust v2-illust--peak" data-illust aria-hidden="true">
-                <svg viewBox="0 0 260 150" role="img" aria-hidden="true">
-                  <line x1="10" y1="125" x2="232" y2="125" stroke="#d3d9dd" stroke-width="2"/>
-                  <rect class="pk-bar" x="16" y="94" width="10" height="30" rx="2" style="--i:0"/>
-                  <rect class="pk-bar" x="31" y="90" width="10" height="34" rx="2" style="--i:1"/>
-                  <rect class="pk-bar" x="46" y="86" width="10" height="38" rx="2" style="--i:2"/>
-                  <rect class="pk-bar" x="61" y="88" width="10" height="36" rx="2" style="--i:3"/>
-                  <rect class="pk-bar" x="76" y="82" width="10" height="42" rx="2" style="--i:4"/>
-                  <rect class="pk-bar" x="91" y="78" width="10" height="46" rx="2" style="--i:5"/>
-                  <rect class="pk-bar" x="106" y="80" width="10" height="44" rx="2" style="--i:6"/>
-                  <rect class="pk-bar" x="121" y="74" width="10" height="50" rx="2" style="--i:7"/>
-                  <rect class="pk-bar" x="136" y="70" width="10" height="54" rx="2" style="--i:8"/>
-                  <rect class="pk-bar" x="151" y="66" width="10" height="58" rx="2" style="--i:9"/>
-                  <rect class="pk-spike" x="166" y="26" width="10" height="98" rx="2"/>
-                  <rect class="pk-bar" x="181" y="72" width="10" height="52" rx="2" style="--i:11"/>
-                  <rect class="pk-bar" x="196" y="78" width="10" height="46" rx="2" style="--i:12"/>
-                  <rect class="pk-bar" x="211" y="84" width="10" height="40" rx="2" style="--i:13"/>
-                  <g class="pk-250"><rect x="137" y="4" width="64" height="20" rx="10" fill="#e0a21c"/><text x="169" y="18" text-anchor="middle" font-family="Geist Mono" font-weight="700" font-size="11" fill="#101416">250 KW</text></g>
-                  <g class="pk-ceil">
-                    <line class="pk-ceil-line" x1="10" y1="70" x2="232" y2="70" stroke="#174e58" stroke-width="2.5" stroke-dasharray="6 5"/>
-                    <rect x="186" y="50" width="66" height="20" rx="10" fill="#174e58"/>
-                    <text x="219" y="64" text-anchor="middle" font-family="Geist Mono" font-weight="700" font-size="11" fill="#fff">150 KW</text>
-                  </g>
-                  <text x="10" y="142" font-family="Geist Mono" font-weight="600" font-size="9" fill="#6b747a">ONE AFTERNOON, 15-MINUTE READS</text>
-                </svg>
-              </span>
-            </div>
-            <p class="v2-chapter__eyebrow">The peak</p>
-            <h3>One busy 15 minutes can cost you all month.</h3>
-            <p>You&rsquo;re billed for the power you use, and again for your busiest 15 minutes, when everything runs at once. That one moment sets a demand charge for the whole month, and it can be up to half your bill. Flatten the peak, and the charge comes down.</p>
-            <figure class="ps-story" data-peak-story data-stage="0">
+        </div>
+        <div class="v8-cut__bill" data-v8-bill>
+          <div class="v8-bar" aria-hidden="true"><span class="v8-seg v8-seg--energy is-cut" style="--w:59.32%;--kf:0.9221"><i class="v8-seg__keep" style="--k:92.21%"></i><i class="v8-seg__gone"></i></span><span class="v8-seg v8-seg--peak" style="--w:33.71%"></span><span class="v8-seg v8-seg--other" style="--w:6.97%"></span></div>
+          <div class="v8-cut__readout"><span class="v8-cut__note">Energy charge, at the right rate</span><span class="v8-cut__amt">&minus;<span data-v8-count="480">$0</span> a month</span></div>
+        </div>
+      </article>
+
+      <article class="v8-cut" data-cut="peak">
+        <div class="v8-cut__text">
+          <span class="v8-cut__num" aria-hidden="true">02</span>
+          <p class="v8-cut__eyebrow">The peak</p>
+          <h3>One busy 15 minutes can cost you all month.</h3>
+          <p>You&rsquo;re billed for the power you use, and again for your busiest 15 minutes, when everything runs at once. That one moment sets a demand charge for the whole month, and it can be up to half your bill. Flatten the peak, and the charge comes down.</p>
+        </div>
+        <div class="v8-cut__viz v8-cut__viz--peak">
+          <figure class="ps-story" data-peak-story data-stage="0">
               <svg viewBox="0 0 560 290" role="img" aria-labelledby="ps-story-t">
           <title id="ps-story-t">One day of power use with a single 15-minute spike at 2:15 pm. The spike sets a demand charge billed for all 30 days. Flattening it lowers the charge for the whole month.</title>
           <text class="ps-k" x="40" y="14">ONE DAY &middot; POWER DRAW (KW)</text>
@@ -221,82 +207,61 @@
               </div>
               <figcaption class="ps-foot"><span>Example building, $14 per kW. Illustrative.</span><button type="button" class="ps-replay" data-ps-replay>Replay</button></figcaption>
             </figure>
-          </article>
-          <article class="v2-chapter" data-highlight="energy,fuel,tag3" data-num="03">
-            <div class="v2-chapter__head">
-              <span class="v2-chapter__num" aria-hidden="true">03</span>
-              <span class="v2-illust v2-illust--equipment" data-illust aria-hidden="true">
-                <svg viewBox="0 0 260 150" role="img" aria-hidden="true">
-                  <path class="gauge-band-off" d="M45,88 A50,50 0 0,1 95,38" fill="none" stroke="#e0a21c" stroke-width="10" stroke-linecap="round"/>
-                  <path class="gauge-band-calibrated" d="M95,38 A50,50 0 0,1 145,88" fill="none" stroke="#174e58" stroke-width="10" stroke-linecap="round"/>
-                  <text x="45" y="106" text-anchor="middle" font-family="Geist Mono" font-weight="700" font-size="11" letter-spacing="0.02em" fill="#5a3f00">OFF</text>
-                  <text x="145" y="106" text-anchor="middle" font-family="Geist Mono" font-weight="700" font-size="11" letter-spacing="0.01em" fill="#174e58">CALIBRATED</text>
-                  <g class="gauge-needle">
-                    <line x1="0" y1="0" x2="0" y2="-40" stroke="#101416" stroke-width="4" stroke-linecap="round"/>
-                    <circle cx="0" cy="0" r="6" fill="#101416"/>
-                  </g>
-                  <g class="comfort-chip">
-                    <rect x="182" y="40" width="68" height="72" rx="12" fill="#fff" stroke="#174e58" stroke-width="3"/>
-                    <text x="216" y="68" text-anchor="middle" font-family="Geist Mono" font-weight="700" font-size="17" fill="#101416">72&deg;F</text>
-                    <text x="216" y="88" text-anchor="middle" font-family="Geist Mono" font-weight="700" font-size="8" letter-spacing="0.05em" fill="#174e58">COMFORT</text>
-                    <text x="216" y="100" text-anchor="middle" font-family="Geist Mono" font-weight="700" font-size="8" letter-spacing="0.05em" fill="#174e58">SAME</text>
-                  </g>
-                  <g clip-path="url(#v2clipKwh)">
-                    <rect x="16" y="120" width="160" height="22" fill="#f3f5f6"/>
-                    <g class="kwh-roll">
-                      <text x="16" y="136" font-family="Geist Mono" font-weight="700" font-size="14" fill="#101416">80,000 kWh</text>
-                      <text x="16" y="156" font-family="Geist Mono" font-weight="700" font-size="14" fill="#e0a21c">58,500 kWh</text>
-                    </g>
-                  </g>
-                  <defs><clipPath id="v2clipKwh"><rect x="16" y="120" width="160" height="22"/></clipPath></defs>
-                </svg>
-              </span>
-            </div>
-            <p class="v2-chapter__eyebrow">The equipment</p>
-            <h3>Your equipment works harder than it needs to.</h3>
-            <p>Most units are installed and switched on, but never matched to your building or to each other. So they run longer, cycle more, and burn power without adding comfort.</p>
-          </article>
         </div>
-
-        <div class="v2-pin__media">
-          <!-- v4: the building. Each chapter lights and fixes its part of it, in step with the bill card. -->
-          <figure class="v4-scene" data-facility="store" aria-hidden="true">
-            <svg class="v4-scene__svg" preserveAspectRatio="xMidYMid meet"></svg>
-            <canvas class="v4-scene__fx"></canvas>
-          </figure>
-          <div class="v2-billcard" data-billcard>
-            <div class="v2-billcard__total-row">
-              <span class="v2-billcard__total" data-field="total-big">$10,384</span>
-              <span class="v2-billcard__permo">/ month</span>
-            </div>
-            <div class="v2-billcard__pill" data-field="pill" aria-hidden="true"></div>
-            <div class="v2-billbar" data-billbar aria-hidden="true">
-              <div class="v2-billbar__track">
-                <span class="v2-billbar__seg v2-billbar__seg--energy" data-seg="energy"></span>
-                <span class="v2-billbar__seg v2-billbar__seg--demand" data-seg="demand"></span>
-                <span class="v2-billbar__seg v2-billbar__seg--other" data-seg="other"></span>
-                <span class="v2-billbar__saved" data-seg="saved"></span>
-              </div>
-            </div>
-            <div class="v2-billbar__labels">
-              <span class="v2-billbar__label" data-seg-label="energy"><i class="v2-billbar__dot v2-billbar__dot--energy" aria-hidden="true"></i>Energy <b data-seg-amt="energy">$6,160</b></span>
-              <span class="v2-billbar__label" data-seg-label="demand"><i class="v2-billbar__dot v2-billbar__dot--demand" aria-hidden="true"></i>Demand <b data-seg-amt="demand">$3,500</b></span>
-              <span class="v2-billbar__label" data-seg-label="other"><i class="v2-billbar__dot v2-billbar__dot--other" aria-hidden="true"></i>Other <b data-seg-amt="other">$724</b></span>
-            </div>
-            <p class="v2-billcard__change" data-field="change" aria-live="polite"></p>
-            <button type="button" class="v2-textlink v2-billcard__lineitems" data-lineitems-open aria-haspopup="dialog">See the line items</button>
-          </div>
-          <div class="v2-progress3" data-progress aria-hidden="true">
-            <div class="v2-progress3__seg"><span class="bar"></span><label>Price</label></div>
-            <div class="v2-progress3__seg"><span class="bar"></span><label>Peak</label></div>
-            <div class="v2-progress3__seg"><span class="bar"></span><label>Equipment</label></div>
-          </div>
+        <div class="v8-cut__bill" data-v8-bill>
+          <div class="v8-bar" aria-hidden="true"><span class="v8-seg v8-seg--energy" style="--w:59.32%"></span><span class="v8-seg v8-seg--peak is-cut" style="--w:33.71%;--kf:0.6000"><i class="v8-seg__keep" style="--k:60.00%"></i><i class="v8-seg__gone"></i></span><span class="v8-seg v8-seg--other" style="--w:6.97%"></span></div>
+          <div class="v8-cut__readout"><span class="v8-cut__note">Peak charge, with the peak flattened</span><span class="v8-cut__amt">&minus;<span data-v8-count="1400">$0</span> a month</span></div>
         </div>
-      </div>
+      </article>
 
-      <div class="v2-closing-beat v2-reveal">
+      <article class="v8-cut" data-cut="equipment">
+        <div class="v8-cut__text">
+          <span class="v8-cut__num" aria-hidden="true">03</span>
+          <p class="v8-cut__eyebrow">The equipment</p>
+          <h3>Your equipment works harder than it needs to.</h3>
+          <p>Most units are installed and switched on, but never matched to your building or to each other. So they run longer, cycle more, and burn power without adding comfort.</p>
+        </div>
+        <div class="v8-cut__viz v8-cut__viz--equipment">
+          <svg class="v8-equip" viewBox="0 -14 360 244" role="img" aria-labelledby="v8-equip-t" data-v8-play>
+                <title id="v8-equip-t">Two rooftop units keeping the same 72 degrees. The unmatched one cycles on and off and runs far longer; the matched one runs steadily and less.</title>
+                <g class="v8-unit v8-unit--bad" transform="translate(20 0)">
+                  <text class="v8-u-k" x="70" y="-2" text-anchor="middle">NOT MATCHED</text>
+                  <g class="v8-heat"><path d="M48 44 q5 -6 0 -12 q-5 -6 0 -12"/><path d="M70 44 q5 -6 0 -12 q-5 -6 0 -12"/><path d="M92 44 q5 -6 0 -12 q-5 -6 0 -12"/></g>
+                  <rect x="10" y="50" width="120" height="78" rx="10" class="v8-u-box"/>
+                  <circle cx="70" cy="89" r="27" class="v8-u-ring"/>
+                  <g class="v8-fan" style="transform-origin:70px 89px"><path d="M70 89 L70 66 Q80 72 74 87 Z"/><path d="M70 89 L90 101 Q80 108 72 94 Z"/><path d="M70 89 L50 101 Q48 90 66 88 Z"/></g>
+                  <circle cx="118" cy="62" r="4" class="v8-led v8-led--blink"/>
+                  <text class="v8-u-k" x="10" y="152">RUNTIME</text>
+                  <rect x="10" y="160" width="120" height="10" rx="5" class="v8-run-track"/>
+                  <rect x="10" y="160" width="120" height="10" rx="5" class="v8-run v8-run--bad"/>
+                  <text class="v8-u-temp" x="10" y="200">72&deg;</text>
+                </g>
+                <g class="v8-unit v8-unit--good" transform="translate(200 0)">
+                  <text class="v8-u-k" x="70" y="-2" text-anchor="middle">MATCHED</text>
+                  <rect x="10" y="50" width="120" height="78" rx="10" class="v8-u-box"/>
+                  <circle cx="70" cy="89" r="27" class="v8-u-ring"/>
+                  <g class="v8-fan v8-fan--calm" style="transform-origin:70px 89px"><path d="M70 89 L70 66 Q80 72 74 87 Z"/><path d="M70 89 L90 101 Q80 108 72 94 Z"/><path d="M70 89 L50 101 Q48 90 66 88 Z"/></g>
+                  <circle cx="118" cy="62" r="4" class="v8-led"/>
+                  <text class="v8-u-k" x="10" y="152">RUNTIME</text>
+                  <rect x="10" y="160" width="120" height="10" rx="5" class="v8-run-track"/>
+                  <rect x="10" y="160" width="120" height="10" rx="5" class="v8-run v8-run--good"/>
+                  <text class="v8-u-temp" x="10" y="200">72&deg;</text>
+                </g>
+                <text class="v8-u-k v8-u-same" x="180" y="226" text-anchor="middle">SAME COMFORT &middot; ILLUSTRATIVE</text>
+              </svg>
+        </div>
+        <div class="v8-cut__bill" data-v8-bill>
+          <div class="v8-bar" aria-hidden="true"><span class="v8-seg v8-seg--energy is-cut" style="--w:59.32%;--kf:0.7521"><i class="v8-seg__keep" style="--k:75.21%"></i><i class="v8-seg__gone"></i></span><span class="v8-seg v8-seg--peak" style="--w:33.71%"></span><span class="v8-seg v8-seg--other" style="--w:6.97%"></span></div>
+          <div class="v8-cut__readout"><span class="v8-cut__note">Energy charge, with less runtime</span><span class="v8-cut__amt">&minus;<span data-v8-count="1527">$0</span> a month</span></div>
+        </div>
+      </article>
+      <div class="v8-payoff" data-v8-bill>
         <h3>Same building. $3,645 less every month.</h3>
-        <p>35% off the bill.</p>
+        <div class="v8-payoff__rows">
+          <div class="v8-payoff__row"><span class="v8-k">Before</span><div class="v8-pbar"><i style="--w:100%"></i></div><b>$10,384</b></div>
+          <div class="v8-payoff__row v8-payoff__row--after"><span class="v8-k">After</span><div class="v8-pbar"><i style="--w:64.90%"></i></div><b>$6,739</b></div>
+        </div>
+        <p class="v8-payoff__note">35% off the bill. Taxes and fees fall with it. Example building, illustrative.<sup class="v2-fn"><a href="#v2-notes">*</a></sup> <button type="button" class="v2-textlink" data-v8-lines>See the line items</button></p>
       </div>
     </div>
   </section>
@@ -904,5 +869,6 @@
 <script src="building.js" defer></script>
 <script src="v7.js" defer></script>
 <script src="peak-story.js" defer></script>
+<script src="bill.js" defer></script>
 </body>
 </html>

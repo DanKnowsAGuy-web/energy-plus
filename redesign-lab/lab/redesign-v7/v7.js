@@ -123,7 +123,7 @@
      The vendors from "why isn't anyone fixing this" show up scattered over the stack,
      then each flies into the row that replaces it, and that row ticks. */
   (() => {
-    const stack = document.querySelector("#the-fixes .v5-stack");
+    const stack = document.querySelector("#the-exam .v5-stack");
     if (!stack) return;
     const rows = Array.from(stack.children);
     if (rows.length < 7) return;
@@ -139,8 +139,8 @@
 
     // [label, row it lands in, scatter x%, scatter y%, tilt]
     const CHIPS = [
-      ["Solar", 2, 8, 6, -7], ["Battery", 2, 56, 3, 5], ["HVAC", 2, 30, 26, -3], ["Controls", 2, 68, 30, 8],
-      ["Finance", 4, 4, 48, 4], ["Rebates", 5, 42, 55, -9], ["Installer", 3, 14, 78, -4], ["Tax", 5, 62, 78, 6]
+      ["HVAC", 2, 6, 6, -6], ["Controls", 2, 50, 2, 5], ["Finance", 4, 26, 26, -3], ["Rebates", 5, 62, 32, 7],
+      ["Installer", 3, 4, 52, 4], ["Tax", 5, 42, 60, -8], ["Battery", 2, 20, 80, -4]
     ];
     const chips = CHIPS.map(([label, row, x, y, r]) => {
       const el = document.createElement("span");
