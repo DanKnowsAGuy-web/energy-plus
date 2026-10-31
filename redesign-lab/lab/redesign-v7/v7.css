@@ -209,3 +209,19 @@ a.v7-door__tile:hover { background: #e7eef0; transform: translateY(-1px); }
 .v7-door__go { font-family: var(--font-mono); color: var(--petrol); }
 .v7-door__tile.is-soon { color: #6b747a; font-weight: 500; background: rgb(255 255 255 / 0.55); box-shadow: none; }
 .v7-door__soon { font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase; color: #9aa3a8; }
+
+/* "fixing it yourself": on tablets and phones the vendor chips sit as a tight two-row cluster */
+@media (max-width: 899.9px) {
+  .v5-vendors { aspect-ratio: auto; max-width: 560px; display: flex; flex-wrap: wrap; gap: 0.6rem 0.55rem; justify-content: center; padding-block: 0.25rem; }
+  .v5-vendors span { position: static; padding: 0.55rem 0.9rem; font-size: 0.95rem; }
+}
+
+/* hero: headline and sub read as one block; the sub breaks into balanced lines */
+.v2 .v2-hero h1 { text-wrap: balance; }
+.v2 .v2-hero__sub { margin: clamp(1.4rem, 1rem + 1.4vw, 2rem) auto 0; max-width: 46ch; text-wrap: balance; line-height: 1.45; }
+@media (max-width: 979.9px) and (orientation: portrait) {
+  .v2 .v2-hero { min-height: 72svh; }
+  .v2 .v2-hero h1 { font-size: clamp(3rem, 2rem + 4.6vw, 4.6rem); line-height: 1.02; }
+  .v2 .v2-hero__sub { font-size: clamp(1.15rem, 0.9rem + 1.2vw, 1.4rem); }
+  .v2 .v2-hero .v2-cta--hero { margin-top: 2rem; }
+}

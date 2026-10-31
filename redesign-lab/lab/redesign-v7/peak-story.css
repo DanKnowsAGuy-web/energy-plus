@@ -90,3 +90,6 @@
   .ps-story .ps-ticks text { font-size: 14px; }
   .ps-story .ps-ceil text { font-size: 14px; }
 }
+
+/* replay: jump back to the empty chart instantly, then play forward */
+.ps-story.is-resetting, .ps-story.is-resetting * { transition: none !important; }

@@ -64,9 +64,12 @@
     played = true;
     timers.forEach(clearTimeout); timers = [];
     fig.classList.remove("is-done");
+    fig.classList.add("is-resetting");          /* snap to the start, no reverse animation */
     fig.setAttribute("data-stage", "0");
     num.textContent = "$0";
-    void fig.offsetWidth; /* restart transitions from the top */
+    if (cap) cap.textContent = CAPS[0];
+    void fig.offsetWidth;
+    fig.classList.remove("is-resetting");
     const at = (ms, fn) => timers.push(setTimeout(fn, ms));
     at(60, () => stage(1));                                  /* the day draws */
     at(1700, () => stage(2));                                /* the spike */
