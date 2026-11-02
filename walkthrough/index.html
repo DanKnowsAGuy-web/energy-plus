@@ -143,11 +143,19 @@ select.state{width:100%;margin-top:26px;font:inherit;font-size:17px;padding:15px
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-delay:0ms!important;transition-duration:.01ms!important}}
 
 .blk .kv span{color:var(--body)}
+.bar-l{display:flex;align-items:center;gap:14px}
+.back{background:none;border:1px solid var(--rule);border-radius:999px;padding:6px 12px 6px 10px;font-family:var(--f-mono);font-size:12px;letter-spacing:.04em;color:var(--ink);cursor:pointer}
+.back:hover{border-color:var(--petrol-2);color:var(--petrol-2)}
+.back[hidden]{display:none}
+.opt.dim{opacity:.6}
+.opt.dim:hover{opacity:1}
+.opt.chosen::after{content:"\2713";font-family:var(--f-mono);color:var(--petrol-2);margin-left:10px}
+.change-hint{font-family:var(--f-mono);font-size:11px;color:var(--faint);margin-top:10px;letter-spacing:.02em}
 </style>
 </head>
 <body>
 <div class="wrap" id="topbar">
-  <div class="bar"><a class="brand" href="../" style="text-decoration:none">ENERGY<span>+</span></a><div class="count" id="count">ENERGY DIAGNOSTIC</div></div>
+  <div class="bar"><div class="bar-l"><button class="back" id="back" type="button" hidden onclick="history.back()"><span aria-hidden="true">&larr;</span> Back</button><a class="brand" href="../" style="text-decoration:none">ENERGY<span>+</span></a></div><div class="count" id="count">ENERGY DIAGNOSTIC</div></div>
   <div class="track"><i id="prog"></i></div>
 </div>
 <main id="app" class="wrap" aria-live="polite"></main>

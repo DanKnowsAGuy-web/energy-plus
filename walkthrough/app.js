@@ -48,7 +48,7 @@
       } };
   }
   function info(id, eyebrow, q, opts, insightFn, findingFn) {
-    return { id: id, eyebrow: eyebrow, q: q, opts: opts, pick: function (k) { S[id] = k; if (findingFn) { var f = findingFn(k); if (f) S.pathFindings.push(f); } }, insight: insightFn };
+    return { id: id, eyebrow: eyebrow, q: q, opts: opts, pick: function (k) { S[id] = k; if (findingFn) { var f = findingFn(k); if (f) S.pf[id] = f; else delete S.pf[id]; } }, insight: insightFn };
   }
 
   /* ---------- the twelve facility paths ---------- */
@@ -140,7 +140,7 @@
           S.engOverride = k === "school" ? "education" : null;
           return k === "school" ? { tag: "Your building", h: "Schools run hardest when the calendar says they're closed.", p: "Summer cooling and weekend runtime are where the waste hides." } : { tag: "Your building", h: "Ventilation is often the biggest HVAC line in an office.", p: "Fans moving air when nobody's breathing it cost real money." }; }),
         info("setback", "Schedules", "Does the HVAC shut down or set back nights and weekends?", [["yes", "Yes, it's scheduled"], ["unk", "Not sure"], ["no", "It runs all the time"]], function (k) {
-          if (k !== "yes") S.hours = 100;
+          S.hours = k === "yes" ? null : 100;
           return k === "yes" ? { tag: "Schedules", h: "Good. The next leak is how hard it runs when it's on.", p: "Equipment that was never matched to the building burns power without adding comfort." } : { tag: "Schedules", h: "You could be paying full price for about two thirds of the week with no one inside.", p: "It's one of the cheapest fixes there is." }; },
           function (k) { return k !== "yes" ? ["Running when nobody's there", "Nights and weekends are about two thirds of the week."] : null; }),
         AGE, SUMMER]; },
@@ -168,9 +168,14 @@
   var STATE_NAMES = {}; Object.keys(EP.states).forEach(function (a) { STATE_NAMES[EP.states[a].name] = a; });
 
   /* ---------- state ---------- */
+  var hist = [], current = null;
+  function go(fn) { if (current) { hist.push(current); try { history.pushState({ wt: hist.length }, ""); } catch (e) {} } current = fn; fn(); syncBack(); }
+  function back() { if (!hist.length) return; current = hist.pop(); current(); syncBack(); }
+  window.addEventListener("popstate", function () { back(); });
+  function syncBack() { var b = document.getElementById("back"); if (b) b.hidden = !hist.length; }
   var S, app = document.getElementById("app"), prog = document.getElementById("prog"), countEl = document.getElementById("count");
   var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  function reset() { S = { pathFindings: [], locs: 1 }; }
+  function reset() { S = { pf: {}, ans: {}, locs: 1 }; hist = []; current = null; }
   reset();
 
   function $(h) { var d = document.createElement("div"); d.innerHTML = h.trim(); return d.firstChild; }
@@ -192,15 +197,15 @@
   }
   function bars(rows) { return '<div class="bars">' + rows.map(function (r, i) { return '<div class="brow' + (i === 0 ? " lead" : "") + '"><span class="lbl">' + r[0] + '</span><span class="bt"><i data-w="' + r[1] + '"></i></span><span class="pv">' + r[1] + '%</span></div>'; }).join("") + "</div>"; }
 
-  function card(res, next) {
+  function card(res, next, quiet) {
     var c = $('<div class="insight"><div class="tag">' + esc(res.tag || "Insight") + "</div><h3>" + res.h + "</h3>" + (res.p ? "<p>" + res.p + "</p>" : "") + (res.viz || "") + (res.src ? '<div class="src">' + esc(res.src) + "</div>" : "") + '<div class="next"><button class="btn">Continue <span class="ar">&rarr;</span></button></div></div>');
     c.querySelector(".btn").addEventListener("click", next);
     setTimeout(function () {
       fillBars(c);
       c.querySelectorAll("[data-count]").forEach(function (el) { var v = parseFloat(el.dataset.count), f = el.dataset.fmt; countUp(el, v, f === "cents" ? function (x) { return x.toFixed(2) + "¢"; } : f === "pct" ? function (x) { return (x >= 0 ? "+" : "") + x.toFixed(1) + "%"; } : kmoney); });
-      c.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "nearest" });
+      if (!quiet) c.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "nearest" });
     }, 120);
-    setTimeout(function () { c.querySelector(".btn").focus({ preventScroll: true }); }, 500);
+    if (!quiet) setTimeout(function () { c.querySelector(".btn").focus({ preventScroll: true }); }, 500);
     return c;
   }
 
@@ -210,18 +215,21 @@
     var html = '<section class="screen"><p class="eyebrow">' + esc(cfg.eyebrow) + "</p><h1>" + esc(cfg.q) + "</h1>" + (cfg.sub ? '<p class="sub">' + esc(cfg.sub) + "</p>" : "") +
       '<div class="opts' + (cfg.grid ? " grid2" : "") + '">' + cfg.opts.map(function (o) { return '<button class="opt" data-k="' + o[0] + '"><span>' + esc(o[1]) + "</span>" + (o[2] ? '<span class="hint">' + esc(o[2]) + "</span>" : "") + "</button>"; }).join("") + '</div><div class="slot"></div></section>';
     var node = $(html), opts = node.querySelector(".opts"), slot = node.querySelector(".slot");
-    function choose(b) {
-      if (!b || opts.classList.contains("locked")) return;
-      opts.classList.add("locked");
-      opts.querySelectorAll(".opt").forEach(function (x) { x.classList.add(x === b ? "chosen" : "dim"); });
-      var k = b.dataset.k; (S.answersLog = S.answersLog || {})[cfg.q] = k; if (cfg.pick) cfg.pick(k);
+    function choose(b, quiet) {
+      if (!b || b.classList.contains("chosen")) return;
+      opts.querySelectorAll(".opt").forEach(function (x) { x.classList.toggle("chosen", x === b); x.classList.toggle("dim", x !== b); });
+      var k = b.dataset.k; S.ans[cfg.q] = k; if (cfg.pick) cfg.pick(k);
       var res = cfg.insight(k);
-      if (res && res.redirect) { setTimeout(res.redirect, 350); return; }
-      slot.appendChild(card(res, cfg.next));
+      slot.innerHTML = "";
+      if (!node.querySelector(".change-hint")) opts.insertAdjacentHTML("afterend", '<p class="change-hint">Tap another answer to change it.</p>');
+      if (res && res.redirect) { if (!quiet) setTimeout(function () { go(res.redirect); }, 350); return; }
+      slot.appendChild(card(res, function () { go(cfg.next); }, quiet));
     }
     opts.addEventListener("click", function (e) { choose(e.target.closest(".opt")); });
     show(node);
-    if (cfg.preselect) setTimeout(function () { choose(opts.querySelector('[data-k="' + cfg.preselect + '"]')); }, reduce ? 0 : 700);
+    var saved = S.ans[cfg.q];
+    if (saved != null) setTimeout(function () { choose(opts.querySelector('[data-k="' + saved + '"]'), true); }, reduce ? 0 : 300);
+    else if (cfg.preselect) setTimeout(function () { choose(opts.querySelector('[data-k="' + cfg.preselect + '"]')); }, reduce ? 0 : 700);
   }
 
   /* ---------- screens ---------- */
@@ -232,14 +240,16 @@
     setProgress(0, "ENERGY DIAGNOSTIC");
     var label = S.preFac ? FAC[S.preFac].label.split(" /")[0] : "your building";
     var n = $('<section class="screen"><div class="panel"><div class="grat"></div><div class="in"><p class="eyebrow">Energy Plus &middot; Discovery diagnostic</p><h1>A few taps. About two minutes. A read on ' + esc(label.toLowerCase() === "your building" ? "your building" : "your " + FAC[S.preFac].units) + ' most operators never get.</h1><p class="sub">Tap through the questions a senior energy strategist would ask on a first call. Every answer shows you something about your operation.</p><div class="dial"><div><b class="mono">~10</b>taps</div><div><b class="mono">~2 min</b>to finish</div><div><b class="mono">0</b>bills to dig up</div></div><div style="margin-top:30px"><button class="btn" id="go">Start the diagnostic <span class="ar">&rarr;</span></button></div></div></div></section>');
-    n.querySelector("#go").addEventListener("click", facility);
+    n.querySelector("#go").addEventListener("click", function () { go(facility); });
     show(n);
   }
 
   function facility() {
     question({ step: 1, eyebrow: "Facility", q: "What kind of facility are we looking at?", grid: true,
       opts: FAC_ORDER.map(function (k) { return [k, FAC[k].label]; }), preselect: S.preFac,
-      pick: function (k) { S.fac = k; S.path = FAC[k].path(); TOTAL = 6 + S.path.length + 1; },
+      pick: function (k) {
+        if (S.fac && S.fac !== k) { S.path.forEach(function (q) { if (q.id !== "age" && q.id !== "summer") delete S.ans[q.q]; }); S.pf = {}; ["cases", "refrigRange", "occupancy", "engOverride", "hours"].forEach(function (x) { delete S[x]; }); }
+        S.fac = k; S.path = FAC[k].path(); TOTAL = 6 + S.path.length + 1; },
       insight: function () {
         var f = engFac(), sh = f.hvac.cooling + f.hvac.ventilation + f.hvac.heat;
         var rows = [];
@@ -271,10 +281,11 @@
       var p = "Commercial rates rose " + nat.augYoY + "% nationally in the last year" + (chg != null ? ", and " + (chg >= 0 ? chg.toFixed(1) + "% here." : "dipped " + Math.abs(chg).toFixed(1) + "% here, but the long-run direction is up.") : ".") + (st.retailChoice === true ? " Your state also lets businesses shop their supply rate, so we'll include that." : "");
       slot.appendChild(card({ tag: "Your market", h: h, p: p,
         viz: '<div class="fig"><span class="big metered" data-count="' + rate + '" data-fmt="cents">0¢</span><span class="vs">per kWh vs ' + nat.rate12mo.toFixed(2) + '¢ national</span></div>' + (chg != null ? '<div class="fig" style="margin-top:8px"><span class="big" style="font-size:26px" data-count="' + chg + '" data-fmt="pct">0%</span><span class="vs">change here, past 12 months</span></div>' : ""),
-        src: "EIA commercial retail price, 12 months to Aug 2026; national change Aug 2026 vs Aug 2025" }, locations));
+        src: "EIA commercial retail price, 12 months to Aug 2026; national change Aug 2026 vs Aug 2025" }, function () { go(locations); }));
     });
     show(n);
-    setTimeout(function () { sel.focus({ preventScroll: true }); }, 600);
+    if (S.stateName) setTimeout(function () { sel.value = S.stateName; sel.dispatchEvent(new Event("change")); }, reduce ? 0 : 300);
+    else setTimeout(function () { sel.focus({ preventScroll: true }); }, 600);
   }
 
   function locations() {
@@ -296,7 +307,7 @@
     for (var i = 0; i < edges.length - 1; i++) opts.push([String(Math.round(Math.sqrt(edges[i] * edges[i + 1]))), "$" + ENG.fmtK(edges[i]) + " to $" + ENG.fmtK(edges[i + 1])]);
     opts.push(["unk", "Not sure, help me estimate"]);
     question({ step: 5, eyebrow: "Your bill", q: "What's a typical monthly electric bill for one " + F.unit + "?", sub: "Roughly. We'll tell you exactly what we assumed.", opts: opts,
-      pick: function (k) { if (k !== "unk") { S.monthly = parseInt(k, 10); S.estimated = false; } },
+      pick: function (k) { if (k !== "unk") { S.monthly = parseInt(k, 10); S.estimated = false; S.sqft = null; } },
       insight: function (k) { return k === "unk" ? { redirect: sizeQ } : billInsight(); }, next: season });
   }
   function sizeQ() {
@@ -323,7 +334,7 @@
   function under() {
     setProgress(TOTAL, "ENERGY DIAGNOSTIC");
     var n = $('<section class="screen"><p class="eyebrow">Thanks for running it</p><h1>Our full program is built for portfolios spending $20K or more a month.</h1><p class="sub">We don\'t want to waste your time with a pitch that doesn\'t fit. Leave your number and we\'ll reach out as we roll out options sized for you.</p><div class="field"><label for="u-name">First name</label><input id="u-name" autocomplete="given-name"></div><div class="field"><label for="u-phone">Mobile</label><input id="u-phone" type="tel" inputmode="tel" autocomplete="tel"></div><div class="err" id="u-err"></div><div class="next" style="justify-content:space-between"><button class="link" id="restart">Start over</button><button class="btn" id="u-go">Keep me posted</button></div></section>');
-    n.querySelector("#restart").addEventListener("click", intro);
+    n.querySelector("#restart").addEventListener("click", function () { intro(); syncBack(); });
     n.querySelector("#u-go").addEventListener("click", function () {
       var nm = n.querySelector("#u-name").value.trim(), ph = n.querySelector("#u-phone").value.replace(/\D/g, "");
       if (ph.length < 10) { n.querySelector("#u-err").textContent = "Enter a 10-digit mobile number so we can reach you."; return; }
@@ -340,7 +351,7 @@
       var nm = n.querySelector("#c-name").value.trim(), ph = n.querySelector("#c-phone").value.replace(/\D/g, "");
       if (!nm) { n.querySelector("#c-err").textContent = "Add your first name so the report is addressed to you."; return; }
       if (ph.length < 10) { n.querySelector("#c-err").textContent = "Enter a 10-digit mobile number."; return; }
-      S.name = nm; S.phone = ph; reveal();
+      S.name = nm; S.phone = ph; go(reveal);
     });
     show(n);
     setTimeout(function () { var i = n.querySelector("#c-name"); if (i) i.focus({ preventScroll: true }); }, 600);
@@ -354,7 +365,7 @@
       refrigRange: S.refrigRange || null, loadShape: S.loadShape || null });
   }
   function findings(r) {
-    var f = S.pathFindings.slice();
+    var f = Object.keys(S.pf).map(function (k) { return S.pf[k]; });
     if (S.loadShape === "peaky") f.push(["A summer peak is pricing your whole month", "Everything peaks together on hot afternoons and sets the demand charge."]);
     if (S.cases && S.cases !== "door") f.push(["Your HVAC and refrigeration are fighting each other", "Open cases spill cold into the space and the HVAC pays to reheat it."]);
     if (S.age != null && S.age >= 10) f.push(["Equipment past 10 years old", "Coils have lost about " + Math.round(ENG.lossByAge(S.age) * 100) + "% of their performance, and emergency calls start stacking up."]);
@@ -392,16 +403,17 @@
       '<div class="blk"><p class="eyebrow">Next step</p><h2>Find out if these numbers hold for your ' + esc(F.units) + '</h2><p class="sub">A 15-minute call turns this estimate into a site-specific number. Text Dan directly.</p><div class="cta" style="margin-top:16px"><a class="btn" id="sms" href="sms:' + PHONE_E164 + "?body=" + encodeURIComponent(smsBody) + '">Text Dan <span class="ar">&rarr;</span></a><div class="num"><span>' + PHONE_DISPLAY + '</span><button class="copy" id="cp">Copy number</button></div><a class="link" href="' + BOOK_URL + '" target="_blank" rel="noopener">Or book a call</a></div></div>' +
       '<div class="blk assume"><p class="eyebrow">Assumptions we made</p><ul>' + assumptions.map(function (a) { return "<li>" + a + "</li>"; }).join("") + '</ul><p style="margin-top:14px"><button class="link" id="again">Run another building</button></p></div></div></section>');
     n.querySelector("#cp").addEventListener("click", function (e) { var b = e.currentTarget; try { navigator.clipboard.writeText(PHONE_DISPLAY).then(function () { b.textContent = "Copied"; }, function () { b.textContent = PHONE_DISPLAY; }); } catch (_) { b.textContent = PHONE_DISPLAY; } });
-    n.querySelector("#again").addEventListener("click", intro);
+    n.querySelector("#again").addEventListener("click", function () { intro(); syncBack(); });
     show(n);
     var tenTyp = r.typical * ENG.escalationFactor(r.escRate, 10);
     setTimeout(function () { countUp(document.getElementById("lo"), lo, kmoney, 1600); countUp(document.getElementById("hi"), hi, kmoney, 1900); countUp(document.getElementById("typ"), typ, kmoney, 1900); countUp(document.getElementById("ten"), tenTyp, kmoney, 2200); }, reduce ? 0 : 420);
-    sendLead({ kind: "diagnostic", name: S.name, phone: S.phone, role: S.role, facility: F.label, state: S.stateName, locations: S.locLabel,
+    sendLead({ kind: S.leadSent ? "diagnostic, updated answers" : "diagnostic", name: S.name, phone: S.phone, role: S.role, facility: F.label, state: S.stateName, locations: S.locLabel,
       monthly_bill_each: S.monthly, bill_estimated: !!S.estimated, season: S.season, age: S.ageKey || "", summer: S.summer || "",
       answers: JSON.stringify(S.answersLog || {}), savings_low: Math.round(lo), savings_high: Math.round(hi), savings_typical: Math.round(typ), ten_year_typical: Math.round(tenTyp) });
   }
 
   function sendLead(p) {
+    if (p.kind && p.kind.indexOf("diagnostic") === 0) S.leadSent = true;
     if (/[?&]nolead=1/.test(location.search)) return;
     p._subject = "Energy Plus diagnostic: " + (p.name || "") + " · " + (p.facility || p.kind);
     p._template = "table"; p._captcha = "false"; p.source = location.href;
