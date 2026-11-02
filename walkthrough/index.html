@@ -147,10 +147,47 @@ select.state{width:100%;margin-top:26px;font:inherit;font-size:17px;padding:15px
 .back{background:none;border:1px solid var(--rule);border-radius:999px;padding:6px 12px 6px 10px;font-family:var(--f-mono);font-size:12px;letter-spacing:.04em;color:var(--ink);cursor:pointer}
 .back:hover{border-color:var(--petrol-2);color:var(--petrol-2)}
 .back[hidden]{display:none}
-.opt.dim{opacity:.6}
-.opt.dim:hover{opacity:1}
+.opt.dim{opacity:1}
 .opt.chosen::after{content:"\2713";font-family:var(--f-mono);color:var(--petrol-2);margin-left:10px}
-.change-hint{font-family:var(--f-mono);font-size:11px;color:var(--faint);margin-top:10px;letter-spacing:.02em}
+/* readable at 65+: nothing under 15px, body copy 19 to 20px */
+body{font-size:19px;line-height:1.55}
+.wrap{max-width:640px}
+h1{font-size:clamp(30px,6.6vw,44px);line-height:1.1}
+h2{font-size:clamp(25px,5vw,32px)}
+.sub{font-size:20px;line-height:1.5;color:var(--body)}
+.count{font-size:15px}
+.back{font-size:15px;padding:8px 14px 8px 12px}
+.opt{font-size:20px;padding:20px 16px}
+.opt .hint{font-size:15px}
+.insight{padding:24px 22px 22px}
+.insight h3{font-size:24px;line-height:1.25}
+.insight p{font-size:19px;line-height:1.5}
+.insight .src{font-size:14px;margin-top:16px;line-height:1.45}
+.next{margin-top:20px}
+.btn{font-size:19px;padding:16px 26px}
+.brow{grid-template-columns:minmax(120px,170px) 1fr 58px;font-size:18px;gap:12px}
+.brow .bt{height:10px}
+.brow .pv{font-size:17px}
+.fig .big{font-size:48px}
+.fig .vs{font-size:16px}
+select.state{font-size:20px;padding:16px}
+.field label{font-size:15px}
+.field input{font-size:20px;padding:16px}
+.err{font-size:16px}
+.change-hint{font-family:var(--f-mono);font-size:15px;color:var(--faint);margin-top:12px}
+.readout .per{font-size:17px;line-height:1.5}
+.ticks b{font-size:23px}
+.ticks span{font-size:15px}
+.kv div{font-size:18px;padding:14px 0}
+.kv b{font-size:18px}
+.finds li{font-size:18px;grid-template-columns:40px 1fr}
+.finds .n{font-size:15px}
+.assume{font-size:17px}
+.assume li{margin-top:6px}
+.num{font-size:18px}
+.copy{font-size:15px;padding:8px 12px}
+.link{font-size:17px}
+.panel h2{font-size:clamp(25px,5vw,32px)}
 </style>
 </head>
 <body>

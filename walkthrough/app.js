@@ -187,7 +187,7 @@
   function engFac() { return EP.facilities[engKey()]; }
 
   var TOTAL = 12;
-  function setProgress(i, label) { prog.style.width = Math.min(100, i / TOTAL * 100) + "%"; countEl.textContent = label || ((S.fac ? fac().label.split(" /")[0].toUpperCase() + " · " : "") + String(i).padStart(2, "0") + " / " + TOTAL); }
+  function setProgress(i, label) { prog.style.width = Math.min(100, i / TOTAL * 100) + "%"; countEl.textContent = label != null ? label : (i > 0 ? String(i).padStart(2, "0") + " / " + TOTAL : ""); }
   function countUp(el, to, fmt, dur) { if (reduce) { el.textContent = fmt(to); return; } var t0 = performance.now(); dur = dur || 1100; (function st(t) { var p = Math.min((t - t0) / dur, 1), e = 1 - Math.pow(1 - p, 4); el.textContent = fmt(to * e); if (p < 1) requestAnimationFrame(st); })(t0); }
   function fillBars(root) { requestAnimationFrame(function () { requestAnimationFrame(function () { root.querySelectorAll(".bt i").forEach(function (i) { i.style.width = i.dataset.w + "%"; }); }); }); }
   function show(node) {
@@ -198,7 +198,7 @@
   function bars(rows) { return '<div class="bars">' + rows.map(function (r, i) { return '<div class="brow' + (i === 0 ? " lead" : "") + '"><span class="lbl">' + r[0] + '</span><span class="bt"><i data-w="' + r[1] + '"></i></span><span class="pv">' + r[1] + '%</span></div>'; }).join("") + "</div>"; }
 
   function card(res, next, quiet) {
-    var c = $('<div class="insight"><div class="tag">' + esc(res.tag || "Insight") + "</div><h3>" + res.h + "</h3>" + (res.p ? "<p>" + res.p + "</p>" : "") + (res.viz || "") + (res.src ? '<div class="src">' + esc(res.src) + "</div>" : "") + '<div class="next"><button class="btn">Continue <span class="ar">&rarr;</span></button></div></div>');
+    var c = $('<div class="insight"><h3>' + res.h + "</h3>" + (res.p ? "<p>" + res.p + "</p>" : "") + (res.viz || "") + '<div class="next"><button class="btn">Continue <span class="ar">&rarr;</span></button></div>' + (res.src ? '<div class="src">' + esc(res.src) + "</div>" : "") + '</div>');
     c.querySelector(".btn").addEventListener("click", next);
     setTimeout(function () {
       fillBars(c);
@@ -212,7 +212,7 @@
   /* generic question: options, lock, insight, continue */
   function question(cfg) {
     setProgress(cfg.step);
-    var html = '<section class="screen"><p class="eyebrow">' + esc(cfg.eyebrow) + "</p><h1>" + esc(cfg.q) + "</h1>" + (cfg.sub ? '<p class="sub">' + esc(cfg.sub) + "</p>" : "") +
+    var html = '<section class="screen"><h1>' + esc(cfg.q) + "</h1>" + (cfg.sub ? '<p class="sub">' + esc(cfg.sub) + "</p>" : "") +
       '<div class="opts' + (cfg.grid ? " grid2" : "") + '">' + cfg.opts.map(function (o) { return '<button class="opt" data-k="' + o[0] + '"><span>' + esc(o[1]) + "</span>" + (o[2] ? '<span class="hint">' + esc(o[2]) + "</span>" : "") + "</button>"; }).join("") + '</div><div class="slot"></div></section>';
     var node = $(html), opts = node.querySelector(".opts"), slot = node.querySelector(".slot");
     function choose(b, quiet) {
@@ -222,7 +222,11 @@
       var res = cfg.insight(k);
       slot.innerHTML = "";
       if (!node.querySelector(".change-hint")) opts.insertAdjacentHTML("afterend", '<p class="change-hint">Tap another answer to change it.</p>');
-      if (res && res.redirect) { if (!quiet) setTimeout(function () { go(res.redirect); }, 350); return; }
+      if (res && res.redirect) {
+        if (!quiet) { setTimeout(function () { go(res.redirect); }, 350); return; }
+        var nx = $('<div class="next"><button class="btn">Continue <span class="ar">&rarr;</span></button></div>');
+        nx.querySelector(".btn").addEventListener("click", function () { go(res.redirect); }); slot.appendChild(nx); return;
+      }
       slot.appendChild(card(res, function () { go(cfg.next); }, quiet));
     }
     opts.addEventListener("click", function (e) { choose(e.target.closest(".opt")); });
@@ -237,9 +241,9 @@
     reset();
     var pre = new URLSearchParams(location.search).get("f");
     if (pre && FAC[pre]) S.preFac = pre;
-    setProgress(0, "ENERGY DIAGNOSTIC");
+    setProgress(0, "");
     var label = S.preFac ? FAC[S.preFac].label.split(" /")[0] : "your building";
-    var n = $('<section class="screen"><div class="panel"><div class="grat"></div><div class="in"><p class="eyebrow">Energy Plus &middot; Discovery diagnostic</p><h1>A few taps. About two minutes. A read on ' + esc(label.toLowerCase() === "your building" ? "your building" : "your " + FAC[S.preFac].units) + ' most operators never get.</h1><p class="sub">Tap through the questions a senior energy strategist would ask on a first call. Every answer shows you something about your operation.</p><div class="dial"><div><b class="mono">~10</b>taps</div><div><b class="mono">~2 min</b>to finish</div><div><b class="mono">0</b>bills to dig up</div></div><div style="margin-top:30px"><button class="btn" id="go">Start the diagnostic <span class="ar">&rarr;</span></button></div></div></div></section>');
+    var n = $('<section class="screen"><div class="panel"><div class="grat"></div><div class="in"><h1>A few taps. About two minutes. A read on ' + esc(label.toLowerCase() === "your building" ? "your building" : "your " + FAC[S.preFac].units) + ' most operators never get.</h1><p class="sub">Tap through the questions a senior energy strategist would ask on a first call. Every answer shows you something about your operation.</p><div style="margin-top:30px"><button class="btn" id="go">Start the diagnostic <span class="ar">&rarr;</span></button></div></div></div></section>');
     n.querySelector("#go").addEventListener("click", function () { go(facility); });
     show(n);
   }
@@ -272,16 +276,20 @@
   function stateQ() {
     setProgress(3);
     var names = Object.keys(STATE_NAMES).sort();
-    var n = $('<section class="screen"><p class="eyebrow">Location</p><h1>Where are most of your ' + esc(fac().units) + '?</h1><p class="sub">We pull that state\'s current commercial rate and trend.</p><select class="state" id="stsel" aria-label="State"><option value="">Choose a state</option>' + names.map(function (s) { return "<option>" + esc(s) + "</option>"; }).join("") + '</select><div class="slot"></div></section>');
+    var n = $('<section class="screen"><h1>Where are most of your ' + esc(fac().units) + '?</h1><p class="sub">We pull that state\'s current commercial rate and trend.</p><select class="state" id="stsel" aria-label="State"><option value="">Choose a state</option>' + names.map(function (s) { return "<option>" + esc(s) + "</option>"; }).join("") + '</select><div class="slot"></div></section>');
     var sel = n.querySelector("#stsel"), slot = n.querySelector(".slot");
     sel.addEventListener("change", function () {
       if (!sel.value) return; S.state = STATE_NAMES[sel.value]; S.stateName = sel.value; slot.innerHTML = "";
       var st = EP.states[S.state], nat = EP.national, rate = st.rate, diff = (rate / nat.rate12mo - 1) * 100, chg = EP.rateChange[S.state];
-      var h = Math.abs(diff) < 3 ? "Commercial power in " + esc(sel.value) + " runs close to the national average, and it's still climbing." : diff > 0 ? "Commercial power in " + esc(sel.value) + " costs about " + Math.round(diff) + "% more than the national average." : "Power in " + esc(sel.value) + " is cheaper than average. That makes waste easy to ignore, and it still compounds.";
-      var p = "Commercial rates rose " + nat.augYoY + "% nationally in the last year" + (chg != null ? ", and " + (chg >= 0 ? chg.toFixed(1) + "% here." : "dipped " + Math.abs(chg).toFixed(1) + "% here, but the long-run direction is up.") : ".") + (st.retailChoice === true ? " Your state also lets businesses shop their supply rate, so we'll include that." : "");
-      slot.appendChild(card({ tag: "Your market", h: h, p: p,
-        viz: '<div class="fig"><span class="big metered" data-count="' + rate + '" data-fmt="cents">0¢</span><span class="vs">per kWh vs ' + nat.rate12mo.toFixed(2) + '¢ national</span></div>' + (chg != null ? '<div class="fig" style="margin-top:8px"><span class="big" style="font-size:26px" data-count="' + chg + '" data-fmt="pct">0%</span><span class="vs">change here, past 12 months</span></div>' : ""),
-        src: "EIA commercial retail price, 12 months to Aug 2026; national change Aug 2026 vs Aug 2025" }, function () { go(locations); }));
+      var rise = riseFor(S.state), name = esc(sel.value);
+      var h = diff >= 3 ? "Commercial power in " + name + " already costs about " + Math.round(diff) + "% more than the national average."
+        : diff <= -3 ? "Power in " + name + " is cheaper than average. That makes waste easy to ignore, and it still compounds."
+        : "Commercial power in " + name + " runs close to the national average.";
+      var p = (rise.local ? "And it's climbing: rates here rose " + rise.pct.toFixed(1) + "% in the last 12 months." : "And it's climbing: commercial rates rose " + rise.pct.toFixed(1) + "% nationally in the last year. Yours may vary.") +
+        (st.retailChoice === true ? " Your state also lets businesses shop their supply rate, so we'll include that." : "");
+      slot.appendChild(card({ h: h, p: p,
+        viz: '<div class="fig"><span class="big metered" data-count="' + rate + '" data-fmt="cents">0¢</span><span class="vs">per kWh here vs ' + nat.rate12mo.toFixed(2) + '¢ national</span></div><div class="fig" style="margin-top:8px"><span class="big" style="font-size:30px" data-count="' + rise.pct + '" data-fmt="pct">0%</span><span class="vs">' + (rise.local ? "rate rise here, last 12 months" : "rate rise nationally, last 12 months") + '</span></div>',
+        src: "EIA commercial retail prices, 12 months to Aug 2026; national change Aug 2026 vs Aug 2025" }, function () { go(locations); }));
     });
     show(n);
     if (S.stateName) setTimeout(function () { sel.value = S.stateName; sel.dispatchEvent(new Event("change")); }, reduce ? 0 : 300);
@@ -296,19 +304,39 @@
       next: bill });
   }
 
+  function riseFor(state) {
+    var nat = EP.national.augYoY, loc = EP.rateChange[state];
+    return (loc != null && loc > nat) ? { pct: loc, local: true } : { pct: nat, local: false };
+  }
   function demandShareFor(m) { var base = EP.streams.demand.shareDefault; return Math.min(base, m < 3000 ? 0.15 : m < 10000 ? 0.28 : base); }
   function billInsight() {
     var m = S.monthly, d = demandShareFor(m);
     if (m * S.locs < QUALIFY_MONTHLY) return { redirect: under };
-    return { tag: "Where the bill hides", h: "About " + Math.round(d * 100) + "% of that, roughly " + kmoney(m * d) + " a month, is likely demand charges.", p: "They're set by your single busiest 15 minutes of the month, when everything runs at once." + (S.estimated ? " (Estimated from size and benchmarks.)" : ""), src: "NREL: demand charges are commonly 30 to 70% of a demand-billed commercial bill" };
+    var dPct = Math.round(d * 100);
+    return { h: "About " + dPct + "% of that, roughly " + kmoney(m * d) + " a month, is probably your demand charge.",
+      p: "You're billed for the power you use, and again for your busiest 15 minutes of the month, when everything runs at once. That one moment sets this charge for the whole month." + (S.estimated ? " (Your bill is estimated from size.)" : ""),
+      viz: bars([["Demand charge", dPct], ["Power used", 100 - dPct]]),
+      src: "NREL: demand charges are commonly 30 to 70% of a demand-billed commercial bill. Smaller bills usually carry less." };
   }
+  function fmtK(x) { return ENG.fmtK(x).toUpperCase(); }
+  function niceRound(x) { var st = x < 10000 ? 500 : x < 100000 ? 1000 : 5000; return Math.max(st, Math.round(x / st) * st); }
   function bill() {
     var F = fac(), edges = engFac().billBands, opts = [];
-    for (var i = 0; i < edges.length - 1; i++) opts.push([String(Math.round(Math.sqrt(edges[i] * edges[i + 1]))), "$" + ENG.fmtK(edges[i]) + " to $" + ENG.fmtK(edges[i + 1])]);
+    for (var i = 0; i < edges.length - 1; i++) opts.push([edges[i] + "-" + edges[i + 1], "$" + fmtK(edges[i]) + " to $" + fmtK(edges[i + 1])]);
     opts.push(["unk", "Not sure, help me estimate"]);
-    question({ step: 5, eyebrow: "Your bill", q: "What's a typical monthly electric bill for one " + F.unit + "?", sub: "Roughly. We'll tell you exactly what we assumed.", opts: opts,
-      pick: function (k) { if (k !== "unk") { S.monthly = parseInt(k, 10); S.estimated = false; S.sqft = null; } },
-      insight: function (k) { return k === "unk" ? { redirect: sizeQ } : billInsight(); }, next: season });
+    question({ step: 5, q: "What's a typical monthly electric bill for one " + F.unit + "?", sub: "A rough range is fine. We'll narrow it down next.", opts: opts,
+      pick: function (k) { if (k !== "unk") { var p = k.split("-"); S.band = [parseInt(p[0], 10), parseInt(p[1], 10)]; S.estimated = false; S.sqft = null; } },
+      insight: function (k) { return k === "unk" ? { redirect: sizeQ } : { redirect: dial }; }, next: season });
+  }
+  function dial() {
+    var lo = S.band[0], hi = S.band[1], e = [];
+    for (var i = 0; i <= 4; i++) e.push(niceRound(lo * Math.pow(hi / lo, i / 4)));
+    var opts = [];
+    for (var j = 0; j < 4; j++) if (e[j + 1] > e[j]) opts.push([String(Math.round(Math.sqrt(e[j] * e[j + 1]))), "$" + fmtK(e[j]) + " to $" + fmtK(e[j + 1])]);
+    opts.push([String(Math.round(Math.sqrt(lo * hi))), "Somewhere in that range"]);
+    question({ step: 5, q: "Let's dial that in. Which is closest?", sub: "Between $" + fmtK(lo) + " and $" + fmtK(hi) + " a month.", opts: opts,
+      pick: function (k) { S.monthly = parseInt(k, 10); },
+      insight: billInsight, next: season });
   }
   function sizeQ() {
     var F = fac();
@@ -318,10 +346,10 @@
       insight: billInsight, next: season });
   }
   function season() {
-    question({ step: 6, eyebrow: "Your bill", q: "Which time of year was that bill from?", opts: [["summer", "Summer"], ["winter", "Winter"], ["mild", "Spring or fall"]],
+    question({ step: 6, eyebrow: "Your bill", q: "Which time of year was that bill from?", opts: [["summer", "Summer"], ["winter", "Winter"], ["mild", "Spring or fall"], ["avg", "Not sure"]],
       pick: function (k) { S.season = k; },
       insight: function (k) { var idx = EP.states[S.state].season[k] || 1, annual = S.monthly / idx * 12; S.annual = annual;
-        return { tag: "Your year", h: "That works out to about " + kmoney(annual) + " a year per " + fac().unit + (S.locs > 1 ? ", and " + kmoney(annual * S.locs) + " across all of them." : "."), p: "We adjust for the season using your state's monthly pattern, so one bill can stand in for a year.", viz: '<div class="fig"><span class="big" data-count="' + annual * S.locs + '">$0</span><span class="vs">per year in electricity' + (S.estimated ? ", estimated" : "") + "</span></div>", src: "EIA-861M monthly commercial sales by state" }; },
+        return { tag: "Your year", h: "That works out to about " + kmoney(annual) + " a year per " + fac().unit + (S.locs > 1 ? ", and " + kmoney(annual * S.locs) + " across all of them." : "."), p: k === "avg" ? "We'll treat it as an average month for your state." : "We adjust for the season using your state's monthly pattern, so one bill can stand in for a year.", viz: '<div class="fig"><span class="big" data-count="' + annual * S.locs + '">$0</span><span class="vs">per year in electricity' + (S.estimated ? ", estimated" : "") + "</span></div>", src: "EIA-861M monthly commercial sales by state" }; },
       next: function () { pathStep(0); } });
   }
 
@@ -332,8 +360,8 @@
   }
 
   function under() {
-    setProgress(TOTAL, "ENERGY DIAGNOSTIC");
-    var n = $('<section class="screen"><p class="eyebrow">Thanks for running it</p><h1>Our full program is built for portfolios spending $20K or more a month.</h1><p class="sub">We don\'t want to waste your time with a pitch that doesn\'t fit. Leave your number and we\'ll reach out as we roll out options sized for you.</p><div class="field"><label for="u-name">First name</label><input id="u-name" autocomplete="given-name"></div><div class="field"><label for="u-phone">Mobile</label><input id="u-phone" type="tel" inputmode="tel" autocomplete="tel"></div><div class="err" id="u-err"></div><div class="next" style="justify-content:space-between"><button class="link" id="restart">Start over</button><button class="btn" id="u-go">Keep me posted</button></div></section>');
+    setProgress(TOTAL, "");
+    var n = $('<section class="screen"><h1>Our full program is built for portfolios spending $20K or more a month.</h1><p class="sub">We don\'t want to waste your time with a pitch that doesn\'t fit. Leave your number and we\'ll reach out as we roll out options sized for you.</p><div class="field"><label for="u-name">First name</label><input id="u-name" autocomplete="given-name"></div><div class="field"><label for="u-phone">Mobile</label><input id="u-phone" type="tel" inputmode="tel" autocomplete="tel"></div><div class="err" id="u-err"></div><div class="next" style="justify-content:space-between"><button class="link" id="restart">Start over</button><button class="btn" id="u-go">Keep me posted</button></div></section>');
     n.querySelector("#restart").addEventListener("click", function () { intro(); syncBack(); });
     n.querySelector("#u-go").addEventListener("click", function () {
       var nm = n.querySelector("#u-name").value.trim(), ph = n.querySelector("#u-phone").value.replace(/\D/g, "");
@@ -346,7 +374,7 @@
 
   function capture() {
     setProgress(TOTAL);
-    var n = $('<section class="screen"><p class="eyebrow">Almost there</p><h1>Where should we text your diagnostic?</h1><p class="sub">No email, no spam. Your report arrives by text, and your strategist is one reply away.</p><div class="field"><label for="c-name">First name</label><input id="c-name" autocomplete="given-name"></div><div class="field"><label for="c-phone">Mobile</label><input id="c-phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="(555) 555-5555"></div><div class="err" id="c-err"></div><div class="next"><button class="btn" id="c-go">Show my diagnostic <span class="ar">&rarr;</span></button></div></section>');
+    var n = $('<section class="screen"><h1>Where should we text your diagnostic?</h1><p class="sub">No email, no spam. Your report arrives by text, and your strategist is one reply away.</p><div class="field"><label for="c-name">First name</label><input id="c-name" autocomplete="given-name"></div><div class="field"><label for="c-phone">Mobile</label><input id="c-phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="(555) 555-5555"></div><div class="err" id="c-err"></div><div class="next"><button class="btn" id="c-go">Show my diagnostic <span class="ar">&rarr;</span></button></div></section>');
     n.querySelector("#c-go").addEventListener("click", function () {
       var nm = n.querySelector("#c-name").value.trim(), ph = n.querySelector("#c-phone").value.replace(/\D/g, "");
       if (!nm) { n.querySelector("#c-err").textContent = "Add your first name so the report is addressed to you."; return; }
@@ -376,18 +404,18 @@
   function rng(r) { return kmoney(r[0]) + " to " + kmoney(r[1]); }
 
   function reveal() {
-    setProgress(TOTAL, "YOUR DIAGNOSTIC");
+    setProgress(TOTAL, "");
     var r = compute(), F = fac(), fs = findings(r), multi = S.locs > 1, L = S.locs;
     var lo = r.total[0], hi = r.total[1], typ = r.typical, annualAll = r.annual * L;
     var eq = ENG.R.mul(r.buckets.equipment.range, L), pk = ENG.R.mul(r.buckets.peak.range, L), sp = ENG.R.mul(r.buckets.brokering.range, L);
     var escPct = (r.escRate * 100).toFixed(1);
     var buckets = '<div class="kv"><div><span>Equipment: coils, compressors, refrigeration, power quality</span><b>' + rng(eq) + '</b></div><div><span>Peak: the demand charge</span><b>' + rng(pk) + "</b></div>" + (sp[1] > 0 ? '<div><span>Supply: shopping your rate</span><b>' + rng(sp) + "</b></div>" : "") + "</div>";
     var blocks = {
-      where: '<div class="blk"><p class="eyebrow">Where it comes from</p><h2>Where the savings come from</h2>' + buckets + "</div>",
-      findings: '<div class="blk"><p class="eyebrow">Where the money is leaking</p><h2>Top findings for your ' + esc(F.units) + '</h2><ol class="finds">' + fs.map(function (x, i) { return '<li style="animation-delay:' + (i * 120 + 300) + 'ms"><span class="n">' + String(i + 1).padStart(2, "0") + "</span><span><strong>" + esc(x[0]) + "</strong>" + esc(x[1]) + "</span></li>"; }).join("") + "</ol></div>",
-      nothing: '<div class="blk"><p class="eyebrow">If nothing changes</p><h2>The cost of waiting</h2><div class="kv"><div><span>Electricity spend, next 10 years</span><b>' + kmoney(annualAll * ENG.escalationFactor(r.escRate, 10)) + "</b></div><div><span>Rate increase we used</span><b>" + escPct + "% / yr</b></div><div><span>Savings left on the table</span><b>" + kmoney(r.typical * ENG.escalationFactor(r.escRate, 10)) + '</b></div></div><p class="sub" style="margin-top:12px">We used a conservative ' + escPct + "% a year for " + esc(S.stateName) + ". Commercial rates actually rose " + EP.national.augYoY + "% nationally in the last year.</p></div>",
-      beyond: '<div class="blk"><p class="eyebrow">Beyond the bill</p><h2>What else changes</h2><div class="kv"><div><span>Maintenance cost</span><b>up to 40% lower</b></div><div><span>Added equipment life</span><b>5 to 15 years</b></div>' + (multi ? "<div><span>Per " + esc(F.unit) + ", typical</span><b>" + kmoney(typ / L) + "/yr</b></div>" : "") + "</div></div>",
-      cash: '<div class="blk"><p class="eyebrow">Cash flow</p><h2>Paid from the savings</h2><p class="sub">Projects are structured so the savings are bigger than the payment, cash flow positive from day one where the numbers support it. We walk through the structure on the call.</p></div>'
+      where: '<div class="blk"><h2>Where the savings come from</h2>' + buckets + "</div>",
+      findings: '<div class="blk"><h2>Top findings for your ' + esc(F.units) + '</h2><ol class="finds">' + fs.map(function (x, i) { return '<li style="animation-delay:' + (i * 120 + 300) + 'ms"><span class="n">' + String(i + 1).padStart(2, "0") + "</span><span><strong>" + esc(x[0]) + "</strong>" + esc(x[1]) + "</span></li>"; }).join("") + "</ol></div>",
+      nothing: '<div class="blk"><h2>The cost of waiting</h2><div class="kv"><div><span>Electricity spend, next 10 years</span><b>' + kmoney(annualAll * ENG.escalationFactor(r.escRate, 10)) + "</b></div><div><span>Rate increase we used</span><b>" + escPct + "% / yr</b></div><div><span>Savings left on the table</span><b>" + kmoney(r.typical * ENG.escalationFactor(r.escRate, 10)) + '</b></div></div><p class="sub" style="margin-top:12px">We used a conservative ' + escPct + "% a year for " + esc(S.stateName) + ". " + (riseFor(S.state).local ? "Rates here actually rose " + riseFor(S.state).pct.toFixed(1) + "% in the last 12 months." : "Commercial rates actually rose " + EP.national.augYoY + "% nationally in the last year.") + "</p></div>",
+      beyond: '<div class="blk"><h2>What else changes</h2><div class="kv"><div><span>Maintenance cost</span><b>up to 40% lower</b></div><div><span>Added equipment life</span><b>5 to 15 years</b></div>' + (multi ? "<div><span>Per " + esc(F.unit) + ", typical</span><b>" + kmoney(typ / L) + "/yr</b></div>" : "") + "</div></div>",
+      cash: '<div class="blk"><h2>Paid from the savings</h2><p class="sub">Projects are structured so the savings are bigger than the payment, cash flow positive from day one where the numbers support it. We walk through the structure on the call.</p></div>'
     };
     var order = { owner: ["findings", "where", "nothing", "beyond", "cash"], fm: ["beyond", "findings", "where", "nothing", "cash"], cfo: ["nothing", "where", "cash", "findings", "beyond"], pm: ["beyond", "where", "nothing", "findings", "cash"], multi: ["where", "findings", "nothing", "beyond", "cash"] }[S.role] || ["findings", "where", "nothing", "beyond", "cash"];
     var smsBody = "Hi Dan, " + S.name + " here. I just ran the Energy Plus diagnostic: " + F.label + ", " + S.locLabel + " " + (L === 1 ? F.unit : F.units) + " in " + S.stateName + ", about " + kmoney(S.monthly) + "/mo each. It estimated " + kmoney(lo) + " to " + kmoney(hi) + "/yr in savings. Let's talk.";
@@ -398,10 +426,10 @@
       "Savings use Energy Plus program ranges; your answers set where in the range you land. Typical is the middle of the range, not the top.",
       "This is an estimate. Your building sets your number, verified only by a site pilot."
     ];
-    var n = $('<section class="screen readout"><div class="panel"><div class="grat"></div><div class="in"><p class="eyebrow">' + esc(S.name) + " &middot; " + esc(F.label.split(" /")[0]) + " &middot; " + esc(S.stateName) + "</p><h2>Estimated savings per year" + (multi ? " across your " + esc(F.units) : "") + '</h2><div class="range"><span id="lo">$0</span> to <span id="hi">$0</span></div><div class="per">per year &middot; ' + Math.round(r.perSite[0] / r.annual * 100) + " to " + Math.round(r.perSite[1] / r.annual * 100) + '% of your electric spend &middot; typical <span id="typ">$0</span></div><div class="ticks"><div><b id="ten">$0</b><span>10-year savings, typical</span></div><div><b>' + kmoney(annualAll) + "</b><span>annual electric spend" + (S.estimated ? ", est." : "") + "</span></div><div><b>" + escPct + "%</b><span>yearly rate climb used</span></div></div></div></div>" +
+    var n = $('<section class="screen readout"><div class="panel"><div class="grat"></div><div class="in"><h2>' + esc(S.name) + ', here&rsquo;s what your ' + esc(multi ? F.units : F.unit) + ' could save each year</h2><div class="range"><span id="lo">$0</span> to <span id="hi">$0</span></div><div class="per">per year &middot; ' + Math.round(r.perSite[0] / r.annual * 100) + " to " + Math.round(r.perSite[1] / r.annual * 100) + '% of your electric spend &middot; typical <span id="typ">$0</span></div><div class="ticks"><div><b id="ten">$0</b><span>10-year savings, typical</span></div><div><b>' + kmoney(annualAll) + "</b><span>annual electric spend" + (S.estimated ? ", est." : "") + "</span></div><div><b>" + escPct + "%</b><span>yearly rate climb used</span></div></div></div></div>" +
       '<div class="blocks">' + order.map(function (k) { return blocks[k]; }).join("") +
-      '<div class="blk"><p class="eyebrow">Next step</p><h2>Find out if these numbers hold for your ' + esc(F.units) + '</h2><p class="sub">A 15-minute call turns this estimate into a site-specific number. Text Dan directly.</p><div class="cta" style="margin-top:16px"><a class="btn" id="sms" href="sms:' + PHONE_E164 + "?body=" + encodeURIComponent(smsBody) + '">Text Dan <span class="ar">&rarr;</span></a><div class="num"><span>' + PHONE_DISPLAY + '</span><button class="copy" id="cp">Copy number</button></div><a class="link" href="' + BOOK_URL + '" target="_blank" rel="noopener">Or book a call</a></div></div>' +
-      '<div class="blk assume"><p class="eyebrow">Assumptions we made</p><ul>' + assumptions.map(function (a) { return "<li>" + a + "</li>"; }).join("") + '</ul><p style="margin-top:14px"><button class="link" id="again">Run another building</button></p></div></div></section>');
+      '<div class="blk"><h2>Find out if these numbers hold for your ' + esc(F.units) + '</h2><p class="sub">A 15-minute call turns this estimate into a site-specific number. Text Dan directly.</p><div class="cta" style="margin-top:16px"><a class="btn" id="sms" href="sms:' + PHONE_E164 + "?body=" + encodeURIComponent(smsBody) + '">Text Dan <span class="ar">&rarr;</span></a><div class="num"><span>' + PHONE_DISPLAY + '</span><button class="copy" id="cp">Copy number</button></div><a class="link" href="' + BOOK_URL + '" target="_blank" rel="noopener">Or book a call</a></div></div>' +
+      '<div class="blk assume"><ul>' + assumptions.map(function (a) { return "<li>" + a + "</li>"; }).join("") + '</ul><p style="margin-top:14px"><button class="link" id="again">Run another building</button></p></div></div></section>');
     n.querySelector("#cp").addEventListener("click", function (e) { var b = e.currentTarget; try { navigator.clipboard.writeText(PHONE_DISPLAY).then(function () { b.textContent = "Copied"; }, function () { b.textContent = PHONE_DISPLAY; }); } catch (_) { b.textContent = PHONE_DISPLAY; } });
     n.querySelector("#again").addEventListener("click", function () { intro(); syncBack(); });
     show(n);
