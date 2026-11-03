@@ -52,6 +52,17 @@
   }
 
   /* input: { state, utility|null, facility, billMonthly, season, heat, hoursWeek, occupancy, locations, nudges } */
+  // Share of the bill set by the demand charge, from the state's utility $/kW and the facility's load factor.
+  // $/kW / (load factor x 730 hours) = demand cost per kWh; divided by the all-in rate gives the share.
+  function stateDemandShare(stateKey, facKey, rateCents) {
+    const C = EP(), sd = C.stateDemand && C.stateDemand[stateKey], fac = C.facilities[facKey], st = C.states[stateKey];
+    if (!sd || !fac || !st) return null;
+    const lf = fac.loadFactor ? (fac.loadFactor.lo + fac.loadFactor.hi) / 2 : 0.5;
+    const r = (rateCents || st.rate) / 100;
+    const f = (k) => Math.min(0.60, Math.max(0.10, k / (lf * 730) / r));
+    return { share: f(sd.d), lo: f(sd.lo), hi: f(sd.hi), rate: sd.d, rateLo: sd.lo, rateHi: sd.hi, lf, del: !!sd.del, hu: !!sd.hu };
+  }
+
   function compute(input) {
     const C = EP();
     const S = C.streams;
@@ -86,7 +97,8 @@
 
     // three products on one bill (display)
     // demand share of the bill: small accounts often have no demand meter at all, so tier by bill size (grade C rule)
-    const baseDemand = (util && util.demandShare) || st.demandShare || S.demand.shareDefault;
+    const sd = stateDemandShare(input.state, input.facility, rate);
+    const baseDemand = (util && util.demandShare) || (sd && sd.share) || st.demandShare || S.demand.shareDefault;
     const sizeTier = input.billMonthly < 3000 ? 0.15 : (input.billMonthly < 10000 ? 0.28 : baseDemand);
     const demandShare = Math.min(baseDemand, sizeTier);
     const supplyShare = st.retailChoice === true ? S.brokering.supplyShareChoice : S.brokering.supplyShareDefault;
@@ -273,7 +285,7 @@
     return null;
   }
 
-  root.EPEngine = { compute, billBands, lossByAge, escalationFactor, fmtMoney, fmtRange, fmtK, resolveUtility, R };
+  root.EPEngine = { compute, demandShare: stateDemandShare, billBands, lossByAge, escalationFactor, fmtMoney, fmtRange, fmtK, resolveUtility, R };
 })(typeof window !== 'undefined' ? window : globalThis);
 
 if (typeof module !== 'undefined') module.exports = (typeof window !== 'undefined' ? window : globalThis).EPEngine;

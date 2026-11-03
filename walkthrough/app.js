@@ -308,15 +308,26 @@
     var nat = EP.national.augYoY, loc = EP.rateChange[state];
     return (loc != null && loc > nat) ? { pct: loc, local: true } : { pct: nat, local: false };
   }
-  function demandShareFor(m) { var base = EP.streams.demand.shareDefault; return Math.min(base, m < 3000 ? 0.15 : m < 10000 ? 0.28 : base); }
+  function demandInfo(m) {
+    var sd = ENG.demandShare(S.state, engKey()), base = sd ? sd.share : EP.streams.demand.shareDefault;
+    var tier = m < 3000 ? 0.15 : m < 10000 ? 0.28 : 1;
+    return { d: Math.min(base, tier), capped: tier < base, sd: sd };
+  }
+  function demandShareFor(m) { return demandInfo(m).d; }
   function billInsight() {
-    var m = S.monthly, d = demandShareFor(m);
+    var m = S.monthly, di = demandInfo(m), d = di.d, sd = di.sd;
     if (m * S.locs < QUALIFY_MONTHLY) return { redirect: under };
-    var dPct = Math.round(d * 100);
+    var dPct = Math.round(d * 100), name = EP.states[S.state].name;
+    var rateLine = "";
+    if (sd) {
+      var lo = Math.round(sd.rateLo), hi = Math.round(sd.rateHi);
+      rateLine = " In " + name + ", the largest utilities charge about $" + Math.round(sd.rate) + " for every kW of that peak, every month" + (hi - lo >= 2 ? " ($" + lo + " to $" + hi + " depending on the utility)." : ".");
+    }
+    var src = "Based on demand rates at " + name + "&rsquo;s largest utilities and how a typical " + fac().unit + " uses power through the day." + (di.capped ? " Smaller bills usually carry less, so we scaled it down." : "");
     return { h: "About " + dPct + "% of that, roughly " + kmoney(m * d) + " a month, is probably your demand charge.",
-      p: "You're billed for the power you use, and again for your busiest 15 minutes of the month, when everything runs at once. That one moment sets this charge for the whole month." + (S.estimated ? " (Your bill is estimated from size.)" : ""),
+      p: "You're billed for the power you use, and again for your busiest 15 minutes of the month, when everything runs at once. That one moment sets this charge for the whole month." + rateLine + (S.estimated ? " (Your bill is estimated from size.)" : ""),
       viz: bars([["Demand charge", dPct], ["Power used", 100 - dPct]]),
-      src: "NREL: demand charges are commonly 30 to 70% of a demand-billed commercial bill. Smaller bills usually carry less." };
+      src: src };
   }
   function fmtK(x) { return ENG.fmtK(x).toUpperCase(); }
   function niceRound(x) { var st = x < 10000 ? 500 : x < 100000 ? 1000 : 5000; return Math.max(st, Math.round(x / st) * st); }
@@ -421,6 +432,7 @@
     var assumptions = [
       S.estimated ? "Your bill was estimated from a typical " + esc(F.unit) + " size and " + esc(F.label.split(" /")[0].toLowerCase()) + " energy benchmarks." : "Your bill uses the middle of the range you picked, adjusted for the season.",
       esc(S.stateName) + " commercial average rate, not your utility's exact tariff.",
+      "Demand charge of about " + Math.round(demandShareFor(S.monthly) * 100) + "% of the bill, from the demand rates of " + esc(S.stateName) + "&rsquo;s largest utilities.",
       S.age == null ? "Equipment age assumed at 10 years." : "Equipment age as you described it.",
       "Savings use Energy Plus program ranges; your answers set where in the range you land. Typical is the middle of the range, not the top.",
       "This is an estimate. Your building sets your number, verified only by a site pilot."
