@@ -276,7 +276,7 @@
   function stateQ() {
     setProgress(3);
     var names = Object.keys(STATE_NAMES).sort();
-    var n = $('<section class="screen"><h1>Where are most of your ' + esc(fac().units) + '?</h1><p class="sub">We pull that state\'s current commercial rate and trend.</p><select class="state" id="stsel" aria-label="State"><option value="">Choose a state</option>' + names.map(function (s) { return "<option>" + esc(s) + "</option>"; }).join("") + '</select><div class="slot"></div></section>');
+    var n = $('<section class="screen"><h1>Where are most of your ' + esc(fac().units) + '?</h1><select class="state" id="stsel" aria-label="State"><option value="">Choose a state</option>' + names.map(function (s) { return "<option>" + esc(s) + "</option>"; }).join("") + '</select><div class="slot"></div></section>');
     var sel = n.querySelector("#stsel"), slot = n.querySelector(".slot");
     sel.addEventListener("change", function () {
       if (!sel.value) return; S.state = STATE_NAMES[sel.value]; S.stateName = sel.value; slot.innerHTML = "";
