@@ -221,7 +221,7 @@
       var k = b.dataset.k; S.ans[cfg.q] = k; if (cfg.pick) cfg.pick(k);
       var res = cfg.insight(k);
       slot.innerHTML = "";
-      if (!node.querySelector(".change-hint")) opts.insertAdjacentHTML("afterend", '<p class="change-hint">Tap another answer to change it.</p>');
+      if (!quiet && !S.hintShown) S.hintShown = true, opts.insertAdjacentHTML("afterend", '<p class="change-hint">Tap another answer to change it.</p>');
       if (res && res.redirect) {
         if (!quiet) { setTimeout(function () { go(res.redirect); }, 350); return; }
         var nx = $('<div class="next"><button class="btn">Continue <span class="ar">&rarr;</span></button></div>');
@@ -243,7 +243,7 @@
     if (pre && FAC[pre]) S.preFac = pre;
     setProgress(0, "");
     var label = S.preFac ? FAC[S.preFac].label.split(" /")[0] : "your building";
-    var n = $('<section class="screen"><div class="panel"><div class="grat"></div><div class="in"><h1>A few taps. About two minutes. A read on ' + esc(label.toLowerCase() === "your building" ? "your building" : "your " + FAC[S.preFac].units) + ' most operators never get.</h1><p class="sub">Tap through the questions a senior energy strategist would ask on a first call. Every answer shows you something about your operation.</p><div style="margin-top:30px"><button class="btn" id="go">Start the diagnostic <span class="ar">&rarr;</span></button></div></div></div></section>');
+    var n = $('<section class="screen"><div class="panel"><div class="grat"></div><div class="in"><h1>A few taps. About two minutes. A read on ' + esc(label.toLowerCase() === "your building" ? "your building" : "your " + FAC[S.preFac].units) + ' most operators never get.</h1><p class="sub">Tap through the questions a senior energy strategist would ask on a first call. Every answer shows you something about your operation.</p><div class="dial"><div><b class="mono">~10</b>taps</div><div><b class="mono">~2 min</b>to finish</div></div><div style="margin-top:30px"><button class="btn" id="go">Start the diagnostic <span class="ar">&rarr;</span></button></div></div></div></section>');
     n.querySelector("#go").addEventListener("click", function () { go(facility); });
     show(n);
   }
@@ -300,7 +300,7 @@
     var F = fac();
     question({ step: 4, eyebrow: "Footprint", q: "How many " + F.units + "?", opts: [["1", "1"], ["3", "2 to 5"], ["12", "6 to 20"], ["35", "21 to 50"], ["75", "50+"]],
       pick: function (k) { S.locs = parseInt(k, 10); S.locLabel = { "1": "1", "3": "2 to 5", "12": "6 to 20", "35": "21 to 50", "75": "50+" }[k]; },
-      insight: function () { return S.locs === 1 ? { tag: "Footprint", h: "One " + F.unit + " means one detailed picture.", p: "Everything from here gets sized to it." } : { tag: "Footprint", h: "Whatever we find in one " + F.unit + ", you have it " + S.locLabel + " times over.", p: "The same equipment repeats site after site, so one fix becomes a rollout." }; },
+      insight: function () { return { redirect: bill }; },
       next: bill });
   }
 
@@ -414,10 +414,9 @@
       where: '<div class="blk"><h2>Where the savings come from</h2>' + buckets + "</div>",
       findings: '<div class="blk"><h2>Top findings for your ' + esc(F.units) + '</h2><ol class="finds">' + fs.map(function (x, i) { return '<li style="animation-delay:' + (i * 120 + 300) + 'ms"><span class="n">' + String(i + 1).padStart(2, "0") + "</span><span><strong>" + esc(x[0]) + "</strong>" + esc(x[1]) + "</span></li>"; }).join("") + "</ol></div>",
       nothing: '<div class="blk"><h2>The cost of waiting</h2><div class="kv"><div><span>Electricity spend, next 10 years</span><b>' + kmoney(annualAll * ENG.escalationFactor(r.escRate, 10)) + "</b></div><div><span>Rate increase we used</span><b>" + escPct + "% / yr</b></div><div><span>Savings left on the table</span><b>" + kmoney(r.typical * ENG.escalationFactor(r.escRate, 10)) + '</b></div></div><p class="sub" style="margin-top:12px">We used a conservative ' + escPct + "% a year for " + esc(S.stateName) + ". " + (riseFor(S.state).local ? "Rates here actually rose " + riseFor(S.state).pct.toFixed(1) + "% in the last 12 months." : "Commercial rates actually rose " + EP.national.augYoY + "% nationally in the last year.") + "</p></div>",
-      beyond: '<div class="blk"><h2>What else changes</h2><div class="kv"><div><span>Maintenance cost</span><b>up to 40% lower</b></div><div><span>Added equipment life</span><b>5 to 15 years</b></div>' + (multi ? "<div><span>Per " + esc(F.unit) + ", typical</span><b>" + kmoney(typ / L) + "/yr</b></div>" : "") + "</div></div>",
-      cash: '<div class="blk"><h2>Paid from the savings</h2><p class="sub">Projects are structured so the savings are bigger than the payment, cash flow positive from day one where the numbers support it. We walk through the structure on the call.</p></div>'
+      beyond: '<div class="blk"><h2>Beyond the bill</h2><div class="kv"><div><span>Maintenance cost</span><b>up to 40% lower</b></div><div><span>Added equipment life</span><b>5 to 15 years</b></div>' + (multi ? "<div><span>Per " + esc(F.unit) + ", typical</span><b>" + kmoney(typ / L) + "/yr</b></div>" : "") + '</div><p class="sub" style="margin-top:14px">And it&rsquo;s paid from the savings: projects are structured to be cash flow positive from day one where the numbers support it. We walk through the structure on the call.</p></div>',
     };
-    var order = { owner: ["findings", "where", "nothing", "beyond", "cash"], fm: ["beyond", "findings", "where", "nothing", "cash"], cfo: ["nothing", "where", "cash", "findings", "beyond"], pm: ["beyond", "where", "nothing", "findings", "cash"], multi: ["where", "findings", "nothing", "beyond", "cash"] }[S.role] || ["findings", "where", "nothing", "beyond", "cash"];
+    var order = { owner: ["findings", "where", "nothing", "beyond"], fm: ["beyond", "findings", "where", "nothing"], cfo: ["nothing", "where", "findings", "beyond"], pm: ["beyond", "where", "nothing", "findings"], multi: ["where", "findings", "nothing", "beyond"] }[S.role] || ["findings", "where", "nothing", "beyond"];
     var smsBody = "Hi Dan, " + S.name + " here. I just ran the Energy Plus diagnostic: " + F.label + ", " + S.locLabel + " " + (L === 1 ? F.unit : F.units) + " in " + S.stateName + ", about " + kmoney(S.monthly) + "/mo each. It estimated " + kmoney(lo) + " to " + kmoney(hi) + "/yr in savings. Let's talk.";
     var assumptions = [
       S.estimated ? "Your bill was estimated from a typical " + esc(F.unit) + " size and " + esc(F.label.split(" /")[0].toLowerCase()) + " energy benchmarks." : "Your bill uses the middle of the range you picked, adjusted for the season.",
@@ -429,7 +428,7 @@
     var n = $('<section class="screen readout"><div class="panel"><div class="grat"></div><div class="in"><h2>' + esc(S.name) + ', here&rsquo;s what your ' + esc(multi ? F.units : F.unit) + ' could save each year</h2><div class="range"><span id="lo">$0</span> to <span id="hi">$0</span></div><div class="per">per year &middot; ' + Math.round(r.perSite[0] / r.annual * 100) + " to " + Math.round(r.perSite[1] / r.annual * 100) + '% of your electric spend &middot; typical <span id="typ">$0</span></div><div class="ticks"><div><b id="ten">$0</b><span>10-year savings, typical</span></div><div><b>' + kmoney(annualAll) + "</b><span>annual electric spend" + (S.estimated ? ", est." : "") + "</span></div><div><b>" + escPct + "%</b><span>yearly rate climb used</span></div></div></div></div>" +
       '<div class="blocks">' + order.map(function (k) { return blocks[k]; }).join("") +
       '<div class="blk"><h2>Find out if these numbers hold for your ' + esc(F.units) + '</h2><p class="sub">A 15-minute call turns this estimate into a site-specific number. Text Dan directly.</p><div class="cta" style="margin-top:16px"><a class="btn" id="sms" href="sms:' + PHONE_E164 + "?body=" + encodeURIComponent(smsBody) + '">Text Dan <span class="ar">&rarr;</span></a><div class="num"><span>' + PHONE_DISPLAY + '</span><button class="copy" id="cp">Copy number</button></div><a class="link" href="' + BOOK_URL + '" target="_blank" rel="noopener">Or book a call</a></div></div>' +
-      '<div class="blk assume"><ul>' + assumptions.map(function (a) { return "<li>" + a + "</li>"; }).join("") + '</ul><p style="margin-top:14px"><button class="link" id="again">Run another building</button></p></div></div></section>');
+      '<div class="blk assume"><h2 style="font-size:22px">How we estimated this</h2><ul>' + assumptions.map(function (a) { return "<li>" + a + "</li>"; }).join("") + '</ul><p style="margin-top:14px"><button class="link" id="again">Run another building</button></p></div></div></section>');
     n.querySelector("#cp").addEventListener("click", function (e) { var b = e.currentTarget; try { navigator.clipboard.writeText(PHONE_DISPLAY).then(function () { b.textContent = "Copied"; }, function () { b.textContent = PHONE_DISPLAY; }); } catch (_) { b.textContent = PHONE_DISPLAY; } });
     n.querySelector("#again").addEventListener("click", function () { intro(); syncBack(); });
     show(n);
