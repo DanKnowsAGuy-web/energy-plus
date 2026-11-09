@@ -439,7 +439,7 @@
     ];
     var n = $('<section class="screen readout"><div class="panel"><div class="grat"></div><div class="in"><h2>' + esc(S.name) + ', here&rsquo;s what your ' + esc(multi ? F.units : F.unit) + ' could save each year</h2><div class="range"><span id="lo">$0</span> to <span id="hi">$0</span></div><div class="per">per year &middot; ' + Math.round(r.perSite[0] / r.annual * 100) + " to " + Math.round(r.perSite[1] / r.annual * 100) + '% of your electric spend &middot; typical <span id="typ">$0</span></div><div class="ticks"><div><b id="ten">$0</b><span>10-year savings, typical</span></div><div><b>' + kmoney(annualAll) + "</b><span>annual electric spend" + (S.estimated ? ", est." : "") + "</span></div><div><b>" + escPct + "%</b><span>yearly rate climb used</span></div></div></div></div>" +
       '<div class="blocks">' + order.map(function (k) { return blocks[k]; }).join("") +
-      '<div class="blk"><h2>Find out if these numbers hold for your ' + esc(F.units) + '</h2><p class="sub">A 15-minute call turns this estimate into a site-specific number. Text Dan directly.</p><div class="cta" style="margin-top:16px"><a class="btn" id="sms" href="sms:' + PHONE_E164 + "?body=" + encodeURIComponent(smsBody) + '">Text Dan <span class="ar">&rarr;</span></a><div class="num"><span>' + PHONE_DISPLAY + '</span><button class="copy" id="cp">Copy number</button></div><a class="link" href="' + BOOK_URL + '" target="_blank" rel="noopener">Or book a call</a></div></div>' +
+      '<div class="blk"><h2>Find out if these numbers hold for your ' + esc(F.units) + '</h2><p class="sub">A 15-minute call turns this estimate into a site-specific number. Text Dan directly.</p><div class="cta" style="margin-top:16px"><a class="btn" id="sms" href="sms:' + PHONE_E164 + "?body=" + encodeURIComponent(smsBody) + '">Text Dan <span class="ar">&rarr;</span></a><div class="num"><span>' + PHONE_DISPLAY + '</span><button class="copy" id="cp">Copy number</button></div><a class="link" href="' + bookUrl(r) + '" target="_blank" rel="noopener">Or book a call</a></div></div>' +
       '<div class="blk assume"><h2 style="font-size:22px">How we estimated this</h2><ul>' + assumptions.map(function (a) { return "<li>" + a + "</li>"; }).join("") + '</ul><p style="margin-top:14px"><button class="link" id="again">Run another building</button></p></div></div></section>');
     n.querySelector("#cp").addEventListener("click", function (e) { var b = e.currentTarget; try { navigator.clipboard.writeText(PHONE_DISPLAY).then(function () { b.textContent = "Copied"; }, function () { b.textContent = PHONE_DISPLAY; }); } catch (_) { b.textContent = PHONE_DISPLAY; } });
     n.querySelector("#again").addEventListener("click", function () { intro(); syncBack(); });
@@ -449,6 +449,20 @@
     sendLead({ kind: S.leadSent ? "diagnostic, updated answers" : "diagnostic", name: S.name, phone: S.phone, role: S.role, facility: F.label, state: S.stateName, locations: S.locLabel,
       monthly_bill_each: S.monthly, bill_estimated: !!S.estimated, season: S.season, age: S.ageKey || "", summer: S.summer || "",
       answers: JSON.stringify(S.answersLog || {}), savings_low: Math.round(lo), savings_high: Math.round(hi), savings_typical: Math.round(typ), ten_year_typical: Math.round(tenTyp) });
+  }
+
+  /* Booking hand-off: carry the walkthrough answers to book.slashyourenergycost.com so the
+     visitor isn't asked them again. src=calc is the booking page's existing hand-off (skips
+     facility, bill and locations); wt=1 tells the updated booking page to also skip name,
+     phone, state and the extra questions the walkthrough already covered. */
+  var BOOK_FAC = { grocery: "supermarket", cold: "coldstorage", hotel: "hotel", qsr: "qsr", cstore: "cstore", health: "healthcare",
+    ind: "manufacturing", fit: "fitness", dc: "datacenter", mf: "multifamily", office: "office", retail: "retail" };
+  function bookUrl(r) {
+    var q = { src: "calc", wt: "1", f: BOOK_FAC[S.fac] || "other", b: Math.round(S.monthly || 0), n: S.locs || 1, st: S.state || "",
+      name: S.name || "", phone: S.phone || "", est_lo: Math.round(r.total[0]), est_hi: Math.round(r.total[1]),
+      role: S.role || "", age: S.ageKey || "", summer: S.summer || "" };
+    return BOOK_URL + "?" + Object.keys(q).filter(function (k) { return q[k] !== "" && q[k] != null; })
+      .map(function (k) { return k + "=" + encodeURIComponent(q[k]); }).join("&");
   }
 
   function sendLead(p) {
