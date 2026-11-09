@@ -1,0 +1,107 @@
+/* Energy Plus · the bill, told as one bill and three cuts.
+   One opening bill bar. Three cards with the same layout: copy, one animation, and the
+   same bill bar where only that card's slice shrinks, with one number. Then the payoff. */
+
+.v8-bill { --v8-energy: #174e58; --v8-peak: #e0a21c; --v8-other: #9fb3ba; --v8-ease: cubic-bezier(0.19, 1, 0.22, 1); }
+.v8-k { font-family: var(--font-mono); font-size: 0.72rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #6b747a; }
+
+/* the bar: three slices sized to the bill */
+.v8-bar { display: flex; height: 18px; border-radius: 999px; overflow: hidden; background: #e6eaec; }
+.v8-seg { flex: 0 0 var(--w); height: 100%; display: flex; transition: flex-basis 900ms var(--v8-ease); }
+.v8-seg--energy { background: var(--v8-energy); }
+.v8-seg--peak { background: var(--v8-peak); }
+.v8-seg--other { background: var(--v8-other); }
+.v8-seg + .v8-seg { box-shadow: inset 2px 0 0 #fff; }
+.v8-seg.is-cut { background: none; }
+.v8-seg.is-cut .v8-seg__keep { flex: 0 0 var(--k); background: inherit; }
+.v8-seg--energy.is-cut .v8-seg__keep { background: var(--v8-energy); }
+.v8-seg--peak.is-cut .v8-seg__keep { background: var(--v8-peak); }
+.v8-seg__gone { flex: 1 1 auto; background: repeating-linear-gradient(135deg, rgb(16 20 22 / 0.18) 0 3px, transparent 3px 7px); transition: opacity 500ms linear; }
+.v8-seg--peak .v8-seg__gone { background: repeating-linear-gradient(135deg, rgb(224 162 28 / 0.55) 0 3px, transparent 3px 7px); }
+.v8-seg--energy .v8-seg__gone { background: repeating-linear-gradient(135deg, rgb(23 78 88 / 0.45) 0 3px, transparent 3px 7px); }
+/* when played, the cut part is struck through and the bar closes up */
+.v8-seg.is-cut .v8-seg__keep { transition: flex-basis 900ms var(--v8-ease); }
+.v8-seg.is-cut .v8-seg__gone { min-width: 0; }
+.v8-cut__bill.is-played .v8-seg.is-cut { flex-basis: calc(var(--w) * var(--kf)); }
+.v8-cut__bill.is-played .v8-seg.is-cut .v8-seg__keep { flex-basis: 100%; }
+
+.v8-legend { display: flex; flex-wrap: wrap; gap: 0.4rem 1.4rem; margin-top: 0.8rem; font-size: 0.95rem; color: var(--body-c); }
+.v8-legend b { font-family: var(--font-mono); font-weight: 700; color: var(--ink); margin-left: 0.3rem; }
+.v8-dot { display: inline-block; width: 0.6rem; height: 0.6rem; border-radius: 50%; margin-right: 0.45rem; vertical-align: 0.05rem; }
+.v8-dot--energy { background: var(--v8-energy); } .v8-dot--peak { background: var(--v8-peak); } .v8-dot--other { background: var(--v8-other); }
+
+/* the opening bill */
+.v8-open { margin-top: clamp(1.6rem, 3vw, 2.2rem); background: #fff; border-radius: 22px; padding: clamp(1.2rem, 2.6vw, 1.8rem);
+  box-shadow: 0 1px 2px rgb(16 20 22 / 0.04), 0 12px 32px -14px rgb(16 20 22 / 0.12); }
+.v8-open__top { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; margin-bottom: 0.9rem; }
+.v8-total { font-family: var(--font-mono); font-weight: 700; font-size: clamp(2rem, 1.4rem + 2vw, 2.8rem); color: var(--ink); line-height: 1; }
+
+/* a cut: same layout every time */
+.v8-cut { margin-top: clamp(1.4rem, 3vw, 2rem); background: #fff; border-radius: 26px; padding: clamp(1.3rem, 3vw, 2.2rem);
+  box-shadow: 0 1px 2px rgb(16 20 22 / 0.04), 0 16px 40px -18px rgb(16 20 22 / 0.14);
+  display: grid; gap: clamp(1.2rem, 3vw, 2rem); }
+@media (min-width: 900px) {
+  .v8-cut { grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); align-items: center; }
+  .v8-cut__bill { grid-column: 1 / -1; }
+}
+.v8-cut__num { font-family: var(--font-sans); font-weight: 700; font-size: clamp(2rem, 1.6rem + 1.4vw, 2.8rem); color: var(--ochre); line-height: 1; }
+.v8-cut__eyebrow { margin-top: 0.7rem; font-family: var(--font-mono); font-size: var(--eyebrow, 0.78rem); letter-spacing: 0.08em; text-transform: uppercase; color: var(--petrol); font-weight: 600; }
+.v8-cut h3 { margin-top: 0.5rem; font-size: clamp(1.6rem, 1.2rem + 1.4vw, 2.3rem); line-height: 1.1; color: var(--ink); letter-spacing: -0.02em; }
+.v8-cut__text p:not(.v8-cut__eyebrow) { margin-top: 0.8rem; font-size: var(--body, 1.05rem); line-height: 1.5; color: var(--body-c); max-width: 46ch; }
+
+.v8-cut__viz { display: flex; justify-content: center; align-items: center; min-height: 200px; }
+.v8-cut__viz--price .v2-illust { width: min(100%, 360px); }
+.v8-cut__viz--peak .ps-story { margin: 0; width: 100%; box-shadow: none; padding: 0; background: none; }
+.v8-cut__viz--peak .ps-charge { display: none; }
+.v8-cut__viz--peak .ps-readout { min-height: 0; margin-top: 0.6rem; }
+.v8-cut__viz--peak .ps-cap { max-width: none; }
+
+.v8-cut__bill { border-top: 1px solid #e6eaec; padding-top: clamp(1rem, 2vw, 1.3rem); }
+.v8-cut__readout { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; margin-top: 0.8rem; flex-wrap: wrap; }
+.v8-cut__note { font-size: 0.95rem; color: var(--body-c); }
+.v8-cut__amt { font-family: var(--font-mono); font-weight: 700; font-size: clamp(1.4rem, 1.1rem + 1vw, 1.9rem); color: var(--petrol); font-variant-numeric: tabular-nums; }
+
+/* equipment: two units, same comfort */
+.v8-equip { width: min(100%, 420px); height: auto; overflow: visible; }
+.v8-equip .v8-u-k { font-family: var(--font-mono); font-size: 10px; font-weight: 700; letter-spacing: 0.08em; fill: #6b747a; }
+.v8-equip .v8-u-box { fill: #eef2f3; stroke: #9fb3ba; stroke-width: 2; }
+.v8-equip .v8-u-ring { fill: #fff; stroke: #9fb3ba; stroke-width: 2; }
+.v8-equip .v8-fan path { fill: #174e58; }
+.v8-equip .v8-led { fill: #174e58; }
+.v8-equip .v8-run-track { fill: #e6eaec; }
+.v8-equip .v8-run { transform-box: fill-box; transform-origin: 0 50%; transform: scaleX(0); transition: transform 1600ms var(--v8-ease); }
+.v8-equip .v8-run--bad { fill: #e0a21c; }
+.v8-equip .v8-run--good { fill: #174e58; }
+.v8-equip.is-playing .v8-run--bad { transform: scaleX(0.94); }
+.v8-equip.is-playing .v8-run--good { transform: scaleX(0.6); transition-delay: 200ms; }
+.v8-equip .v8-u-temp { font-family: var(--font-mono); font-size: 22px; font-weight: 700; fill: #101416; }
+.v8-equip .v8-u-same { fill: #174e58; }
+.v8-equip .v8-heat path { fill: none; stroke: #e0a21c; stroke-width: 2; stroke-linecap: round; opacity: 0; }
+.v8-equip.is-playing .v8-heat path { animation: v8heat 1.6s ease-in-out infinite; }
+.v8-equip.is-playing .v8-heat path:nth-child(2) { animation-delay: 0.3s; }
+.v8-equip.is-playing .v8-heat path:nth-child(3) { animation-delay: 0.6s; }
+@keyframes v8heat { 0% { opacity: 0; transform: translateY(6px); } 40% { opacity: 0.9; } 100% { opacity: 0; transform: translateY(-8px); } }
+.v8-equip.is-playing .v8-fan { animation: v8cycle 2.4s linear infinite; }
+.v8-equip.is-playing .v8-fan--calm { animation: v8spin 2.2s linear infinite; }
+@keyframes v8spin { to { transform: rotate(360deg); } }
+/* hard cycling: whips round, stops, whips round again */
+@keyframes v8cycle { 0% { transform: rotate(0); } 30% { transform: rotate(900deg); } 50% { transform: rotate(900deg); } 80% { transform: rotate(1800deg); } 100% { transform: rotate(1800deg); } }
+.v8-equip.is-playing .v8-led--blink { animation: v8blink 2.4s steps(1) infinite; }
+@keyframes v8blink { 0%, 29% { opacity: 1; } 30%, 49% { opacity: 0.15; } 50%, 79% { opacity: 1; } 80%, 100% { opacity: 0.15; } }
+
+/* the payoff */
+.v8-payoff { margin-top: clamp(2.2rem, 5vw, 3.4rem); }
+.v8-payoff h3 { font-size: clamp(1.8rem, 1.3rem + 2vw, 2.8rem); color: var(--ink); letter-spacing: -0.02em; line-height: 1.1; }
+.v8-payoff__rows { display: grid; gap: 0.9rem; margin-top: 1.4rem; }
+.v8-payoff__row { display: grid; grid-template-columns: 4.2rem minmax(0, 1fr) auto; align-items: center; gap: 1rem; }
+.v8-payoff__row b { font-family: var(--font-mono); font-weight: 700; font-size: 1.2rem; color: var(--ink); min-width: 5.5rem; text-align: right; }
+.v8-pbar { height: 22px; }
+.v8-pbar i { display: block; height: 100%; width: var(--w); border-radius: 999px; background: #c7d2d6; }
+.v8-payoff__row--after .v8-pbar i { background: var(--petrol); width: 100%; transition: width 1100ms var(--v8-ease); }
+.v8-payoff.is-played .v8-payoff__row--after .v8-pbar i { width: var(--w); }
+.v8-payoff__row--after b { color: var(--petrol); }
+.v8-payoff__note { margin-top: 1rem; font-size: 0.95rem; color: var(--body-c); }
+.v8-payoff__note .v2-textlink { margin-left: 0.4rem; }
+
+/* still version */
+.v2-reduced .v8-bill *, .v2-static .v8-bill * { transition: none !important; animation: none !important; }
