@@ -240,6 +240,98 @@
   }
   reset();
 
+  /* ---------- send your meter data: connect through Bayou, or download it yourself, or do it live with us ---------- */
+  var INTAKE_URL = ""; /* the Energy Plus intake web app (Google Apps Script, walkthrough/intake/). Empty until it's deployed. */
+  var DATA_EMAIL = "dan@yourenergyplus.com";
+  function intakeGet(params) { return fetch(INTAKE_URL + "?" + new URLSearchParams(params).toString()).then(function (r) { return r.json(); }); }
+  function intakePost(body) { return fetch(INTAKE_URL, { method: "POST", body: JSON.stringify(body) }).then(function (r) { return r.json(); }); }
+  function who(extra) {
+    var o = { name: S.name || "", phone: S.viewOnly ? "" : (S.phone || ""), facility: fac() ? fac().label : "", locations: S.locLabel || "", state: S.stateName || "", estimate: S.estText || "", source: location.href.split("#")[0] };
+    Object.keys(extra || {}).forEach(function (k) { o[k] = extra[k]; });
+    return o;
+  }
+  function meterBlock() {
+    var live = !!INTAKE_URL;
+    return '<div class="blk meter" id="meter"><h2>Get your real number: share your meter data</h2>' +
+      '<p class="sub">Your utility&rsquo;s meter records your power use every 15 minutes. That record, called interval data, shows exactly when your busiest 15 minutes happen, so we can replace this estimate with your real number.</p>' +
+      (live ? '<div class="mstep" id="m-connect"><p class="ch-t"><span class="mnum">1</span>Connect your utility account</p><p class="ch-s">About 2 minutes. You log in through Bayou Energy, a secure utility-data service, so your password goes to them, not to us.</p>' +
+        '<label class="mlabel" for="m-util">Who is your electric utility?</label><input class="minput" id="m-util" list="m-utils" autocomplete="off" placeholder="Start typing your utility"><datalist id="m-utils"></datalist>' +
+        '<div class="mrow"><button class="btn" id="m-go" type="button">Connect <span class="ar">&rarr;</span></button><button class="link" id="m-skip" type="button">Download it myself instead</button></div><div class="mstate" id="m-state" aria-live="polite"></div></div>' : "") +
+      '<div class="mstep" id="m-diy"' + (live ? " hidden" : "") + '><p class="ch-t"><span class="mnum">' + (live ? "2" : "1") + '</span>Download it yourself</p><ol class="diy">' +
+        '<li>Log in to your electric utility&rsquo;s website, the one that sends your bill.</li>' +
+        '<li>Look for <b>Usage</b>, <b>Energy use</b>, or <b>Green Button: Download My Data</b>.</li>' +
+        '<li>Choose <b>15-minute</b> (or hourly) data for the <b>last 12 months</b>, and download it as a spreadsheet or CSV file.</li>' +
+        '<li>In Texas, most areas get this data from <b>Smart Meter Texas</b> at smartmetertexas.com.</li>' +
+        '<li>' + (live ? "Upload the file here." : "Email the file to Dan.") + '</li></ol>' +
+        (live ? '<label class="mlabel" for="m-file">Your file</label><input class="minput" id="m-file" type="file" multiple accept=".csv,.xlsx,.xls,.xml,.zip,.pdf,.txt"><div class="mrow"><button class="btn" id="m-up" type="button">Upload <span class="ar">&rarr;</span></button></div><div class="mstate" id="m-upstate" aria-live="polite"></div>'
+          : '<div class="mrow"><a class="btn" href="mailto:' + DATA_EMAIL + "?subject=" + encodeURIComponent("Interval data" + (S.name ? " from " + S.name : "")) + "&body=" + encodeURIComponent("Attached is my interval data.") + '">Email it to Dan <span class="ar">&rarr;</span></a></div>') +
+      '</div>' +
+      '<div class="mstep"><p class="ch-t"><span class="mnum">' + (live ? "3" : "2") + '</span>Still stuck? We&rsquo;ll do it with you.</p><p class="ch-s">Book a quick screen share and we&rsquo;ll pull the data together. It takes about 15 minutes.</p><div class="mrow"><button class="btn" id="m-help" type="button">Pick a time <span class="ar">&rarr;</span></button></div></div>' +
+      "</div>";
+  }
+  function wireMeter(n) {
+    var help = n.querySelector("#m-help"), book = n.querySelector("#bookgo");
+    if (help && book) help.addEventListener("click", function () { book.click(); });
+    if (!INTAKE_URL) return;
+    var utilIn = n.querySelector("#m-util"), list = n.querySelector("#m-utils"), state = n.querySelector("#m-state"), diy = n.querySelector("#m-diy"), utils = [], cid = null, poll = null, tries = 0;
+    function showDiy(why) {
+      diy.hidden = false;
+      if (why) intakePost(who({ action: "stuck", id: cid || "", reason: why })).catch(function () {});
+      setTimeout(function () { diy.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" }); }, 60);
+    }
+    intakeGet({ action: "utilities" }).then(function (d) {
+      utils = (d && d.utilities) || [];
+      list.innerHTML = utils.map(function (u) { return '<option value="' + esc(u.name) + '"></option>'; }).join("");
+    }).catch(function () {});
+    n.querySelector("#m-skip").addEventListener("click", function () { showDiy(""); });
+    n.querySelector("#m-go").addEventListener("click", function () {
+      var v = (utilIn.value || "").trim().toLowerCase(), u = utils.filter(function (x) { return String(x.name).toLowerCase() === v; })[0];
+      if (!u && v) u = utils.filter(function (x) { return String(x.name).toLowerCase().indexOf(v) === 0; })[0];
+      if (!u) { state.innerHTML = '<p class="mwarn">Pick your utility from the list as you type. Not listed? Tap &ldquo;Download it myself instead.&rdquo;</p>'; return; }
+      utilIn.value = u.name;
+      state.innerHTML = '<p class="mwait">Setting up your secure login&hellip;</p>';
+      intakePost(who({ action: "start", utility: u.id, utilityName: u.name })).then(function (d) {
+        if (!d || !d.ok || !d.link) throw new Error("start");
+        cid = d.id;
+        state.innerHTML = '<a class="btn" href="' + esc(d.link) + '" target="_blank" rel="noopener">Open my utility login <span class="ar">&rarr;</span></a>' +
+          '<p class="mwait">Log in there, then come back to this page. I&rsquo;ll know when it worked.</p><button class="link" id="m-bad" type="button">It&rsquo;s not working</button>';
+        state.querySelector("#m-bad").addEventListener("click", function () { clearInterval(poll); showDiy("tapped It's not working"); });
+        clearInterval(poll); tries = 0;
+        poll = setInterval(function () {
+          if (document.hidden) return;
+          if (++tries > 150) { clearInterval(poll); showDiy("timed out waiting for login"); return; }
+          intakeGet({ action: "status", id: cid }).then(function (s) {
+            if (s && s.has_filled_credentials) {
+              clearInterval(poll);
+              stage("verify");
+              state.innerHTML = '<p class="mok">Connected. Your meter data is on its way to us, and Dan will follow up with your real number.</p>';
+              intakePost(who({ action: "connected", id: cid, utilityName: u.name })).catch(function () {});
+            }
+          }).catch(function () {});
+        }, 6000);
+      }).catch(function () {
+        state.innerHTML = '<p class="mwarn">That didn&rsquo;t connect. No problem, here&rsquo;s the do-it-yourself way.</p>';
+        showDiy("Bayou setup failed");
+      });
+    });
+    n.querySelector("#m-up").addEventListener("click", function () {
+      var f = n.querySelector("#m-file"), st = n.querySelector("#m-upstate"), files = Array.prototype.slice.call(f.files || []);
+      if (!files.length) { st.innerHTML = '<p class="mwarn">Choose your file first.</p>'; return; }
+      var total = files.reduce(function (t, x) { return t + x.size; }, 0);
+      if (total > 25 * 1024 * 1024) { st.innerHTML = '<p class="mwarn">That&rsquo;s over 25 MB. Email it to ' + DATA_EMAIL + ' instead.</p>'; return; }
+      st.innerHTML = '<p class="mwait">Uploading&hellip;</p>';
+      Promise.all(files.map(function (x) {
+        return new Promise(function (res, rej) { var rd = new FileReader(); rd.onload = function () { res({ name: x.name, type: x.type, data: String(rd.result).split(",")[1] || "" }); }; rd.onerror = rej; rd.readAsDataURL(x); });
+      })).then(function (enc) { return intakePost(who({ action: "upload", files: enc })); }).then(function (d) {
+        if (!d || !d.ok) throw new Error("upload");
+        stage("verify");
+        st.innerHTML = '<p class="mok">Got it. ' + d.count + (d.count === 1 ? " file" : " files") + ' sent to Dan. He&rsquo;ll follow up with your real number.</p>';
+      }).catch(function () {
+        st.innerHTML = '<p class="mwarn">The upload didn&rsquo;t go through. Please email the file to <a href="mailto:' + DATA_EMAIL + '">' + DATA_EMAIL + "</a>, or book a time and we&rsquo;ll do it with you.</p>";
+      });
+    });
+  }
+
   /* ---------- save progress, finish later, share the report ---------- */
   var SAVE_KEY = "ep-watt-v1";
   function at(name, arg) { S.at = [name, arg == null ? null : arg]; save(); }
@@ -1139,6 +1231,7 @@
       beyond: '<div class="blk"><h2>Beyond the bill</h2><div class="kv"><div><span>Maintenance cost</span><b>up to 40% lower</b></div><div><span>Added equipment life</span><b>5 to 15 years</b></div>' + (multi ? "<div><span>Per " + esc(F.unit) + ", typical</span><b>" + kmoney(typ / L) + "/yr</b></div>" : "") + '</div><p class="sub" style="margin-top:14px">And it&rsquo;s paid from the savings: projects are structured to be cash flow positive from day one where the numbers support it. We walk through the structure on the call.</p></div>',
     };
     var order = { owner: ["findings", "where", "nothing", "beyond"], fm: ["beyond", "findings", "where", "nothing"], cfo: ["nothing", "where", "findings", "beyond"], pm: ["beyond", "where", "nothing", "findings"], multi: ["where", "findings", "nothing", "beyond"] }[S.role] || ["findings", "where", "nothing", "beyond"];
+    S.estText = kmoney(lo) + " to " + kmoney(hi) + "/yr";
     var shareTitle = "Energy Plus report: " + F.label.split(" /")[0];
     var shareText = "Here's the Energy Plus report for our " + (multi ? F.units : F.unit) + ": about " + kmoney(lo) + " to " + kmoney(hi) + " a year in possible savings.";
     var smsBody = S.viewOnly ? "Hi Dan, I'm looking at an Energy Plus report someone shared with me (" + F.label + ", " + kmoney(lo) + " to " + kmoney(hi) + "/yr). Let's talk." : "Hi Dan, " + S.name + " here. I just ran the Energy Plus diagnostic: " + F.label + ", " + S.locLabel + " " + (L === 1 ? F.unit : F.units) + " in " + S.stateName + ", about " + kmoney(S.monthly) + "/mo each. It estimated " + kmoney(lo) + " to " + kmoney(hi) + "/yr in savings. Let's talk.";
@@ -1161,7 +1254,7 @@
         '<li><b>Salt River Project.</b> Built the quality program on a $600M utility project. His methods were later adopted by utilities across the country.</li>' +
         '<li><b>ASTM national standards.</b> Eight years helping write the test methods utilities use.</li>' +
         '<li><b>UAE national grid.</b> Called in to assess grid reliability across Dubai, Abu Dhabi, and Sharjah.</li></ul></div></div><div class="choices"><div class="choice"><p class="ch-t">Text Dan</p><p class="ch-s">Ask a question or set up a time, by text.</p><a class="btn" id="sms" href="sms:' + PHONE_E164 + "?body=" + encodeURIComponent(smsBody) + '">Text Dan <span class="ar">&rarr;</span></a><div class="num"><span>' + PHONE_DISPLAY + '</span><button class="copy" id="cp">Copy number</button></div></div><div class="choice"><p class="ch-t">Book a 15-minute call</p><p class="ch-s">Add your email, then pick a time that works.</p><button class="btn" id="bookgo" type="button">Pick a time <span class="ar">&rarr;</span></button></div></div><div class="bookpanel" id="bookpanel" hidden><iframe title="Book a 15-minute call with Dan" data-src="' + esc(bookUrl(r)) + '"></iframe><a class="link" href="' + esc(bookUrl(r)) + '" target="_blank" rel="noopener">Calendar not showing? Open it in a new tab</a></div></div>' +
-      '<div class="blk"><h2>Send this to someone</h2><p class="sub">Your CFO, owner, or partner can open this full report. Your phone number isn&rsquo;t included.</p><div class="share-row">' + (navigator.share ? '<button class="sbtn primary" id="shareit" type="button">Share</button>' : '') + '<a class="sbtn" href="sms:?&body=' + encodeURIComponent(shareText + " " + reportLink()) + '">Text</a><a class="sbtn" href="mailto:?subject=' + encodeURIComponent(shareTitle) + '&body=' + encodeURIComponent(shareText + "\n\n" + reportLink()) + '">Email</a><button class="sbtn" type="button" data-copy="' + esc(reportLink()) + '">Copy link</button></div></div>' +
+      '' + meterBlock() + '<div class="blk"><h2>Send this to someone</h2><p class="sub">Your CFO, owner, or partner can open this full report. Your phone number isn&rsquo;t included.</p><div class="share-row">' + (navigator.share ? '<button class="sbtn primary" id="shareit" type="button">Share</button>' : '') + '<a class="sbtn" href="sms:?&body=' + encodeURIComponent(shareText + " " + reportLink()) + '">Text</a><a class="sbtn" href="mailto:?subject=' + encodeURIComponent(shareTitle) + '&body=' + encodeURIComponent(shareText + "\n\n" + reportLink()) + '">Email</a><button class="sbtn" type="button" data-copy="' + esc(reportLink()) + '">Copy link</button></div></div>' +
       '<div class="blk"><h2 style="font-size:22px">What you told Watt</h2><div class="told">' + S.order.filter(function (q) { return S.ans[q] != null && S.chip[q]; }).map(function (q) { return '<span class="chip">' + esc(S.chip[q]) + "</span>"; }).join("") + "</div></div>" +
       '<details class="blk fine" id="details"><summary>Details and disclosures</summary><div class="fine-in">' +
         '<p>Every figure here, including savings, payback, maintenance, equipment life, and cash flow timing, comes from your answers, public data, and results from specific buildings under their own conditions. Weather, equipment age and condition, occupancy, operating hours, and utility rates all change the outcome, so set expectations only by your own building. That is why we measure it and prove the savings on site before you commit. Watt is an automated estimating tool; this is not engineering, financial, tax, or legal advice.</p>' +
@@ -1175,6 +1268,7 @@
       if (!fr.src) fr.src = fr.getAttribute("data-src");
       pnl.hidden = false; setTimeout(function () { pnl.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" }); }, 60);
     });
+    wireMeter(n);
     var shb = n.querySelector("#shareit");
     if (shb) shb.addEventListener("click", function () { try { navigator.share({ title: shareTitle, text: shareText, url: reportLink() }).catch(function () {}); } catch (e) {} });
     wattIn(n, "#w-ver", 34, { state: "verify", fixed: true });
