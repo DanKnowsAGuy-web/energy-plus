@@ -320,40 +320,146 @@
   function role() {
     question({ step: 2, eyebrow: "Your seat", q: "What's your role?", opts: ROLES, chip: function (k, l) { return l; },
       pick: function (k) { S.role = k; },
-      insight: function (k) { var r = ROLE_INSIGHT[k]; return { tag: "How we'll read this for you", h: r.h, p: r.p }; }, next: stateQ });
+      insight: function (k) { var r = ROLE_INSIGHT[k]; return { tag: "How we'll read this for you", h: r.h, p: r.p }; }, next: locations });
   }
 
-  function stateQ() {
-    setProgress(3);
-    stage("listen");
-    var names = Object.keys(STATE_NAMES).sort(), quietNext = false;
-    var n = $('<section class="screen turn">' + ask("Where are most of your " + esc(fac().units) + "?", "", "Location") + '<select class="state" id="stsel" aria-label="State"><option value="">Choose a state</option>' + names.map(function (s) { return "<option>" + esc(s) + "</option>"; }).join("") + '</select><div class="slot"></div></section>');
-    var sel = n.querySelector("#stsel"), slot = n.querySelector(".slot");
-    sel.addEventListener("change", function () {
-      var quiet = quietNext; quietNext = false;
-      if (!sel.value) return; S.state = STATE_NAMES[sel.value]; S.stateName = sel.value; S.ans.__state = sel.value; setChip("__state", sel.value);
-      var st = EP.states[S.state], nat = EP.national, rate = st.rate, diff = (rate / nat.rate12mo - 1) * 100;
-      var rise = riseFor(S.state), name = esc(sel.value);
+  /* ---------- where: one state, a region, a handful of states, or nationwide ---------- */
+  var REGIONS = [
+    ["Northeast", ["CT", "ME", "MA", "NH", "NJ", "NY", "PA", "RI", "VT"]],
+    ["Mid-Atlantic", ["DE", "DC", "MD", "VA", "WV"]],
+    ["Southeast", ["AL", "FL", "GA", "KY", "MS", "NC", "SC", "TN"]],
+    ["Midwest", ["IL", "IN", "IA", "KS", "MI", "MN", "MO", "NE", "ND", "OH", "SD", "WI"]],
+    ["South Central", ["AR", "LA", "OK", "TX"]],
+    ["Mountain & Southwest", ["AZ", "CO", "ID", "MT", "NV", "NM", "UT", "WY"]],
+    ["West Coast", ["AK", "CA", "HI", "OR", "WA"]]
+  ];
+  var ALL_STATES = Object.keys(EP.states);
+  var LOWER48 = ALL_STATES.filter(function (c) { return c !== "AK" && c !== "HI"; }); /* nationwide = the lower 48 plus DC, so Hawaii's rates don't skew it */
+  function nationwide() { return S.spread === "nation"; }
+  function multiState() { return !!(S.states && S.states.length > 1); }
+  function regionOf(codes) { var set = codes.slice().sort().join(); for (var i = 0; i < REGIONS.length; i++) if (REGIONS[i][1].slice().sort().join() === set) return REGIONS[i][0]; return null; }
+  function placeName() {
+    var c = S.states || [];
+    if (c.length <= 1) return S.state ? EP.states[S.state].name : "your state";
+    if (nationwide()) return "the U.S.";
+    var reg = regionOf(c); if (reg) return "the " + reg;
+    if (c.length <= 3) { var n = c.map(function (x) { return EP.states[x].name; }); return n.length === 2 ? n.join(" and ") : n.slice(0, -1).join(", ") + " and " + n[n.length - 1]; }
+    return c.length + " states";
+  }
+  function placePoss() { return multiState() ? (nationwide() ? "U.S." : "your states&rsquo;") : esc(placeName()) + "&rsquo;s"; }
+  function placeChip() {
+    if (nationwide()) return "Nationwide";
+    var c = S.states, full = REGIONS.filter(function (r) { return r[1].every(function (x) { return c.indexOf(x) >= 0; }); });
+    var inFull = {}; full.forEach(function (r) { r[1].forEach(function (x) { inFull[x] = true; }); });
+    var rest = c.filter(function (x) { return !inFull[x]; }).map(function (x) { return EP.states[x].name; }).sort();
+    var parts = full.map(function (r) { return r[0]; });
+    if (parts.length + rest.length <= 3) return parts.concat(rest).join(", ");
+    var shown = parts.concat(rest).slice(0, 2); return shown.join(", ") + " +" + (parts.length + rest.length - 2);
+  }
+  function anyChoice() { return (S.states || [S.state]).some(function (c) { return EP.states[c].retailChoice === true; }); }
+  /* the state with the middle rate anchors the per-question insights; the readout averages them all */
+  function setStates(codes) {
+    codes = codes.slice().sort(function (a, b) { return EP.states[a].rate - EP.states[b].rate; });
+    S.states = codes; S.state = codes[Math.floor((codes.length - 1) / 2)];
+    S.stateName = placeName();
+  }
+  function ratesInsight() {
+    var st = EP.states[S.state], nat = EP.national, rise = riseFor(S.state);
+    if (!multiState()) {
+      var rate = st.rate, diff = (rate / nat.rate12mo - 1) * 100, name = esc(st.name);
       var h = diff >= 3 ? "Commercial power in " + name + " already costs about " + Math.round(diff) + "% more than the national average."
         : diff <= -3 ? "Power in " + name + " is cheaper than average. That makes waste easy to ignore, and it still compounds."
         : "Commercial power in " + name + " runs close to the national average.";
       var p = (rise.local ? "And it's climbing: rates here rose " + rise.pct.toFixed(1) + "% in the last 12 months." : "And it's climbing: commercial rates rose " + rise.pct.toFixed(1) + "% nationally in the last year. Yours may vary.") +
         (st.retailChoice === true ? " Your state also lets businesses shop their supply rate, so I'll include that." : "");
-      respond(slot, { tag: "Your rates", h: h, p: p,
+      return { tag: "Your rates", h: h, p: p,
         viz: '<div class="fig"><span class="big metered" data-count="' + rate + '" data-fmt="cents">0¢</span><span class="vs">per kWh here vs ' + nat.rate12mo.toFixed(2) + '¢ national</span></div><div class="fig" style="margin-top:8px"><span class="big" style="font-size:30px" data-count="' + rise.pct + '" data-fmt="pct">0%</span><span class="vs">' + (rise.local ? "rate rise here, last 12 months" : "rate rise nationally, last 12 months") + '</span></div>',
-        src: "EIA commercial retail prices, 12 months to Aug 2026; national change Aug 2026 vs Aug 2025" }, function () { go(locations); }, quiet, false);
+        src: "EIA commercial retail prices, 12 months to Aug 2026; national change Aug 2026 vs Aug 2025" };
+    }
+    var c = S.states, lo = EP.states[c[0]], hi = EP.states[c[c.length - 1]];
+    var avg = c.reduce(function (t, x) { return t + EP.states[x].rate; }, 0) / c.length;
+    var choice = c.filter(function (x) { return EP.states[x].retailChoice === true; }).length;
+    if (nationwide()) return { tag: "Your rates", h: "Across the country, commercial power runs from " + lo.rate.toFixed(1) + "¢ in " + esc(lo.name) + " to " + hi.rate.toFixed(1) + "¢ in " + esc(hi.name) + ".",
+      p: "With " + esc(fac().units) + " everywhere, the fixes that pay back first are in your highest-rate states. And rates are climbing: commercial power rose " + EP.national.augYoY + "% nationally in the last year.",
+      viz: '<div class="fig"><span class="big metered" data-count="' + EP.national.rate12mo + '" data-fmt="cents">0¢</span><span class="vs">per kWh, national commercial average</span></div>',
+      src: "EIA commercial retail prices, 12 months to Aug 2026; we use the lower 48 states and DC, each weighted equally" };
+    return { tag: "Your rates", h: "Your " + esc(fac().units) + " pay anywhere from " + lo.rate.toFixed(1) + "¢ in " + esc(lo.name) + " to " + hi.rate.toFixed(1) + "¢ in " + esc(hi.name) + ".",
+      p: "The same fix pays back fastest where power costs the most, so that's usually where we start. And rates are climbing: commercial power rose " + EP.national.augYoY + "% nationally in the last year." +
+        (choice ? " " + (choice === c.length ? "All" : choice + " of") + " your states let businesses shop their supply rate, so I'll include that." : ""),
+      viz: '<div class="fig"><span class="big metered" data-count="' + avg + '" data-fmt="cents">0¢</span><span class="vs">per kWh, average of your ' + c.length + " states vs " + EP.national.rate12mo.toFixed(2) + "¢ national</span></div>",
+      src: "EIA commercial retail prices, 12 months to Aug 2026; each state weighted equally" };
+  }
+
+  function stateQ() {
+    if (S.locs === 1) return singleState();
+    var F = fac();
+    question({ step: 4, eyebrow: "Location", q: "Where are your " + F.units + "?",
+      opts: [["one", "All in one state"], ["multi", "In more than one state"], ["nation", "Nationwide"]],
+      chip: function () { return ""; },
+      pick: function (k) { S.spread = k; if (k === "nation") { setStates(LOWER48); S.ans.__state = "nation"; setChip("__state", "Nationwide"); } },
+      insight: function (k) { return k === "one" ? { redirect: singleState } : k === "multi" ? { redirect: pickStates } : ratesInsight(); },
+      next: statusQ });
+  }
+
+  function singleState() {
+    setProgress(4);
+    stage("listen");
+    var names = Object.keys(STATE_NAMES).sort(), quietNext = false;
+    var n = $('<section class="screen turn">' + ask(S.locs > 1 ? "Which state are they in?" : "Which state is it in?", "", "Location") + '<select class="state" id="stsel" aria-label="State"><option value="">Choose a state</option>' + names.map(function (s) { return "<option>" + esc(s) + "</option>"; }).join("") + '</select><div class="slot"></div></section>');
+    var sel = n.querySelector("#stsel"), slot = n.querySelector(".slot");
+    sel.addEventListener("change", function () {
+      var quiet = quietNext; quietNext = false;
+      if (!sel.value) return;
+      if (S.locs === 1) S.spread = "one"; setStates([STATE_NAMES[sel.value]]); S.ans.__state = sel.value; setChip("__state", sel.value);
+      respond(slot, ratesInsight(), function () { go(statusQ); }, quiet, false);
     });
     show(n);
-    if (S.stateName) setTimeout(function () { quietNext = true; sel.value = S.stateName; sel.dispatchEvent(new Event("change")); }, reduce ? 0 : 280);
+    if (S.states && S.states.length === 1) setTimeout(function () { quietNext = true; sel.value = EP.states[S.states[0]].name; sel.dispatchEvent(new Event("change")); }, reduce ? 0 : 280);
     else setTimeout(function () { sel.focus({ preventScroll: true }); }, 600);
+  }
+
+  /* a handful of states or a region: tap a region to take all of it, tap a state to add or remove it */
+  function pickStates() {
+    setProgress(4);
+    stage("listen");
+    var F = fac(), chosen = {};
+    if (multiState() && S.states.length < ALL_STATES.length) S.states.forEach(function (c) { chosen[c] = true; });
+    var html = '<section class="screen turn">' + ask("Which states are your " + esc(F.units) + " in?", "Tap a region to select all of it, then tap any state to add or remove it.", "Location") + '<div class="regions">' +
+      REGIONS.map(function (r, i) {
+        return '<div class="region"><button class="reg-h" type="button" data-r="' + i + '"><span>' + esc(r[0]) + '</span><span class="reg-all">Select all</span></button><div class="reg-states">' +
+          r[1].map(function (c) { return '<button class="st" type="button" data-c="' + c + '">' + esc(EP.states[c].name) + "</button>"; }).join("") + "</div></div>";
+      }).join("") + '</div><div class="next done-row"><span class="picked mono" id="picked"></span><button class="btn" id="st-go" disabled>Done <span class="ar">&rarr;</span></button></div><button class="link change" type="button" hidden>Change my answer</button><div class="slot"></div></section>';
+    var node = $(html), box = node.querySelector(".regions"), goB = node.querySelector("#st-go"), row = node.querySelector(".done-row"), slot = node.querySelector(".slot"), change = node.querySelector(".change"), cnt = node.querySelector("#picked");
+    function list() { return Object.keys(chosen).filter(function (c) { return chosen[c]; }); }
+    function paint() {
+      box.querySelectorAll(".st").forEach(function (b) { b.classList.toggle("on", !!chosen[b.dataset.c]); });
+      box.querySelectorAll(".reg-h").forEach(function (h) { var r = REGIONS[h.dataset.r][1], all = r.every(function (c) { return chosen[c]; }); h.classList.toggle("on", all); h.querySelector(".reg-all").textContent = all ? "Clear" : "Select all"; });
+      var n = list().length; cnt.textContent = n ? n + (n === 1 ? " state" : " states") : ""; goB.disabled = n < 2;
+    }
+    box.addEventListener("click", function (e) {
+      if (box.classList.contains("answered")) return;
+      var h = e.target.closest(".reg-h"), b = e.target.closest(".st");
+      if (h) { var r = REGIONS[h.dataset.r][1], all = r.every(function (c) { return chosen[c]; }); r.forEach(function (c) { chosen[c] = !all; }); }
+      else if (b) chosen[b.dataset.c] = !chosen[b.dataset.c];
+      paint();
+    });
+    function finish(codes, quiet) {
+      setStates(codes); S.ans.__state = codes.join(","); setChip("__state", placeChip());
+      box.classList.add("answered"); row.hidden = true; change.hidden = false;
+      respond(slot, ratesInsight(), function () { go(statusQ); }, quiet, false);
+    }
+    change.addEventListener("click", function () { box.classList.remove("answered"); row.hidden = false; change.hidden = true; slot.innerHTML = ""; stage("listen"); });
+    goB.addEventListener("click", function () { finish(list(), false); });
+    paint(); show(node);
+    if (list().length > 1 && S.spread === "multi") setTimeout(function () { finish(list(), true); }, reduce ? 0 : 280);
   }
 
   function locations() {
     var F = fac();
-    question({ step: 4, eyebrow: "Footprint", q: "How many " + F.units + "?", opts: [["1", "1"], ["3", "2 to 5"], ["12", "6 to 20"], ["35", "21 to 50"], ["75", "50+"]], chip: function (k, l) { return l + " " + (k === "1" ? F.unit : F.units); },
+    question({ step: 3, eyebrow: "Footprint", q: "How many " + F.units + "?", opts: [["1", "1"], ["3", "2 to 5"], ["12", "6 to 20"], ["35", "21 to 50"], ["75", "50+"]], chip: function (k, l) { return l + " " + (k === "1" ? F.unit : F.units); },
       pick: function (k) { S.locs = parseInt(k, 10); S.locLabel = { "1": "1", "3": "2 to 5", "12": "6 to 20", "35": "21 to 50", "75": "50+" }[k]; },
-      insight: function () { return { redirect: statusQ }; },
-      next: statusQ });
+      insight: function () { return { redirect: stateQ }; },
+      next: stateQ });
   }
 
   function riseFor(state) {
@@ -437,10 +543,10 @@
 
   /* what they've already done, so we don't count savings they already have */
   function doneQ() {
-    var F = fac(), st = EP.states[S.state];
+    var F = fac();
     var opts = [["battery", "Battery storage"], ["solar", "Solar panels"], ["controls", "Smart controls or an energy management system"]];
     if (engFac().refrigShare) opts.push(["refrig", "Refrigeration upgrades in the last 5 years"]);
-    if (st.retailChoice === true) opts.push(["supply", "A locked-in supply contract or energy broker"]);
+    if (anyChoice()) opts.push(["supply", "A locked-in supply contract or energy broker"]);
     opts.push(["led", "LED lighting"], ["none", "None of these"]);
     var LABEL = {}; opts.forEach(function (o) { LABEL[o[0]] = o[1]; });
     setProgress(7 + S.path.length);
@@ -488,7 +594,7 @@
     n.querySelector("#p-go").addEventListener("click", function () {
       var nm = n.querySelector("#p-name").value.trim(), ph = n.querySelector("#p-phone").value.replace(/\D/g, "");
       if (ph.length < 10) { n.querySelector("#p-err").textContent = "Enter a 10-digit mobile number so we can reach you."; return; }
-      sendLead({ kind: "planning (not built yet)", name: nm, phone: ph, role: S.role, facility: F.label, state: S.stateName, locations: S.locLabel });
+      sendLead({ kind: "planning (not built yet)", name: nm, phone: ph, role: S.role, facility: F.label, state: S.stateName, states: (S.states || []).join(" "), locations: S.locLabel });
       n.querySelector("#p-err").textContent = ""; n.querySelector("#p-go").textContent = "Thanks, we'll be in touch"; n.querySelector("#p-go").disabled = true;
       stage("verify");
     });
@@ -531,19 +637,32 @@
   }
 
   /* ---------- math ---------- */
-  function compute() {
-    return ENG.compute({ state: S.state, utility: null, facility: engKey(), billMonthly: S.monthsOpen ? S.monthly * S.monthsOpen / 12 : S.monthly, season: S.monthsOpen ? "avg" : S.season, heat: "unknown", done: S.done || {},
+  function computeOne(code) {
+    return ENG.compute({ state: code, utility: null, facility: engKey(), billMonthly: S.monthsOpen ? S.monthly * S.monthsOpen / 12 : S.monthly, season: S.monthsOpen ? "avg" : S.season, heat: "unknown", done: S.done || {},
       hoursWeek: S.hours || null, occupancy: S.occupancy || "typical", locations: S.locs,
       nudges: { age: S.age != null ? S.age : null, sqft: S.sqft != null ? S.sqft : null },
       refrigRange: S.refrigRange || null, loadShape: S.loadShape || null });
   }
+  function avgDeep(list) {
+    var a = list[0];
+    if (typeof a === "number") return list.reduce(function (t, x) { return t + x; }, 0) / list.length;
+    if (Array.isArray(a)) return a.map(function (_, i) { return avgDeep(list.map(function (x) { return x[i]; })); });
+    if (a && typeof a === "object") { var o = {}; Object.keys(a).forEach(function (k) { o[k] = (k === "flags" || typeof a[k] === "string" || typeof a[k] === "boolean" || a[k] == null) ? a[k] : avgDeep(list.map(function (x) { return x[k]; })); }); return o; }
+    return a;
+  }
+  /* several states: run the building in each one and average, every state weighted equally */
+  function compute() {
+    if (!multiState()) return computeOne(S.state);
+    return avgDeep(S.states.map(computeOne));
+  }
+
   function findings(r) {
     var f = Object.keys(S.pf).map(function (k) { return S.pf[k]; });
     if (S.loadShape === "peaky") f.push(["A summer peak is pricing your whole month", "Everything peaks together on hot afternoons and sets the demand charge."]);
     if (S.cases && S.cases !== "door") f.push(["Your HVAC and refrigeration are fighting each other", "Open cases spill cold into the space and the HVAC pays to reheat it."]);
     if (S.age != null && S.age >= 10) f.push(["Equipment past 10 years old", "Coils have lost about " + Math.round(ENG.lossByAge(S.age) * 100) + "% of their performance, and emergency calls start stacking up."]);
     f.push(["Dirty power on every circuit", "Electronics and drives create distortion that inflates the bill and wears every motor."]);
-    if (EP.states[S.state].retailChoice === true) f.push(["Your supply rate is negotiable", "Your state lets businesses shop supply without changing utilities."]);
+    if (anyChoice()) f.push(["Your supply rate is negotiable", multiState() ? "Some of your states let businesses shop supply without changing utilities." : "Your state lets businesses shop supply without changing utilities."]);
     return f.slice(0, 3);
   }
   function rng(r) { return kmoney(r[0]) + " to " + kmoney(r[1]); }
@@ -551,7 +670,7 @@
   /* a short working beat: Watt reads the answers before the readout */
   function working(done) {
     stage("work");
-    var n = $('<section class="screen turn">' + ask("Give me a second.", "I&rsquo;m reading your answers against " + esc(S.stateName || "your state") + "&rsquo;s rates and demand charges, and matching your " + esc(fac().units) + " to the fixes that pay back first.") + '<div class="bubble say typing slow" aria-hidden="true"><i></i><i></i><i></i></div></section>');
+    var n = $('<section class="screen turn">' + ask("Give me a second.", "I&rsquo;m reading your answers against " + placePoss() + " rates and demand charges, and matching your " + esc(fac().units) + " to the fixes that pay back first.") + '<div class="bubble say typing slow" aria-hidden="true"><i></i><i></i><i></i></div></section>');
     show(n);
     setTimeout(done, reduce ? 400 : 2400);
   }
@@ -567,15 +686,15 @@
     var blocks = {
       where: '<div class="blk"><h2>Where the savings come from</h2>' + buckets + "</div>",
       findings: '<div class="blk"><h2>Top findings for your ' + esc(F.units) + '</h2><ol class="finds">' + fs.map(function (x, i) { return '<li style="animation-delay:' + (i * 120 + 300) + 'ms"><span class="n">' + String(i + 1).padStart(2, "0") + "</span><span><strong>" + esc(x[0]) + "</strong>" + esc(x[1]) + "</span></li>"; }).join("") + "</ol></div>",
-      nothing: '<div class="blk"><h2>The cost of waiting</h2><div class="kv"><div><span>Electricity spend, next 10 years</span><b>' + kmoney(annualAll * ENG.escalationFactor(r.escRate, 10)) + "</b></div><div><span>Rate increase we used</span><b>" + escPct + "% / yr</b></div><div><span>Savings left on the table</span><b>" + kmoney(r.typical * ENG.escalationFactor(r.escRate, 10)) + '</b></div></div><p class="sub" style="margin-top:12px">We used a conservative ' + escPct + "% a year for " + esc(S.stateName) + ". " + (riseFor(S.state).local ? "Rates here actually rose " + riseFor(S.state).pct.toFixed(1) + "% in the last 12 months." : "Commercial rates actually rose " + EP.national.augYoY + "% nationally in the last year.") + "</p></div>",
+      nothing: '<div class="blk"><h2>The cost of waiting</h2><div class="kv"><div><span>Electricity spend, next 10 years</span><b>' + kmoney(annualAll * ENG.escalationFactor(r.escRate, 10)) + "</b></div><div><span>Rate increase we used</span><b>" + escPct + "% / yr</b></div><div><span>Savings left on the table</span><b>" + kmoney(r.typical * ENG.escalationFactor(r.escRate, 10)) + '</b></div></div><p class="sub" style="margin-top:12px">We used a conservative ' + escPct + "% a year for " + esc(placeName()) + ". " + (riseFor(S.state).local && !multiState() ? "Rates here actually rose " + riseFor(S.state).pct.toFixed(1) + "% in the last 12 months." : "Commercial rates actually rose " + EP.national.augYoY + "% nationally in the last year.") + "</p></div>",
       beyond: '<div class="blk"><h2>Beyond the bill</h2><div class="kv"><div><span>Maintenance cost</span><b>up to 40% lower</b></div><div><span>Added equipment life</span><b>5 to 15 years</b></div>' + (multi ? "<div><span>Per " + esc(F.unit) + ", typical</span><b>" + kmoney(typ / L) + "/yr</b></div>" : "") + '</div><p class="sub" style="margin-top:14px">And it&rsquo;s paid from the savings: projects are structured to be cash flow positive from day one where the numbers support it. We walk through the structure on the call.</p></div>',
     };
     var order = { owner: ["findings", "where", "nothing", "beyond"], fm: ["beyond", "findings", "where", "nothing"], cfo: ["nothing", "where", "findings", "beyond"], pm: ["beyond", "where", "nothing", "findings"], multi: ["where", "findings", "nothing", "beyond"] }[S.role] || ["findings", "where", "nothing", "beyond"];
     var smsBody = "Hi Dan, " + S.name + " here. I just ran the Energy Plus diagnostic: " + F.label + ", " + S.locLabel + " " + (L === 1 ? F.unit : F.units) + " in " + S.stateName + ", about " + kmoney(S.monthly) + "/mo each. It estimated " + kmoney(lo) + " to " + kmoney(hi) + "/yr in savings. Let's talk.";
     var assumptions = [
       S.monthsOpen && !S.estimated ? "Your bill is a typical month when you're open, counted across your open months." : S.estimated ? "Your bill was estimated from a typical " + esc(F.unit) + " size and " + esc(F.label.split(" /")[0].toLowerCase()) + " energy benchmarks." : "Your bill uses the middle of the range you picked, adjusted for the season.",
-      esc(S.stateName) + " commercial average rate, not your utility's exact tariff.",
-      "Demand charge of about " + Math.round(demandShareFor(S.monthly) * 100) + "% of the bill, from the demand rates of " + esc(S.stateName) + "&rsquo;s largest utilities.",
+      multiState() ? (nationwide() ? "Average commercial rate across the lower 48 states and DC, each weighted equally." : "Average commercial rate across your " + S.states.length + " states, each weighted equally, not your utilities' exact tariffs.") : esc(S.stateName) + " commercial average rate, not your utility's exact tariff.",
+      "Demand charge of about " + Math.round(demandShareFor(S.monthly) * 100) + "% of the bill, from the demand rates of " + placePoss() + " largest utilities.",
       S.age == null ? "Equipment age assumed at 10 years." : S.ageKey === "new" ? "Equipment treated as new, since the building opened in the last year." : "Equipment age as you described it.",
       S.monthsOpen ? "Counted " + S.monthsOpen + " open months a year." : "",
       S.done && Object.keys(S.done).length ? "Left out savings from upgrades you already have." : "",
@@ -592,7 +711,7 @@
     show(n);
     var tenTyp = r.typical * ENG.escalationFactor(r.escRate, 10);
     setTimeout(function () { countUp(document.getElementById("lo"), lo, kmoney, 1600); countUp(document.getElementById("hi"), hi, kmoney, 1900); countUp(document.getElementById("typ"), typ, kmoney, 1900); countUp(document.getElementById("ten"), tenTyp, kmoney, 2200); }, reduce ? 0 : 420);
-    sendLead({ kind: S.leadSent ? "diagnostic, updated answers" : "diagnostic", name: S.name, phone: S.phone, role: S.role, facility: F.label, state: S.stateName, locations: S.locLabel,
+    sendLead({ kind: S.leadSent ? "diagnostic, updated answers" : "diagnostic", name: S.name, phone: S.phone, role: S.role, facility: F.label, state: S.stateName, states: (S.states || []).join(" "), locations: S.locLabel,
       monthly_bill_each: S.monthly, bill_estimated: !!S.estimated, season: S.season, age: S.ageKey || "", summer: S.summer || "",
       status: S.status || "", months_open: S.monthsOpen || "", already_done: Object.keys(S.done || {}).join(", "), answers: JSON.stringify(S.answersLog || {}), savings_low: Math.round(lo), savings_high: Math.round(hi), savings_typical: Math.round(typ), ten_year_typical: Math.round(tenTyp) });
   }

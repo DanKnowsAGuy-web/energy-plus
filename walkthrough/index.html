@@ -246,6 +246,20 @@ select.state{font-size:20px;padding:16px}
 .turn .done-row{justify-content:flex-end}
 .turn .done-row[hidden]{display:none}
 .btn[disabled]{opacity:.4;cursor:default}
+/* region picker: tap a region for all its states, tap a state to add or remove */
+.regions{display:grid;gap:12px;margin-top:20px}
+.region{background:var(--card);border:1px solid var(--rule);border-radius:16px;padding:14px}
+.reg-h{display:flex;width:100%;justify-content:space-between;align-items:center;background:none;border:0;padding:4px 4px 10px;cursor:pointer;font-size:20px;font-weight:700;color:var(--ink);font-stretch:108%}
+.reg-all{font-family:var(--f-mono);font-size:15px;font-weight:500;color:var(--petrol-2);border:1px solid var(--rule);border-radius:999px;padding:6px 12px}
+.reg-h.on .reg-all{background:var(--petrol);border-color:var(--petrol);color:#fff}
+.reg-states{display:flex;flex-wrap:wrap;gap:8px}
+.st{font-size:17px;padding:9px 14px;border-radius:999px;border:1px solid var(--rule);background:var(--paper);color:var(--ink);cursor:pointer}
+.st.on{background:var(--petrol);border-color:var(--petrol);color:#fff}
+.regions.answered .st:not(.on){display:none}
+.regions.answered .reg-all{display:none}
+.regions.answered .region:not(:has(.st.on)){display:none}
+.picked{margin-right:auto;font-size:16px;color:var(--faint);align-self:center}
+.done-row{position:sticky;bottom:96px;background:color-mix(in srgb,var(--paper) 90%,transparent);padding:10px 0;z-index:3}
 .turn .opts.multi.answered .opt.chosen{background:var(--petrol);border-color:var(--petrol);color:#fff}
 .turn .opts.multi.answered .opt.chosen::after{content:none}
 .turn select.state{border-radius:16px;margin-top:20px}
@@ -290,9 +304,9 @@ html:has(body.has-profile){scroll-padding-bottom:120px}
   <main id="app" aria-live="polite"></main>
 </div>
 <div class="profile" id="profile" hidden><div class="wrap"><span class="p-lbl">Your building</span><div class="chips" id="chips"></div></div></div>
-<script src="engine/constants.js?v=202611092330"></script>
-<script src="engine/engine.js?v=202611092330"></script>
-<script src="watt.js?v=202611092330"></script>
-<script src="app.js?v=202611092330"></script>
+<script src="engine/constants.js?v=202611100415"></script>
+<script src="engine/engine.js?v=202611100415"></script>
+<script src="watt.js?v=202611100415"></script>
+<script src="app.js?v=202611100415"></script>
 </body>
 </html>
