@@ -240,6 +240,14 @@ select.state{font-size:20px;padding:16px}
 .turn .opts.answered .opt.chosen .hint{color:#b9d0d4}
 .turn .opts.answered .opt.chosen::after{content:none}
 .turn .change{align-self:flex-end;margin-top:8px;font-size:16px}
+.turn .opts.multi .opt.chosen{background:var(--sel);border-color:var(--petrol-2)}
+.turn .opts.multi .opt.chosen::after{content:"\2713";font-family:var(--f-mono);color:var(--petrol-2);margin-left:10px}
+.turn .opts.answered{flex-wrap:wrap;gap:8px}
+.turn .done-row{justify-content:flex-end}
+.turn .done-row[hidden]{display:none}
+.btn[disabled]{opacity:.4;cursor:default}
+.turn .opts.multi.answered .opt.chosen{background:var(--petrol);border-color:var(--petrol);color:#fff}
+.turn .opts.multi.answered .opt.chosen::after{content:none}
 .turn select.state{border-radius:16px;margin-top:20px}
 .turn .next{margin-top:20px}
 .turn .next.start{justify-content:center;margin-top:26px}
@@ -282,9 +290,9 @@ html:has(body.has-profile){scroll-padding-bottom:120px}
   <main id="app" aria-live="polite"></main>
 </div>
 <div class="profile" id="profile" hidden><div class="wrap"><span class="p-lbl">Your building</span><div class="chips" id="chips"></div></div></div>
-<script src="engine/constants.js?v=202611092239"></script>
-<script src="engine/engine.js?v=202611092239"></script>
-<script src="watt.js?v=202611092239"></script>
-<script src="app.js?v=202611092239"></script>
+<script src="engine/constants.js?v=202611092330"></script>
+<script src="engine/engine.js?v=202611092330"></script>
+<script src="watt.js?v=202611092330"></script>
+<script src="app.js?v=202611092330"></script>
 </body>
 </html>

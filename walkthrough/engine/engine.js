@@ -70,6 +70,7 @@
     const fac = C.facilities[input.facility];
     const util = input.utility || null;
     const n = input.nudges || {};
+    const done = input.done || {}; // walkthrough: upgrades they already have; we don't count those savings twice
     const locations = Math.max(1, input.locations || 1);
     // optional lines: off unless the buyer turns them on in "How we got this"
     const L = Object.assign({ heating: false, lighting: false, ventilation: false, motors: false, refrigeration: true, harmonization: true }, input.lines || {});
@@ -147,7 +148,7 @@
     const loss = lossByAge(age);
     const antifouling = [cooling$ * loss, cooling$ * loss];
     const remainder = cooling$ * (1 - loss);
-    const optimizer = R.mul(S.optimizer.standalone, remainder * S.optimizer.stackedFactor);
+    const optimizer = R.mul(S.optimizer.standalone, remainder * S.optimizer.stackedFactor * (done.controls ? 0.5 : 1));
     let compressor = R.sum([antifouling, optimizer]);
     compressor = R.cap(compressor, cooling$ * S.compressorCeiling);
 
@@ -168,7 +169,7 @@
     const lighting = L.lighting ? lightingAll : [0, 0];
     const harmonAll = R.mul(S.harmonization.kwh, annual);
     const harmon = L.harmonization ? harmonAll : [0, 0];
-    const refrigAll = R.mul(input.refrigRange || [0.05, 0.12], refrig$); // walkthrough: case setup positions this inside 5 to 12% // refrigeration tuning, conservative, grade C
+    const refrigAll = R.mul(input.refrigRange || [0.05, 0.12], refrig$ * (done.refrig ? 0.5 : 1)); // walkthrough: case setup positions this inside 5 to 12% // refrigeration tuning, conservative, grade C
     const refrigTune = (L.refrigeration && refrig$ > 0) ? refrigAll : [0, 0];
 
     let equipment = R.sum([compressor, ventilation, motors, heating, lighting, refrigTune, harmon]);
@@ -184,7 +185,7 @@
     const stagingApplies = (fac.motorShare || 0) >= 0.3;
     const staging = stagingApplies ? [demandPool * S.demand.stagingFloor, demandPool * S.demand.stagingFloor] : [0, 0];
     const flat = input.loadShape === 'peaky' ? false : input.loadShape === 'flat' ? true : isFlat(fac, hoursWeek); // walkthrough: the summer-bill answer overrides
-    const battery = R.mul(flat ? S.demand.batteryFlat : S.demand.batteryPeaky, demandPool - staging[0]);
+    const battery = done.battery ? [0, 0] : R.mul(flat ? S.demand.batteryFlat : S.demand.batteryPeaky, demandPool - staging[0]);
     let peak = R.sum([staging, battery]);
     const ratchet = util && util.ratchet ? util.ratchet : 0;
     peak = R.cap(peak, demandPool * (1 - ratchet));
@@ -193,7 +194,8 @@
     /* ---------- Brokering ---------- */
     let brokering = [0, 0];
     let brokeringReason = 'noChoice';
-    if (st.retailChoice === true) {
+    if (st.retailChoice === true && done.supply) brokeringReason = 'contracted';
+    else if (st.retailChoice === true) {
       brokering = R.mul(S.brokering.range, products.supply);
       brokeringReason = st.publicBoard ? 'board' : 'choice';
     } else if (st.retailChoice === 'capped') brokeringReason = 'capped';

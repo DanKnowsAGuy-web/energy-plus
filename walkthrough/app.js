@@ -7,7 +7,7 @@
   var PHONE_DISPLAY = "864-777-0688", PHONE_E164 = "+18647770688";
   var BOOK_URL = "https://book.slashyourenergycost.com/";
   var LEAD_ENDPOINT = "https://formsubmit.co/ajax/dan@danknowsaguy.org";
-  var QUALIFY_MONTHLY = 20000;
+  var QUALIFY_MONTHLY = 10000;
 
   /* ---------- shared path questions ---------- */
   var AGE = {
@@ -303,7 +303,7 @@
       opts: FAC_ORDER.map(function (k) { return [k, FAC[k].label]; }), preselect: S.preFac, chip: function (k) { return FAC[k].label.split(" /")[0]; },
       pick: function (k) {
         if (S.fac && S.fac !== k) { S.path.forEach(function (q) { if (q.id !== "age" && q.id !== "summer") delete S.ans[q.q]; }); S.pf = {}; ["cases", "refrigRange", "occupancy", "engOverride", "hours"].forEach(function (x) { delete S[x]; }); }
-        S.fac = k; S.path = FAC[k].path(); TOTAL = 6 + S.path.length + 1; },
+        S.fac = k; S.path = FAC[k].path(); TOTAL = 6 + S.path.length + 2; },
       insight: function () {
         var f = engFac(), sh = f.hvac.cooling + f.hvac.ventilation + f.hvac.heat;
         var rows = [];
@@ -352,8 +352,8 @@
     var F = fac();
     question({ step: 4, eyebrow: "Footprint", q: "How many " + F.units + "?", opts: [["1", "1"], ["3", "2 to 5"], ["12", "6 to 20"], ["35", "21 to 50"], ["75", "50+"]], chip: function (k, l) { return l + " " + (k === "1" ? F.unit : F.units); },
       pick: function (k) { S.locs = parseInt(k, 10); S.locLabel = { "1": "1", "3": "2 to 5", "12": "6 to 20", "35": "21 to 50", "75": "50+" }[k]; },
-      insight: function () { return { redirect: bill }; },
-      next: bill });
+      insight: function () { return { redirect: statusQ }; },
+      next: statusQ });
   }
 
   function riseFor(state) {
@@ -387,7 +387,7 @@
     var F = fac(), edges = engFac().billBands, opts = [];
     for (var i = 0; i < edges.length - 1; i++) opts.push([edges[i] + "-" + edges[i + 1], "$" + fmtK(edges[i]) + " to $" + fmtK(edges[i + 1])]);
     opts.push(["unk", "Not sure, help me estimate"]);
-    question({ step: 5, q: "What's a typical monthly electric bill for one " + F.unit + "?", sub: "A rough range is fine. We'll narrow it down next.", opts: opts, chip: function () { return ""; },
+    question({ step: 5, q: "What's a typical monthly electric bill for one " + F.unit + "?", sub: S.monthsOpen ? "Pick a typical month when you're open. A rough range is fine." : "A rough range is fine. We'll narrow it down next.", opts: opts, chip: function () { return ""; },
       pick: function (k) { if (k !== "unk") { var p = k.split("-"); S.band = [parseInt(p[0], 10), parseInt(p[1], 10)]; S.estimated = false; S.sqft = null; } },
       insight: function (k) { return k === "unk" ? { redirect: sizeQ } : { redirect: dial }; }, next: season });
   }
@@ -399,14 +399,14 @@
     opts.push([String(Math.round(Math.sqrt(lo * hi))), "Somewhere in that range"]);
     question({ step: 5, q: "Let's dial that in. Which is closest?", sub: "Between $" + fmtK(lo) + " and $" + fmtK(hi) + " a month.", opts: opts, chip: function (k) { return "About " + kmoney(parseInt(k, 10)) + "/mo per " + fac().unit; },
       pick: function (k) { S.monthly = parseInt(k, 10); },
-      insight: billInsight, next: season });
+      insight: billInsight, next: afterBill });
   }
   function sizeQ() {
     var F = fac();
     question({ step: 5, eyebrow: "Your bill", q: "How big is a typical " + F.unit + "?", sub: "We'll estimate the bill from benchmarks and say so.",
       opts: F.sizes.map(function (s, i) { return [String(i), s[0], s[1]]; }), chip: function (k, l) { return l + " " + F.unit + ", bill estimated"; },
       pick: function (k) { var s = F.sizes[parseInt(k, 10)]; S.sqft = s[2]; S.monthly = Math.round(s[2] * engFac().eui_kwh_sqft * EP.states[S.state].rate / 100 / 12); S.estimated = true; },
-      insight: billInsight, next: season });
+      insight: billInsight, next: afterBill });
   }
   function season() {
     question({ step: 6, eyebrow: "Your bill", q: "Which time of year was that bill from?", opts: [["summer", "Summer"], ["winter", "Winter"], ["mild", "Spring or fall"], ["avg", "Not sure"]], chip: function () { return ""; },
@@ -416,16 +416,96 @@
       next: function () { pathStep(0); } });
   }
 
+
+  /* is it open year-round, seasonal, brand new, or not built yet? */
+  function statusQ() {
+    var F = fac();
+    question({ step: 4, eyebrow: "Your " + F.units, q: "Which best describes your " + (S.locs > 1 ? F.units : F.unit) + "?",
+      opts: [["year", "Open year-round"], ["seasonal", "Seasonal, closed part of the year"], ["new", "Opened in the last year"], ["planning", "Not built yet, still planning"]],
+      chip: function (k, l) { return k === "year" ? "" : l; },
+      pick: function (k) { S.status = k; if (k !== "seasonal") { delete S.monthsOpen; delete S.ans["__months"]; } if (k === "new") { S.age = 1; S.ageKey = "new"; } else if (S.ageKey === "new") { S.age = null; S.ageKey = null; } },
+      insight: function (k) { return { redirect: k === "seasonal" ? monthsQ : k === "planning" ? planning : bill }; }, next: bill });
+  }
+  function monthsQ() {
+    question({ step: 4, eyebrow: "Season", q: "About how many months a year are you open?", opts: [["4", "3 to 5 months"], ["7", "6 to 8 months"], ["10", "9 to 11 months"]],
+      chip: function (k, l) { return "Open " + l; },
+      pick: function (k) { S.monthsOpen = parseInt(k, 10); },
+      insight: function (k) { return { tag: "Your season", h: "Then the savings are packed into fewer months.", p: "A seasonal building runs hard while it's open, so peaks and wear stack up faster. I'll count only the months you're open, plus what sits idle while you're closed.", src: "We scale the year to " + k + " open months." }; },
+      next: bill });
+  }
+  function afterBill() { if (S.monthsOpen) { S.season = "avg"; pathStep(0); } else season(); }
+
+  /* what they've already done, so we don't count savings they already have */
+  function doneQ() {
+    var F = fac(), st = EP.states[S.state];
+    var opts = [["battery", "Battery storage"], ["solar", "Solar panels"], ["controls", "Smart controls or an energy management system"]];
+    if (engFac().refrigShare) opts.push(["refrig", "Refrigeration upgrades in the last 5 years"]);
+    if (st.retailChoice === true) opts.push(["supply", "A locked-in supply contract or energy broker"]);
+    opts.push(["led", "LED lighting"], ["none", "None of these"]);
+    var LABEL = {}; opts.forEach(function (o) { LABEL[o[0]] = o[1]; });
+    setProgress(7 + S.path.length);
+    stage("listen");
+    var q = "What have you already upgraded?";
+    var node = $('<section class="screen turn">' + ask(q, "Tap all that apply, then Done. I&rsquo;ll leave out anything you already have.", "Already done") +
+      '<div class="opts multi">' + opts.map(function (o) { return '<button class="opt" data-k="' + o[0] + '"><span>' + esc(o[1]) + "</span></button>"; }).join("") +
+      '</div><div class="next done-row"><button class="btn" id="done-go" disabled>Done <span class="ar">&rarr;</span></button></div><button class="link change" type="button" hidden>Change my answer</button><div class="slot"></div></section>');
+    var box = node.querySelector(".opts"), go_ = node.querySelector("#done-go"), row = node.querySelector(".done-row"), slot = node.querySelector(".slot"), change = node.querySelector(".change");
+    function picked() { return Array.prototype.map.call(box.querySelectorAll(".opt.chosen"), function (b) { return b.dataset.k; }); }
+    box.addEventListener("click", function (e) {
+      var b = e.target.closest(".opt"); if (!b || box.classList.contains("answered")) return;
+      if (b.dataset.k === "none") box.querySelectorAll(".opt").forEach(function (x) { if (x !== b) x.classList.remove("chosen"); });
+      else { var nb = box.querySelector('[data-k="none"]'); if (nb) nb.classList.remove("chosen"); }
+      b.classList.toggle("chosen");
+      go_.disabled = !picked().length;
+    });
+    change.addEventListener("click", function () { box.classList.remove("answered"); row.hidden = false; change.hidden = true; slot.innerHTML = ""; stage("listen"); });
+    function finish(keys, quiet) {
+      box.querySelectorAll(".opt").forEach(function (x) { x.classList.toggle("chosen", keys.indexOf(x.dataset.k) >= 0); });
+      box.classList.add("answered"); row.hidden = true; change.hidden = false;
+      S.done = {}; keys.forEach(function (k) { if (k !== "none") S.done[k] = true; });
+      S.ans[q] = keys.join(",");
+      var names = keys.filter(function (k) { return k !== "none"; }).map(function (k) { return LABEL[k]; });
+      setChip(q, names.length ? "Already has: " + names.join(", ") : "No upgrades yet");
+      var counted = ["battery", "controls", "refrig", "supply"].filter(function (k) { return S.done[k]; });
+      var res;
+      if (!names.length) res = { tag: "Already done", h: "Then everything I found is still on the table.", p: "Nothing in your number overlaps with work you've already paid for." };
+      else res = { tag: "Already done", h: counted.length ? "Good. I took those out of your number so I'm not counting savings you already have." : "Good to know. Those already show up in the bill you gave me.",
+        p: (S.done.solar || S.done.led ? "Solar and LED lower your bill, and the bill you gave already reflects them. " : "") + (counted.length ? "What's left is the work your current upgrades don't cover." : "None of them overlap with the fixes in your number.") };
+      respond(slot, res, function () { go(capture); }, quiet, false);
+    }
+    go_.addEventListener("click", function () { finish(picked(), false); });
+    show(node);
+    if (S.ans[q]) setTimeout(function () { finish(S.ans[q].split(","), true); }, reduce ? 0 : 280);
+  }
+
+  /* not built yet: no bill to read, so the conversation is about design, not a number */
+  function planning() {
+    setProgress(TOTAL, "");
+    stage("found");
+    var F = fac();
+    var n = $('<section class="screen turn">' + ask("The cheapest savings are the ones designed in.", "Before equipment is specced is the best time to talk. A " + esc(F.unit) + " built right from day one avoids the overspend I&rsquo;d otherwise be finding in five years. Leave your name and number and an Energy Plus engineer will reach out about your plans.") +
+      '<div class="field"><label for="p-name">First name</label><input id="p-name" autocomplete="given-name"></div><div class="field"><label for="p-phone">Mobile</label><input id="p-phone" type="tel" inputmode="tel" autocomplete="tel"></div><div class="err" id="p-err"></div><div class="next"><button class="btn" id="p-go">Talk to an engineer <span class="ar">&rarr;</span></button></div></section>');
+    n.querySelector("#p-go").addEventListener("click", function () {
+      var nm = n.querySelector("#p-name").value.trim(), ph = n.querySelector("#p-phone").value.replace(/\D/g, "");
+      if (ph.length < 10) { n.querySelector("#p-err").textContent = "Enter a 10-digit mobile number so we can reach you."; return; }
+      sendLead({ kind: "planning (not built yet)", name: nm, phone: ph, role: S.role, facility: F.label, state: S.stateName, locations: S.locLabel });
+      n.querySelector("#p-err").textContent = ""; n.querySelector("#p-go").textContent = "Thanks, we'll be in touch"; n.querySelector("#p-go").disabled = true;
+      stage("verify");
+    });
+    show(n);
+  }
+
   function pathStep(i) {
-    if (i >= S.path.length) return capture();
+    if (i >= S.path.length) return doneQ();
     var q = S.path[i];
+    if (q.id === "age" && S.status === "new") return pathStep(i + 1);
     question({ step: 7 + i, eyebrow: q.eyebrow, q: q.q, sub: q.sub, opts: q.opts, pick: q.pick, insight: q.insight, next: function () { pathStep(i + 1); } });
   }
 
   function under() {
     stage("listen");
     setProgress(TOTAL, "");
-    var n = $('<section class="screen turn">' + ask("Our full program is built for portfolios spending $20K or more a month.", "I don&rsquo;t want to waste your time with a pitch that doesn&rsquo;t fit. Leave your number and we&rsquo;ll reach out as we roll out options sized for you.") + '<div class="field"><label for="u-name">First name</label><input id="u-name" autocomplete="given-name"></div><div class="field"><label for="u-phone">Mobile</label><input id="u-phone" type="tel" inputmode="tel" autocomplete="tel"></div><div class="err" id="u-err"></div><div class="next" style="justify-content:space-between"><button class="link" id="restart">Start over</button><button class="btn" id="u-go">Keep me posted</button></div></section>');
+    var n = $('<section class="screen turn">' + ask("Our full program is built for portfolios spending $10K or more a month.", "I don&rsquo;t want to waste your time with a pitch that doesn&rsquo;t fit. Leave your number and we&rsquo;ll reach out as we roll out options sized for you.") + '<div class="field"><label for="u-name">First name</label><input id="u-name" autocomplete="given-name"></div><div class="field"><label for="u-phone">Mobile</label><input id="u-phone" type="tel" inputmode="tel" autocomplete="tel"></div><div class="err" id="u-err"></div><div class="next" style="justify-content:space-between"><button class="link" id="restart">Start over</button><button class="btn" id="u-go">Keep me posted</button></div></section>');
     n.querySelector("#restart").addEventListener("click", function () { intro(); syncBack(); });
     n.querySelector("#u-go").addEventListener("click", function () {
       var nm = n.querySelector("#u-name").value.trim(), ph = n.querySelector("#u-phone").value.replace(/\D/g, "");
@@ -452,7 +532,7 @@
 
   /* ---------- math ---------- */
   function compute() {
-    return ENG.compute({ state: S.state, utility: null, facility: engKey(), billMonthly: S.monthly, season: S.season, heat: "unknown",
+    return ENG.compute({ state: S.state, utility: null, facility: engKey(), billMonthly: S.monthsOpen ? S.monthly * S.monthsOpen / 12 : S.monthly, season: S.monthsOpen ? "avg" : S.season, heat: "unknown", done: S.done || {},
       hoursWeek: S.hours || null, occupancy: S.occupancy || "typical", locations: S.locs,
       nudges: { age: S.age != null ? S.age : null, sqft: S.sqft != null ? S.sqft : null },
       refrigRange: S.refrigRange || null, loadShape: S.loadShape || null });
@@ -493,17 +573,19 @@
     var order = { owner: ["findings", "where", "nothing", "beyond"], fm: ["beyond", "findings", "where", "nothing"], cfo: ["nothing", "where", "findings", "beyond"], pm: ["beyond", "where", "nothing", "findings"], multi: ["where", "findings", "nothing", "beyond"] }[S.role] || ["findings", "where", "nothing", "beyond"];
     var smsBody = "Hi Dan, " + S.name + " here. I just ran the Energy Plus diagnostic: " + F.label + ", " + S.locLabel + " " + (L === 1 ? F.unit : F.units) + " in " + S.stateName + ", about " + kmoney(S.monthly) + "/mo each. It estimated " + kmoney(lo) + " to " + kmoney(hi) + "/yr in savings. Let's talk.";
     var assumptions = [
-      S.estimated ? "Your bill was estimated from a typical " + esc(F.unit) + " size and " + esc(F.label.split(" /")[0].toLowerCase()) + " energy benchmarks." : "Your bill uses the middle of the range you picked, adjusted for the season.",
+      S.monthsOpen && !S.estimated ? "Your bill is a typical month when you're open, counted across your open months." : S.estimated ? "Your bill was estimated from a typical " + esc(F.unit) + " size and " + esc(F.label.split(" /")[0].toLowerCase()) + " energy benchmarks." : "Your bill uses the middle of the range you picked, adjusted for the season.",
       esc(S.stateName) + " commercial average rate, not your utility's exact tariff.",
       "Demand charge of about " + Math.round(demandShareFor(S.monthly) * 100) + "% of the bill, from the demand rates of " + esc(S.stateName) + "&rsquo;s largest utilities.",
-      S.age == null ? "Equipment age assumed at 10 years." : "Equipment age as you described it.",
+      S.age == null ? "Equipment age assumed at 10 years." : S.ageKey === "new" ? "Equipment treated as new, since the building opened in the last year." : "Equipment age as you described it.",
+      S.monthsOpen ? "Counted " + S.monthsOpen + " open months a year." : "",
+      S.done && Object.keys(S.done).length ? "Left out savings from upgrades you already have." : "",
       "Savings use Energy Plus program ranges; your answers set where in the range you land. Typical is the middle of the range, not the top.",
       "This is an estimate. Your building sets your number, verified only by a site pilot."
     ];
     var n = $('<section class="screen readout">' + ask(esc(S.name) + ", here&rsquo;s what I found.", "Based on your answers. An engineer checks every number with you on a call.") + '<div class="panel"><div class="grat"></div><div class="in"><h2>Here&rsquo;s what your ' + esc(multi ? F.units : F.unit) + ' could save each year</h2><div class="range"><span id="lo">$0</span> to <span id="hi">$0</span></div><div class="per">per year &middot; ' + Math.round(r.perSite[0] / r.annual * 100) + " to " + Math.round(r.perSite[1] / r.annual * 100) + '% of your electric spend &middot; typical <span id="typ">$0</span></div><div class="ticks"><div><b id="ten">$0</b><span>10-year savings, typical</span></div><div><b>' + kmoney(annualAll) + "</b><span>annual electric spend" + (S.estimated ? ", est." : "") + "</span></div><div><b>" + escPct + "%</b><span>yearly rate climb used</span></div></div></div></div>" +
       '<div class="blocks">' + order.map(function (k) { return blocks[k]; }).join("") +
       '<div class="blk"><h2>Find out if these numbers hold for your ' + esc(F.units) + '</h2><p class="sub">A 15-minute call turns this estimate into a site-specific number. Text Dan directly.</p><div class="verify-row"><span id="w-ver"></span><p>An Energy Plus engineer checks every number with you before anything is installed.</p></div><div class="cta" style="margin-top:16px"><a class="btn" id="sms" href="sms:' + PHONE_E164 + "?body=" + encodeURIComponent(smsBody) + '">Text Dan <span class="ar">&rarr;</span></a><div class="num"><span>' + PHONE_DISPLAY + '</span><button class="copy" id="cp">Copy number</button></div><a class="link" href="' + bookUrl(r) + '" target="_blank" rel="noopener">Or book a call</a></div></div>' +
-      '<div class="blk assume"><h2 style="font-size:22px">How we estimated this</h2><ul>' + assumptions.map(function (a) { return "<li>" + a + "</li>"; }).join("") + '</ul><p style="margin-top:14px"><button class="link" id="again">Run another building</button></p></div></div></section>');
+      '<div class="blk assume"><h2 style="font-size:22px">How we estimated this</h2><ul>' + assumptions.filter(Boolean).map(function (a) { return "<li>" + a + "</li>"; }).join("") + '</ul><p style="margin-top:14px"><button class="link" id="again">Run another building</button></p></div></div></section>');
     n.querySelector("#cp").addEventListener("click", function (e) { var b = e.currentTarget; try { navigator.clipboard.writeText(PHONE_DISPLAY).then(function () { b.textContent = "Copied"; }, function () { b.textContent = PHONE_DISPLAY; }); } catch (_) { b.textContent = PHONE_DISPLAY; } });
     n.querySelector("#again").addEventListener("click", function () { intro(); syncBack(); });
     wattIn(n, "#w-ver", 56, { state: "verify", fixed: true });
@@ -512,7 +594,7 @@
     setTimeout(function () { countUp(document.getElementById("lo"), lo, kmoney, 1600); countUp(document.getElementById("hi"), hi, kmoney, 1900); countUp(document.getElementById("typ"), typ, kmoney, 1900); countUp(document.getElementById("ten"), tenTyp, kmoney, 2200); }, reduce ? 0 : 420);
     sendLead({ kind: S.leadSent ? "diagnostic, updated answers" : "diagnostic", name: S.name, phone: S.phone, role: S.role, facility: F.label, state: S.stateName, locations: S.locLabel,
       monthly_bill_each: S.monthly, bill_estimated: !!S.estimated, season: S.season, age: S.ageKey || "", summer: S.summer || "",
-      answers: JSON.stringify(S.answersLog || {}), savings_low: Math.round(lo), savings_high: Math.round(hi), savings_typical: Math.round(typ), ten_year_typical: Math.round(tenTyp) });
+      status: S.status || "", months_open: S.monthsOpen || "", already_done: Object.keys(S.done || {}).join(", "), answers: JSON.stringify(S.answersLog || {}), savings_low: Math.round(lo), savings_high: Math.round(hi), savings_typical: Math.round(typ), ten_year_typical: Math.round(tenTyp) });
   }
 
   /* Booking hand-off: carry the walkthrough answers to book.slashyourenergycost.com so the
