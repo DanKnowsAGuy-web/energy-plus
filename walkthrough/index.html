@@ -371,7 +371,8 @@ html:has(body.has-profile){scroll-padding-bottom:0}
 
 /* ---------- Watt in the conversation: above his message, like a messenger name line ---------- */
 .turn{display:flex;flex-direction:column;align-items:stretch}
-.turn > .opts.answered,.turn > .replypill,.turn > .change{align-self:flex-end}
+.turn > .replypill,.turn > .change{align-self:flex-end}
+.turn > .opts.answered{align-self:stretch}
 .reg-h{text-align:left;gap:12px}
 .reg-all{white-space:nowrap}
 .wattline{display:flex;align-items:center;gap:12px}
@@ -470,6 +471,37 @@ body.look-a .wattline{margin:0 0 10px}
 .vf-name{font-weight:700;color:var(--ink);font-size:19px;margin-top:2px!important}
 .vf-title{font-size:16px;color:var(--faint)}
 .vf-say{font-size:17px;line-height:1.45;margin-top:6px!important;color:var(--body)}
+
+/* replies texted in two parts; quiet one-liners */
+.bubble.say.cont{margin-top:8px;border-top-left-radius:18px}
+.bubble.say.quiet{padding:14px 18px}
+.bubble.say.quiet h3{font-size:20px;font-weight:600}
+/* why I'm asking */
+.whyask{display:inline-flex;align-items:center;gap:6px;margin-top:12px;background:none;border:0;padding:4px 0;font-family:var(--f-mono);font-size:15px;color:var(--petrol-2);cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.whyask[aria-expanded="true"]{text-decoration:none}
+.whytext{margin:6px 0 0;font-size:17px;line-height:1.45;color:var(--body);border-left:3px solid var(--rule);padding-left:12px}
+/* the dock row: Ask Watt on the left, the next step on the right */
+.drow{display:flex;align-items:center;gap:12px}
+.drow .act{flex:1;min-width:0}
+.askw{display:inline-flex;align-items:center;gap:8px;flex:0 0 auto;background:var(--card);border:1px solid var(--rule);border-radius:999px;padding:10px 16px 10px 10px;font-size:17px;font-weight:600;color:var(--ink);cursor:pointer}
+.askw-i{display:grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--petrol);color:#fff;font-family:var(--f-mono);font-size:15px}
+.asksheet{position:fixed;inset:0;z-index:20;background:rgba(16,20,22,.38);display:flex;align-items:flex-end}
+.ask-in{background:var(--paper);width:100%;border-radius:22px 22px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom,0px));display:grid;gap:10px;animation:rise .35s cubic-bezier(.2,.8,.2,1) both;max-width:none}
+.ask-h{margin:0 0 4px;font-weight:700;font-size:20px;color:var(--ink)}
+.ask-q{text-align:left;background:var(--card);border:1px solid var(--rule);border-radius:16px;padding:15px 18px;font-size:18px;color:var(--ink);cursor:pointer}
+.ask-q:hover{border-color:var(--petrol-2)}
+.ask-x{justify-self:center;margin-top:4px}
+.asked{display:flex;flex-direction:column;margin-top:14px}
+.asked .replypill{align-self:flex-end;font-size:18px;padding:12px 18px}
+/* buildings like theirs */
+.cmp{display:grid;gap:12px;margin-top:4px}
+.cmp-r{display:grid;grid-template-columns:minmax(0,1fr);gap:4px;font-size:16px;color:var(--body)}
+.cmp-r b{font-family:var(--f-mono);font-size:17px;color:var(--ink)}
+.cmp-b{height:12px;background:var(--rule);border-radius:6px;overflow:hidden}
+.cmp-b i{display:block;height:100%;background:var(--petrol-2);border-radius:6px;transform-origin:left;animation:cmpGrow .9s .2s cubic-bezier(.2,.8,.2,1) both}
+.cmp-r.typ .cmp-b i{background:var(--faint)}
+@keyframes cmpGrow{from{transform:scaleX(0)}}
+@media (max-width:460px){.askw{padding:10px 12px 10px 10px;font-size:16px}}
 </style>
 </head>
 <body>
@@ -484,13 +516,13 @@ body.look-a .wattline{margin:0 0 10px}
 <main id="app" class="wrap" aria-live="polite"></main>
 <div class="dock" id="dock">
   <div class="wrap">
-    <div class="act" id="act" hidden></div>
+    <div class="drow"><button class="askw" id="askw" type="button" aria-expanded="false"><span class="askw-i" aria-hidden="true">?</span>Ask Watt</button><div class="act" id="act" hidden></div></div>
     <div class="prof" id="profile" hidden><div class="chips" id="chips"></div></div>
   </div>
 </div>
-<script src="engine/constants.js?v=202611101610"></script>
-<script src="engine/engine.js?v=202611101610"></script>
-<script src="watt.js?v=202611101610"></script>
-<script src="app.js?v=202611101610"></script>
+<script src="engine/constants.js?v=202611101645"></script>
+<script src="engine/engine.js?v=202611101645"></script>
+<script src="watt.js?v=202611101645"></script>
+<script src="app.js?v=202611101645"></script>
 </body>
 </html>

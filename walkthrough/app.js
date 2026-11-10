@@ -200,7 +200,7 @@
   var actEl = document.getElementById("act"), dockEl = document.getElementById("dock"), topEl = document.getElementById("top");
   function syncDock() {
     if (!dockEl) return;
-    var empty = actEl.hidden;
+    var empty = false;
     if (empty) dockEl.setAttribute("data-empty", ""); else dockEl.removeAttribute("data-empty");
     var h = empty ? 0 : dockEl.offsetHeight;
     document.body.style.paddingBottom = (h + 28) + "px";
@@ -273,45 +273,170 @@
   function bars(rows) { return '<div class="bars">' + rows.map(function (r, i) { return '<div class="brow' + (i === 0 ? " lead" : "") + '"><span class="lbl">' + r[0] + '</span><span class="bt"><i data-w="' + r[1] + '"></i></span><span class="pv">' + r[1] + '%</span></div>'; }).join("") + "</div>"; }
 
   /* Watt's question bubble */
-  function ask(q, sub, eyebrow) {
-    return '<div class="bubble ask">' + (eyebrow ? '<p class="eyebrow">' + esc(eyebrow) + "</p>" : "") + "<h1>" + q + "</h1>" + (sub ? '<p class="sub">' + sub + "</p>" : "") + "</div>";
+  function ask(q, sub, eyebrow, whyKey) {
+    return '<div class="bubble ask">' + (eyebrow ? '<p class="eyebrow">' + esc(eyebrow) + "</p>" : "") + "<h1>" + q + "</h1>" + (sub ? '<p class="sub">' + sub + "</p>" : "") + (whyKey ? whyHtml(whyKey) : "") + "</div>";
   }
 
-  /* Watt's answer: what the reply means, with anything worth showing inside it */
-  function card(res, next, quiet) {
-    var c = $('<div class="bubble say">' + (res.tag ? '<p class="eyebrow">' + esc(res.tag) + "</p>" : "") + "<h3>" + res.h + "</h3>" + (res.p ? "<p>" + res.p + "</p>" : "") + (res.viz ? '<div class="shown">' + res.viz + "</div>" : "") + (res.src ? '<div class="src">' + esc(res.src) + "</div>" : "") + "</div>");
-    var nb = setAction("Next", next);
-    wireReplay(c);
+  /* Watt's reply, texted like a person: the headline first, then the detail in a second message.
+     Quiet replies are one short line and move on by themselves. */
+  function build(res) {
+    var b1 = $('<div class="bubble say' + (res.quiet ? " quiet" : "") + '">' + (res.tag && !res.quiet ? '<p class="eyebrow">' + esc(res.tag) + "</p>" : "") + "<h3>" + res.h + "</h3></div>");
+    var rest = (res.p ? "<p>" + res.p + "</p>" : "") + (res.viz ? '<div class="shown">' + res.viz + "</div>" : "") + (res.src ? '<div class="src">' + esc(res.src) + "</div>" : "");
+    var b2 = !res.quiet && rest ? $('<div class="bubble say cont">' + rest + "</div>") : null;
+    return [b1, b2];
+  }
+  function bring(b) {
+    wireReplay(b);
     setTimeout(function () {
-      fillBars(c);
-      c.querySelectorAll("[data-count]").forEach(function (el) { var v = parseFloat(el.dataset.count), f = el.dataset.fmt; countUp(el, v, f === "cents" ? function (x) { return x.toFixed(2) + "¢"; } : f === "pct" ? function (x) { return (x >= 0 ? "+" : "") + x.toFixed(1) + "%"; } : kmoney); });
-      if (!quiet) c.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "nearest" });
+      fillBars(b);
+      b.querySelectorAll("[data-count]").forEach(function (el) { var v = parseFloat(el.dataset.count), f = el.dataset.fmt; countUp(el, v, f === "cents" ? function (x) { return x.toFixed(2) + "¢"; } : f === "pct" ? function (x) { return (x >= 0 ? "+" : "") + x.toFixed(1) + "%"; } : kmoney); });
     }, 120);
-    if (!quiet) setTimeout(function () { nb.focus({ preventScroll: true }); }, 500);
-    return c;
   }
-
-  /* a beat of "thinking" before Watt answers; found = Watt lights up as the spark */
+  function typingBubble() { return $('<div class="bubble say typing" aria-label="Watt is typing"><i></i><i></i><i></i></div>'); }
   function respond(slot, res, next, quiet, found) {
     slot.innerHTML = "";
-    if (quiet || reduce) { stage(found ? "found" : "listen"); slot.appendChild(card(res, next, true)); return; }
-    var typing = $('<div class="bubble say typing" aria-label="Watt is thinking"><i></i><i></i><i></i></div>');
-    slot.appendChild(typing); clearAction(); setStatus(STATUS.work);
-    typing.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    res = remember(res);
+    var parts = build(res), b1 = parts[0], b2 = parts[1];
+    if (quiet || reduce) {
+      stage(found ? "found" : "listen");
+      slot.appendChild(b1); bring(b1); if (b2) { slot.appendChild(b2); bring(b2); }
+      setAction("Next", next);
+      if (res.quiet && !quiet) setTimeout(function () { if (b1.isConnected && slot.closest(".turn") === app.lastElementChild) next(); }, 1600);
+      return;
+    }
+    var t = typingBubble();
+    slot.appendChild(t); clearAction(); setStatus(STATUS.work);
+    t.scrollIntoView({ behavior: "smooth", block: "nearest" });
     if (window.Watt) Watt.blink();
     setTimeout(function () {
-      if (!typing.isConnected) return;
-      slot.innerHTML = "";
+      if (!t.isConnected) return;
+      slot.removeChild(t);
       stage(found ? "found" : "listen"); talk();
-      slot.appendChild(card(res, next, false));
+      slot.appendChild(b1); bring(b1);
+      b1.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      if (res.quiet) { setTimeout(function () { if (b1.isConnected && slot.closest(".turn") === app.lastElementChild) next(); }, 1500); return; }
+      if (!b2) { var nb = setAction("Next", next); setTimeout(function () { nb.focus({ preventScroll: true }); }, 400); return; }
+      var t2 = typingBubble(); slot.appendChild(t2);
+      setTimeout(function () {
+        if (!t2.isConnected) return;
+        slot.removeChild(t2); slot.appendChild(b2); bring(b2);
+        var nb2 = setAction("Next", next);
+        setTimeout(function () { b2.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "nearest" }); nb2.focus({ preventScroll: true }); }, 150);
+      }, 650);
     }, 750);
+  }
+
+  /* Watt remembers: he ties each new reply back to what they already told him */
+  function placeShort() { return multiState() ? placeName() : (S.state ? EP.states[S.state].name : ""); }
+  function remember(res) {
+    if (!res || res.quiet || res.remembered) return res;
+    var add = "", id = res.mem;
+    if (id === "age" && S.why === "equip") add = " You mentioned equipment keeps breaking down. This buildup is one of the most common reasons.";
+    else if (id === "age" && S.hours >= 160) add = " And since your " + esc(fac().units) + " run around the clock, that lost power costs you every hour of the day.";
+    else if (id === "summer" && (S.summer === "much" || S.summer === "little") && S.cases && S.cases !== "door") add = " Your open cases make it worse: on those afternoons, your AC is already fighting them.";
+    else if (id === "summer" && (S.summer === "much" || S.summer === "little") && S.locs > 1) add = " And it happens at all of your " + esc(fac().units) + " on the same hot days.";
+    else if (id === "cases" && S.locs > 1 && S.cases !== "door") add = " Across " + (S.locLabel || S.locs) + " " + esc(fac().units) + ", you&rsquo;re paying for that spill in every one of them.";
+    else if (id === "hours" && S.cases && S.cases !== "door") add = " Add the open cases you mentioned, and the AC and refrigeration fight each other all day long.";
+    else if (id === "hours" && S.age >= 10) add = " With equipment over 10 years old, every one of those hours costs more than it should.";
+    if (add) { res = Object.assign({}, res); res.p = (res.p || "") + add; res.remembered = true; }
+    return res;
+  }
+
+  /* "Why I'm asking": every question can explain itself */
+  var WHY_ASK = {
+    why: "So I know what to look hardest for, and what to put first in your report.",
+    facility: "Every kind of building wastes power in different places. This tells me where to look.",
+    locations: "Whatever I find in one, you probably have in all of them. It also sets the size of your total.",
+    where: "Power costs very different amounts from state to state, and some states let you shop for a cheaper supplier.",
+    state: "Power costs very different amounts from state to state, and some states let you shop for a cheaper supplier.",
+    status: "A seasonal or brand-new building uses power differently, so I adjust the math.",
+    months: "So I only count the months you&rsquo;re actually open.",
+    bill: "Your bill is the best single clue to how much is being wasted. A rough range is plenty.",
+    dial: "A tighter range makes your numbers sharper.",
+    size: "Without a bill, size lets me estimate it from buildings like yours. I&rsquo;ll tell you it&rsquo;s an estimate.",
+    season: "Bills swing with the weather. Knowing the month lets me turn one bill into a full year.",
+    age: "Equipment loses cooling power to buildup inside as it ages, so it runs longer to do the same job.",
+    summer: "A big summer jump is the clearest sign that your busiest-15-minutes charge is driving your bill.",
+    cases: "Open cases spill cold air, and your heating pays to warm it back up. Doors change the math.",
+    hours: "The longer things run, the more every bit of waste costs you.",
+    done: "So I don&rsquo;t count savings you already have.",
+    role: "So I can put what matters most to them at the top.",
+    stored: "Frozen and chilled storage use power very differently.",
+    docks: "Every open dock door lets in warm, wet air your refrigeration has to pull back out.",
+    occ: "Hotel bills swing with occupancy, so I adjust for the month you gave me.",
+    rooms: "Window units and central systems have different fixes.",
+    walkin: "Walk-ins run all night, so each one adds a steady cost.",
+    type: "Different kinds of buildings have different rules and schedules.",
+    motors: "Big motors cause expensive startup spikes and dirty power.",
+    pool: "Pools and spas run around the clock.",
+    cool: "How your server rooms are cooled decides where the savings are.",
+    cooling: "A central system and individual units have different fixes.",
+    amen: "Anything on the building&rsquo;s own meter is your cost, not your tenants&rsquo;.",
+    setback: "Nights and weekends are about two thirds of the week.",
+    pays: "It decides which savings land on your bottom line.",
+    vacancy: "Empty suites still use power, and you pay for it."
+  };
+  function whyHtml(key) {
+    var t = WHY_ASK[key] || "It helps me match your building to the right fixes.";
+    return '<button class="whyask" type="button" aria-expanded="false">Why I&rsquo;m asking</button><p class="whytext" hidden>' + t + "</p>";
+  }
+  app.addEventListener("click", function (e) {
+    var b = e.target.closest(".whyask"); if (!b) return;
+    var t = b.nextElementSibling, open = t.hidden; t.hidden = !open; b.setAttribute("aria-expanded", open ? "true" : "false");
+  });
+
+  /* tap-to-ask: questions people can tap at any time; Watt answers in the chat */
+  var ASKS = [
+    ["What&rsquo;s a demand charge?", "It&rsquo;s a charge for your busiest 15 minutes of the month.", "Your utility bills you once for the power you use, and again for the single busiest 15 minutes of the month. It&rsquo;s like a speeding ticket priced on your top speed, not your average. It&rsquo;s one of the easiest parts of a bill to bring down."],
+    ["Who are you, Watt?", "I&rsquo;m the Energy+ AI.", "I find where your building is overspending on power. A real engineer, Cliff Suljak, checks every number before anything is installed."],
+    ["Is this a sales pitch?", "It&rsquo;s a free estimate first.", "You&rsquo;ll see your numbers before anyone asks you for anything. If you want to go further, Dan sets up a short call, and nothing is installed until Cliff verifies it on your building."],
+    ["How do projects get paid for?", "Usually out of the savings.", "Projects are structured to be cash-flow positive from day one where the numbers support it, so you aren&rsquo;t writing a big check up front. Dan walks through the details on the call."],
+    ["Where do your numbers come from?", "Public data, plus our own field results.", "Rates and how buildings use power come from the U.S. Energy Department. Savings ranges come from Energy Plus programs, including 150+ of our own HVAC tests. Your answers decide where in the range you land."],
+    ["What is dirty power?", "Electricity roughed up by your own equipment.", "Motors and electronics send jagged power back through your wiring. It wastes electricity you pay for and wears equipment out early."]
+  ];
+  var askBtn = document.getElementById("askw"), sheet = null;
+  function closeSheet() { if (sheet) { sheet.remove(); sheet = null; askBtn.setAttribute("aria-expanded", "false"); } }
+  function openSheet() {
+    if (sheet) return closeSheet();
+    sheet = $('<div class="asksheet" role="dialog" aria-label="Ask Watt"><div class="ask-in wrap"><p class="ask-h">Ask Watt</p>' + ASKS.map(function (a, i) { return '<button class="ask-q" type="button" data-i="' + i + '">' + a[0] + "</button>"; }).join("") + '<button class="link ask-x" type="button">Close</button></div></div>');
+    sheet.addEventListener("click", function (e) {
+      var q = e.target.closest(".ask-q");
+      if (q) { var a = ASKS[+q.dataset.i]; closeSheet(); answerAsk(a); return; }
+      if (e.target.closest(".ask-x") || e.target === sheet) closeSheet();
+    });
+    document.body.appendChild(sheet); askBtn.setAttribute("aria-expanded", "true");
+  }
+  function answerAsk(a) {
+    var host = app.lastElementChild; if (!host) return;
+    var box = $('<div class="asked"></div>'), you = $('<div class="replypill">' + a[0] + "</div>");
+    box.appendChild(you); host.appendChild(box);
+    you.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "nearest" });
+    var parts = build({ tag: "", h: a[1], p: a[2] });
+    if (reduce) { box.appendChild(parts[0]); box.appendChild(parts[1]); return; }
+    var t = typingBubble(); box.appendChild(t);
+    setTimeout(function () { t.remove(); box.appendChild(parts[0]); talk(); var t2 = typingBubble(); box.appendChild(t2);
+      setTimeout(function () { t2.remove(); box.appendChild(parts[1]); parts[1].scrollIntoView({ behavior: "smooth", block: "nearest" }); }, 600); }, 650);
+  }
+  if (askBtn) askBtn.addEventListener("click", openSheet);
+
+  /* buildings like theirs: their bill next to a typical standard-size building in their state */
+  function compareRes(annual) {
+    var F = fac(), st = EP.states[S.state], size = F.sizes[1];
+    var typ = size[2] * engFac().eui_kwh_sqft * st.rate / 100 / 12, yours = annual / 12, diff = Math.round((yours / typ - 1) * 100);
+    var where = esc(placeShort()), lbl = "Typical " + size[0].toLowerCase() + " " + esc(F.unit) + " (" + esc(size[1]) + ")";
+    var p = diff > 15 ? "That&rsquo;s about " + diff + "% more than a typical " + size[0].toLowerCase() + " " + esc(F.unit) + " in " + where + ". It could be a bigger " + esc(F.unit) + ", or more waste. A walkthrough tells us which."
+      : diff < -15 ? "That&rsquo;s below a typical " + size[0].toLowerCase() + " " + esc(F.unit) + " in " + where + ". Either a smaller " + esc(F.unit) + " or one that already runs well. Either way, the waste I&rsquo;ll show you is still there."
+      : "That&rsquo;s right in line with a typical " + size[0].toLowerCase() + " " + esc(F.unit) + " in " + where + ". Typical isn&rsquo;t the same as efficient, though. Most of them overspend in the same places.";
+    var mx = Math.max(yours, typ);
+    var viz = '<div class="cmp"><div class="cmp-r"><span>Your ' + esc(F.unit) + '</span><span class="cmp-b"><i style="width:' + Math.round(yours / mx * 100) + '%"></i></span><b>' + kmoney(yours) + '/mo</b></div><div class="cmp-r typ"><span>' + lbl + '</span><span class="cmp-b"><i style="width:' + Math.round(typ / mx * 100) + '%"></i></span><b>' + kmoney(typ) + "/mo</b></div></div>";
+    return { tag: "Compared with buildings like yours", h: "That&rsquo;s about " + kmoney(annual) + " a year per " + esc(F.unit) + (S.locs > 1 ? ", and " + kmoney(annual * S.locs) + " across all of them." : "."), p: p, viz: viz, src: "Typical bill estimated from U.S. Energy Department building data for a " + size[1] + " " + F.unit + " at " + st.name + "'s average commercial rate." };
   }
 
   /* generic question: Watt asks, the person replies, Watt answers */
   function question(cfg) {
     setProgress(cfg.step);
     stage("listen");
-    var html = '<section class="screen turn">' + ask(esc(cfg.q), cfg.sub ? esc(cfg.sub) : "", cfg.eyebrow) +
+    var html = '<section class="screen turn">' + ask(esc(cfg.q), cfg.sub ? esc(cfg.sub) : "", cfg.eyebrow, cfg.whyKey || cfg.id || "x") +
       '<div class="opts' + (cfg.grid ? " grid2" : "") + '">' + cfg.opts.map(function (o) { return '<button class="opt" data-k="' + o[0] + '"><span>' + esc(o[1]) + "</span>" + (o[2] ? '<span class="hint">' + esc(o[2]) + "</span>" : "") + "</button>"; }).join("") + '</div><button class="link change" type="button" hidden>Change my answer</button><div class="slot"></div></section>';
     var node = $(html), opts = node.querySelector(".opts"), slot = node.querySelector(".slot"), change = node.querySelector(".change");
     change.addEventListener("click", function () { opts.classList.remove("answered"); change.hidden = true; slot.innerHTML = ""; clearAction(); stage("listen"); });
@@ -328,6 +453,7 @@
         if (!quiet) { setTimeout(function () { go(res.redirect); }, 450); return; }
         setAction("Next", function () { go(res.redirect); }); return;
       }
+      if (cfg.id && !res.mem) { res = Object.assign({}, res); res.mem = cfg.id; }
       respond(slot, res, function () { go(cfg.next); }, quiet, res.found || (cfg.id && S.pf[cfg.id]));
     }
     opts.addEventListener("click", function (e) { var b = e.target.closest(".opt"); if (b && !opts.classList.contains("answered")) choose(b); });
@@ -362,14 +488,14 @@
   };
   var WHY_OPEN = { rising: "You said your bills keep going up. Here&rsquo;s what&rsquo;s driving it.", budget: "You said you need to cut costs. Here&rsquo;s where the money is.", equip: "You said equipment keeps breaking down. Here&rsquo;s where it&rsquo;s also costing you power.", referred: "Here&rsquo;s what I found.", curious: "Here&rsquo;s what I found." };
   function why() {
-    question({ step: 1, eyebrow: "Getting started", q: "What brought you here today?", opts: WHY,
+    question({ whyKey: "why", step: 1, eyebrow: "Getting started", q: "What brought you here today?", opts: WHY,
       chip: function (k, l) { return "Why: " + l; },
       pick: function (k) { S.why = k; },
       insight: function (k) { var w = WHY_SAY[k]; return { tag: "Got it", h: w.h, p: w.p }; }, next: facility });
   }
 
   function facility() {
-    question({ step: 2, eyebrow: "Facility", q: "What kind of facility are we looking at?", grid: true,
+    question({ whyKey: "facility", step: 2, eyebrow: "Facility", q: "What kind of facility are we looking at?", grid: true,
       opts: FAC_ORDER.map(function (k) { return [k, FAC[k].label]; }), preselect: S.preFac, chip: function (k) { return FAC[k].label.split(" /")[0]; },
       pick: function (k) {
         if (S.fac && S.fac !== k) { S.path.forEach(function (q) { if (q.id !== "age" && q.id !== "summer") delete S.ans[q.q]; }); S.pf = {}; ["cases", "refrigRange", "occupancy", "engOverride", "hours"].forEach(function (x) { delete S[x]; }); }
@@ -388,9 +514,9 @@
   }
 
   function role() {
-    question({ step: 9 + S.path.length, eyebrow: "Your report", q: "Last question: who's going to read your report?", sub: "I'll put what matters most to them first.", opts: ROLES, chip: function (k, l) { return "Report for: " + l; },
+    question({ whyKey: "role", step: 9 + S.path.length, eyebrow: "Your report", q: "Last question: who's going to read your report?", sub: "I'll put what matters most to them first.", opts: ROLES, chip: function (k, l) { return "Report for: " + l; },
       pick: function (k) { S.role = k; },
-      insight: function (k) { var r = ROLE_INSIGHT[k]; return { tag: "Your report", h: r.h, p: r.p }; }, next: capture });
+      insight: function (k) { return { quiet: true, h: "Got it. " + ROLE_INSIGHT[k].p }; }, next: capture });
   }
 
   /* ---------- where: one state, a region, a handful of states, or nationwide ---------- */
@@ -463,7 +589,7 @@
   function stateQ() {
     if (S.locs === 1) return singleState();
     var F = fac();
-    question({ step: 4, eyebrow: "Location", q: "Where are your " + F.units + "?",
+    question({ whyKey: "where", step: 4, eyebrow: "Location", q: "Where are your " + F.units + "?",
       opts: [["one", "All in one state"], ["multi", "In more than one state"], ["nation", "Nationwide"]],
       chip: function () { return ""; },
       pick: function (k) { S.spread = k; if (k === "nation") { setStates(LOWER48); S.ans.__state = "nation"; setChip("__state", "Nationwide"); } },
@@ -475,7 +601,7 @@
     setProgress(4);
     stage("listen");
     var names = Object.keys(STATE_NAMES).sort(), quietNext = false;
-    var n = $('<section class="screen turn">' + ask(S.locs > 1 ? "Which state are they in?" : "Which state is it in?", "", "Location") + '<select class="state" id="stsel" aria-label="State"><option value="">Choose a state</option>' + names.map(function (s) { return "<option>" + esc(s) + "</option>"; }).join("") + '</select><div class="slot"></div></section>');
+    var n = $('<section class="screen turn">' + ask(S.locs > 1 ? "Which state are they in?" : "Which state is it in?", "", "Location", "state") + '<select class="state" id="stsel" aria-label="State"><option value="">Choose a state</option>' + names.map(function (s) { return "<option>" + esc(s) + "</option>"; }).join("") + '</select><div class="slot"></div></section>');
     var sel = n.querySelector("#stsel"), slot = n.querySelector(".slot");
     sel.addEventListener("change", function () {
       var quiet = quietNext; quietNext = false;
@@ -495,7 +621,7 @@
     stage("listen");
     var F = fac(), chosen = {};
     if (multiState() && S.states.length < ALL_STATES.length) S.states.forEach(function (c) { chosen[c] = true; });
-    var html = '<section class="screen turn">' + ask("Which states are your " + esc(F.units) + " in?", "Tap a region to select all of it, then tap any state to add or remove it.", "Location") + '<div class="regions">' +
+    var html = '<section class="screen turn">' + ask("Which states are your " + esc(F.units) + " in?", "Tap a region to select all of it, then tap any state to add or remove it.", "Location", "where") + '<div class="regions">' +
       REGIONS.map(function (r, i) {
         return '<div class="region"><button class="reg-h" type="button" data-r="' + i + '"><span>' + esc(r[0]) + '</span><span class="reg-all">Select all</span></button><div class="reg-states">' +
           r[1].map(function (c) { return '<button class="st" type="button" data-c="' + c + '">' + esc(EP.states[c].name) + "</button>"; }).join("") + "</div></div>";
@@ -528,7 +654,7 @@
 
   function locations() {
     var F = fac();
-    question({ step: 3, eyebrow: "Footprint", q: "How many " + F.units + "?", opts: [["1", "1"], ["3", "2 to 5"], ["12", "6 to 20"], ["35", "21 to 50"], ["75", "50+"]], chip: function (k, l) { return l + " " + (k === "1" ? F.unit : F.units); },
+    question({ whyKey: "locations", step: 3, eyebrow: "Footprint", q: "How many " + F.units + "?", opts: [["1", "1"], ["3", "2 to 5"], ["12", "6 to 20"], ["35", "21 to 50"], ["75", "50+"]], chip: function (k, l) { return l + " " + (k === "1" ? F.unit : F.units); },
       pick: function (k) { S.locs = parseInt(k, 10); S.locLabel = { "1": "1", "3": "2 to 5", "12": "6 to 20", "35": "21 to 50", "75": "50+" }[k]; },
       insight: function () { return { redirect: stateQ }; },
       next: stateQ });
@@ -550,8 +676,8 @@
     var dPct = Math.round(d * 100), name = EP.states[S.state].name;
     var src = "Based on demand rates at " + name + "'s largest utilities and how a typical " + fac().unit + " uses power through the day." + (di.capped ? " Smaller bills usually carry less, so we scaled it down." : "");
     return { found: true, tag: "Your demand charge", h: "About " + dPct + "% of that bill, roughly " + kmoney(m * d) + " a month, is probably a demand charge.",
-      p: "Your utility charges you twice: once for how much power you use, and again for your busiest 15 minutes of the month, when everything runs at once. It&rsquo;s like a speeding ticket priced on your top speed, not your average. That second charge is called a demand charge, and it&rsquo;s one of the easiest parts of the bill to bring down." + (S.estimated ? " (Your bill is estimated from your building&rsquo;s size.)" : ""),
-      viz: demandViz(),
+      p: (S.why === "rising" ? "You said your bills keep going up. This is often a big reason why. " : S.why === "budget" ? "You wanted savings that pay for themselves. This is often the fastest one. " : "") + "Your utility charges you twice: once for how much power you use, and again for your busiest 15 minutes of the month, when everything runs at once. It&rsquo;s like a speeding ticket priced on your top speed, not your average. That second charge is called a demand charge, and it&rsquo;s one of the easiest parts of the bill to bring down." + (S.estimated ? " (Your bill is estimated from your building&rsquo;s size.)" : ""),
+      viz: demandViz() + (S.locs > 1 ? '<p class="sub" style="margin-top:10px">Across your ' + (S.locLabel || S.locs) + " " + esc(fac().units) + ", that&rsquo;s roughly " + kmoney(m * d * S.locs) + " a month.</p>" : ""),
       src: src };
   }
   /* motion: a month of power use; one spike; the ruler at that spike stretches across the whole month */
@@ -655,7 +781,7 @@
     var F = fac(), edges = engFac().billBands, opts = [];
     for (var i = 0; i < edges.length - 1; i++) opts.push([edges[i] + "-" + edges[i + 1], "$" + fmtK(edges[i]) + " to $" + fmtK(edges[i + 1])]);
     opts.push(["unk", "Not sure, help me estimate"]);
-    question({ step: 6, q: "What's a typical monthly electric bill for one " + F.unit + "?", sub: S.monthsOpen ? "Pick a typical month when you're open. A rough range is fine." : "A rough range is fine. We'll narrow it down next.", opts: opts, chip: function () { return ""; },
+    question({ whyKey: "bill", step: 6, q: "What's a typical monthly electric bill for one " + F.unit + "?", sub: S.monthsOpen ? "Pick a typical month when you're open. A rough range is fine." : "A rough range is fine. We'll narrow it down next.", opts: opts, chip: function () { return ""; },
       pick: function (k) { if (k !== "unk") { var p = k.split("-"); S.band = [parseInt(p[0], 10), parseInt(p[1], 10)]; S.estimated = false; S.sqft = null; } },
       insight: function (k) { return k === "unk" ? { redirect: sizeQ } : { redirect: dial }; }, next: season });
   }
@@ -665,22 +791,22 @@
     var opts = [];
     for (var j = 0; j < 4; j++) if (e[j + 1] > e[j]) opts.push([String(Math.round(Math.sqrt(e[j] * e[j + 1]))), "$" + fmtK(e[j]) + " to $" + fmtK(e[j + 1])]);
     opts.push([String(Math.round(Math.sqrt(lo * hi))), "Somewhere in that range"]);
-    question({ step: 6, q: "Let's dial that in. Which is closest?", sub: "Between $" + fmtK(lo) + " and $" + fmtK(hi) + " a month.", opts: opts, chip: function (k) { return "About " + kmoney(parseInt(k, 10)) + "/mo per " + fac().unit; },
+    question({ whyKey: "dial", step: 6, q: "Let's dial that in. Which is closest?", sub: "Between $" + fmtK(lo) + " and $" + fmtK(hi) + " a month.", opts: opts, chip: function (k) { return "About " + kmoney(parseInt(k, 10)) + "/mo per " + fac().unit; },
       pick: function (k) { S.monthly = parseInt(k, 10); },
       insight: billInsight, next: afterBill });
   }
   function sizeQ() {
     var F = fac();
-    question({ step: 6, eyebrow: "Your bill", q: "How big is a typical " + F.unit + "?", sub: "We'll estimate the bill from benchmarks and say so.",
+    question({ whyKey: "size", step: 6, eyebrow: "Your bill", q: "How big is a typical " + F.unit + "?", sub: "We'll estimate the bill from benchmarks and say so.",
       opts: F.sizes.map(function (s, i) { return [String(i), s[0], s[1]]; }), chip: function (k, l) { return l + " " + F.unit + ", bill estimated"; },
       pick: function (k) { var s = F.sizes[parseInt(k, 10)]; S.sqft = s[2]; S.monthly = Math.round(s[2] * engFac().eui_kwh_sqft * EP.states[S.state].rate / 100 / 12); S.estimated = true; },
       insight: billInsight, next: afterBill });
   }
   function season() {
-    question({ step: 7, eyebrow: "Your bill", q: "Which time of year was that bill from?", opts: [["summer", "Summer"], ["winter", "Winter"], ["mild", "Spring or fall"], ["avg", "Not sure"]], chip: function () { return ""; },
+    question({ whyKey: "season", step: 7, eyebrow: "Your bill", q: "Which time of year was that bill from?", opts: [["summer", "Summer"], ["winter", "Winter"], ["mild", "Spring or fall"], ["avg", "Not sure"]], chip: function () { return ""; },
       pick: function (k) { S.season = k; },
       insight: function (k) { var idx = EP.states[S.state].season[k] || 1, annual = S.monthly / idx * 12; S.annual = annual;
-        return { tag: "Your year", h: "That works out to about " + kmoney(annual) + " a year per " + fac().unit + (S.locs > 1 ? ", and " + kmoney(annual * S.locs) + " across all of them." : "."), p: k === "avg" ? "We'll treat it as an average month for your state." : "We adjust for the season using your state's monthly pattern, so one bill can stand in for a year.", viz: '<div class="fig"><span class="big" data-count="' + annual * S.locs + '">$0</span><span class="vs">per year in electricity' + (S.estimated ? ", estimated" : "") + "</span></div>", src: "EIA-861M monthly commercial sales by state" }; },
+        return S.estimated ? { quiet: true, h: "Got it. That&rsquo;s about " + kmoney(annual) + " a year per " + esc(fac().unit) + "." } : compareRes(annual); },
       next: function () { pathStep(0); } });
   }
 
@@ -688,14 +814,14 @@
   /* is it open year-round, seasonal, brand new, or not built yet? */
   function statusQ() {
     var F = fac();
-    question({ step: 5, eyebrow: "Your " + F.units, q: "Which best describes your " + (S.locs > 1 ? F.units : F.unit) + "?",
+    question({ whyKey: "status", step: 5, eyebrow: "Your " + F.units, q: "Which best describes your " + (S.locs > 1 ? F.units : F.unit) + "?",
       opts: [["year", "Open year-round"], ["seasonal", "Seasonal, closed part of the year"], ["new", "Opened in the last year"], ["planning", "Not built yet, still planning"]],
       chip: function (k, l) { return k === "year" ? "" : l; },
       pick: function (k) { S.status = k; if (k !== "seasonal") { delete S.monthsOpen; delete S.ans["__months"]; } if (k === "new") { S.age = 1; S.ageKey = "new"; } else if (S.ageKey === "new") { S.age = null; S.ageKey = null; } },
       insight: function (k) { return { redirect: k === "seasonal" ? monthsQ : k === "planning" ? planning : bill }; }, next: bill });
   }
   function monthsQ() {
-    question({ step: 5, eyebrow: "Season", q: "About how many months a year are you open?", opts: [["4", "3 to 5 months"], ["7", "6 to 8 months"], ["10", "9 to 11 months"]],
+    question({ whyKey: "months", step: 5, eyebrow: "Season", q: "About how many months a year are you open?", opts: [["4", "3 to 5 months"], ["7", "6 to 8 months"], ["10", "9 to 11 months"]],
       chip: function (k, l) { return "Open " + l; },
       pick: function (k) { S.monthsOpen = parseInt(k, 10); },
       insight: function (k) { return { tag: "Your season", h: "Then the savings are packed into fewer months.", p: "A seasonal building runs hard while it's open, so peaks and wear stack up faster. I'll count only the months you're open, plus what sits idle while you're closed.", src: "We scale the year to " + k + " open months." }; },
@@ -714,7 +840,7 @@
     setProgress(8 + S.path.length);
     stage("listen");
     var q = "What have you already upgraded?";
-    var node = $('<section class="screen turn">' + ask(q, "Tap all that apply, then Done. I&rsquo;ll leave out anything you already have.", "Already done") +
+    var node = $('<section class="screen turn">' + ask(q, "Tap all that apply, then Done. I&rsquo;ll leave out anything you already have.", "Already done", "done") +
       '<div class="opts multi">' + opts.map(function (o) { return '<button class="opt" data-k="' + o[0] + '"><span>' + esc(o[1]) + "</span></button>"; }).join("") +
       '</div><div class="next done-row"><button class="btn" id="done-go" disabled>Done <span class="ar">&rarr;</span></button></div><button class="link change" type="button" hidden>Change my answer</button><div class="slot"></div></section>');
     var box = node.querySelector(".opts"), go_ = node.querySelector("#done-go"), row = node.querySelector(".done-row"), slot = node.querySelector(".slot"), change = node.querySelector(".change");
@@ -737,7 +863,7 @@
       setChip(q, names.length ? "Already has: " + names.join(", ") : "No upgrades yet");
       var counted = ["battery", "controls", "refrig", "supply"].filter(function (k) { return S.done[k]; });
       var res;
-      if (!names.length) res = { tag: "Already done", h: "Then everything I found is still on the table.", p: "Nothing in your number overlaps with work you've already paid for." };
+      if (!names.length) res = { quiet: true, h: "Then everything I found is still on the table." };
       else res = { tag: "Already done", h: counted.length ? "Good. I took those out of your number so I'm not counting savings you already have." : "Good to know. Those already show up in the bill you gave me.",
         p: (S.done.solar || S.done.led ? "Solar and LED lower your bill, and the bill you gave already reflects them. " : "") + (counted.length ? "What's left is the work your current upgrades don't cover." : "None of them overlap with the fixes in your number.") };
       respond(slot, res, function () { go(role); }, quiet, false);
@@ -769,7 +895,7 @@
     if (i >= S.path.length) return doneQ();
     var q = S.path[i];
     if (q.id === "age" && S.status === "new") return pathStep(i + 1);
-    question({ step: 8 + i, eyebrow: q.eyebrow, q: q.q, sub: q.sub, opts: q.opts, pick: q.pick, insight: q.insight, next: function () { pathStep(i + 1); } });
+    question({ step: 8 + i, id: q.id, eyebrow: q.eyebrow, q: q.q, sub: q.sub, opts: q.opts, pick: q.pick, insight: q.insight, next: function () { pathStep(i + 1); } });
   }
 
   function under() {
