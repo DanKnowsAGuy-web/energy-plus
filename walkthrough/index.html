@@ -505,6 +505,31 @@ body.look-a .wattline{margin:0 0 10px}
 
 .bubble.say.resume{margin-top:14px}
 .bubble.say.resume h3{font-size:22px}
+
+/* larger text */
+.bigtxt{flex:0 0 auto;width:44px;height:44px;border-radius:50%;border:1px solid var(--rule);background:var(--card);font-weight:800;font-size:17px;color:var(--ink);cursor:pointer;margin-left:10px}
+.bigtxt span{font-size:13px;vertical-align:super}
+.bigtxt[aria-pressed="true"]{background:var(--petrol);border-color:var(--petrol);color:#fff}
+html.big #app,html.big .dock .wrap,html.big .ask-in{zoom:1.16}
+/* finish later, share */
+.ask-later{text-align:left;background:none;border:1px dashed var(--rule);border-radius:16px;padding:14px 18px;font-size:17px;color:var(--body);cursor:pointer}
+.ask-later b{color:var(--petrol-2)}
+.share-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+.sbtn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:10px 18px;border-radius:999px;border:1px solid var(--rule);background:var(--card);font-size:17px;font-weight:600;color:var(--ink);text-decoration:none;cursor:pointer}
+.sbtn.primary{background:var(--petrol);border-color:var(--petrol);color:#fff}
+/* what happens next */
+.choices{display:grid;gap:12px;margin-top:16px}
+@media (min-width:640px){.choices{grid-template-columns:1fr 1fr}}
+.choice{background:var(--card);border:1px solid var(--rule);border-radius:18px;padding:18px;display:flex;flex-direction:column;gap:8px;align-items:flex-start}
+.ch-t{margin:0;font-weight:700;font-size:20px;color:var(--ink)}
+.ch-s{margin:0;font-size:17px;color:var(--body);line-height:1.4}
+.choice .btn{margin-top:4px}
+.bookpanel{margin-top:14px;display:grid;gap:8px}
+.bookpanel[hidden]{display:none}
+.bookpanel iframe{width:100%;height:860px;border:1px solid var(--rule);border-radius:16px;background:#fff}
+
+.top .count{white-space:nowrap}
+.bubble.ask a{color:var(--petrol-2);text-underline-offset:3px}
 </style>
 </head>
 <body>
@@ -512,7 +537,7 @@ body.look-a .wattline{margin:0 0 10px}
   <div class="wrap bar">
     <button class="back" id="back" type="button" hidden onclick="history.back()" aria-label="Back"><span aria-hidden="true">&larr;</span></button>
     <a class="brand" href="../" aria-label="Energy Plus home"><img class="logo logo-ink" src="../assets/img/energy-plus-logo-ink.png" alt="Energy Plus" width="85" height="24"><img class="logo logo-white" src="../assets/img/energy-plus-logo.png" alt="" width="85" height="24"></a>
-    <span class="mini watt-live" id="mini" aria-hidden="true"></span><span class="count" id="count"></span>
+    <span class="mini watt-live" id="mini" aria-hidden="true"></span><span class="count" id="count"></span><button class="bigtxt" id="bigtxt" type="button" aria-pressed="false" aria-label="Larger text">A<span>+</span></button>
   </div>
   <div class="track"><i id="prog"></i></div>
 </header>
@@ -523,9 +548,9 @@ body.look-a .wattline{margin:0 0 10px}
     <div class="prof" id="profile" hidden><div class="chips" id="chips"></div></div>
   </div>
 </div>
-<script src="engine/constants.js?v=202611101715"></script>
-<script src="engine/engine.js?v=202611101715"></script>
-<script src="watt.js?v=202611101715"></script>
-<script src="app.js?v=202611101715"></script>
+<script src="engine/constants.js?v=202611101815"></script>
+<script src="engine/engine.js?v=202611101815"></script>
+<script src="watt.js?v=202611101815"></script>
+<script src="app.js?v=202611101815"></script>
 </body>
 </html>
