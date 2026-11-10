@@ -175,6 +175,11 @@
   function syncBack() { var b = document.getElementById("back"); if (b) b.hidden = !hist.length; }
   var S, app = document.getElementById("app"), prog = document.getElementById("prog"), countEl = document.getElementById("count");
   var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  /* Watt: the avatar changes with the stage of the walkthrough (hello, listen, work, found, verify) */
+  var wattTopHost = document.getElementById("watt-top");
+  if (window.Watt && wattTopHost) Watt.mount(wattTopHost, 40);
+  function stage(s) { if (!window.Watt) return; Watt.set(s); if (wattTopHost) wattTopHost.style.visibility = (s === "hello" || s === "work") ? "hidden" : "visible"; }
+  function wattIn(node, sel, size, opt) { var h = node.querySelector(sel); if (h && window.Watt) Watt.mount(h, size, opt); }
   function reset() { S = { pf: {}, ans: {}, locs: 1 }; hist = []; current = null; }
   reset();
 
@@ -212,10 +217,12 @@
   /* generic question: options, lock, insight, continue */
   function question(cfg) {
     setProgress(cfg.step);
+    stage("listen");
     var html = '<section class="screen"><h1>' + esc(cfg.q) + "</h1>" + (cfg.sub ? '<p class="sub">' + esc(cfg.sub) + "</p>" : "") +
       '<div class="opts' + (cfg.grid ? " grid2" : "") + '">' + cfg.opts.map(function (o) { return '<button class="opt" data-k="' + o[0] + '"><span>' + esc(o[1]) + "</span>" + (o[2] ? '<span class="hint">' + esc(o[2]) + "</span>" : "") + "</button>"; }).join("") + '</div><div class="slot"></div></section>';
     var node = $(html), opts = node.querySelector(".opts"), slot = node.querySelector(".slot");
     function choose(b, quiet) {
+      if (!quiet && window.Watt) Watt.blink();
       if (!b || b.classList.contains("chosen")) return;
       opts.querySelectorAll(".opt").forEach(function (x) { x.classList.toggle("chosen", x === b); x.classList.toggle("dim", x !== b); });
       var k = b.dataset.k; S.ans[cfg.q] = k; if (cfg.pick) cfg.pick(k);
@@ -242,9 +249,11 @@
     var pre = new URLSearchParams(location.search).get("f");
     if (pre && FAC[pre]) S.preFac = pre;
     setProgress(0, "");
+    stage("hello");
     var label = S.preFac ? FAC[S.preFac].label.split(" /")[0] : "your building";
-    var n = $('<section class="screen"><div class="panel"><div class="grat"></div><div class="in"><h1>A few taps. About two minutes. A read on ' + esc(label.toLowerCase() === "your building" ? "your building" : "your " + FAC[S.preFac].units) + ' most operators never get.</h1><p class="sub">Tap through the questions a senior energy strategist would ask on a first call. Every answer shows you something about your operation.</p><div class="dial"><div><b class="mono">~10</b>taps</div><div><b class="mono">~2 min</b>to finish</div></div><div style="margin-top:30px"><button class="btn" id="go">Start the diagnostic <span class="ar">&rarr;</span></button></div></div></div></section>');
+    var n = $('<section class="screen"><div class="panel"><div class="grat"></div><div class="in"><div class="watt-hi"><span id="w-hi"></span><span class="watt-says">Hi, I&rsquo;m Watt, your Energy+ AI.</span></div><h1>A few taps. About two minutes. A read on ' + esc(label.toLowerCase() === "your building" ? "your building" : "your " + FAC[S.preFac].units) + ' most operators never get.</h1><p class="sub">Tap through the questions a senior energy strategist would ask on a first call. Every answer shows you something about your operation.</p><div class="dial"><div><b class="mono">~10</b>taps</div><div><b class="mono">~2 min</b>to finish</div></div><div style="margin-top:30px"><button class="btn" id="go">Start the diagnostic <span class="ar">&rarr;</span></button></div></div></div></section>');
     n.querySelector("#go").addEventListener("click", function () { go(facility); });
+    wattIn(n, "#w-hi", 84, { onPetrol: true });
     show(n);
   }
 
@@ -371,6 +380,7 @@
   }
 
   function under() {
+    stage("listen");
     setProgress(TOTAL, "");
     var n = $('<section class="screen"><h1>Our full program is built for portfolios spending $20K or more a month.</h1><p class="sub">We don\'t want to waste your time with a pitch that doesn\'t fit. Leave your number and we\'ll reach out as we roll out options sized for you.</p><div class="field"><label for="u-name">First name</label><input id="u-name" autocomplete="given-name"></div><div class="field"><label for="u-phone">Mobile</label><input id="u-phone" type="tel" inputmode="tel" autocomplete="tel"></div><div class="err" id="u-err"></div><div class="next" style="justify-content:space-between"><button class="link" id="restart">Start over</button><button class="btn" id="u-go">Keep me posted</button></div></section>');
     n.querySelector("#restart").addEventListener("click", function () { intro(); syncBack(); });
@@ -384,13 +394,14 @@
   }
 
   function capture() {
+    stage("listen");
     setProgress(TOTAL);
     var n = $('<section class="screen"><h1>Where should we text your diagnostic?</h1><p class="sub">No email, no spam. Your report arrives by text, and your strategist is one reply away.</p><div class="field"><label for="c-name">First name</label><input id="c-name" autocomplete="given-name"></div><div class="field"><label for="c-phone">Mobile</label><input id="c-phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="(555) 555-5555"></div><div class="err" id="c-err"></div><div class="next"><button class="btn" id="c-go">Show my diagnostic <span class="ar">&rarr;</span></button></div></section>');
     n.querySelector("#c-go").addEventListener("click", function () {
       var nm = n.querySelector("#c-name").value.trim(), ph = n.querySelector("#c-phone").value.replace(/\D/g, "");
       if (!nm) { n.querySelector("#c-err").textContent = "Add your first name so the report is addressed to you."; return; }
       if (ph.length < 10) { n.querySelector("#c-err").textContent = "Enter a 10-digit mobile number."; return; }
-      S.name = nm; S.phone = ph; go(reveal);
+      S.name = nm; S.phone = ph; working(function () { go(reveal); });
     });
     show(n);
     setTimeout(function () { var i = n.querySelector("#c-name"); if (i) i.focus({ preventScroll: true }); }, 600);
@@ -414,7 +425,17 @@
   }
   function rng(r) { return kmoney(r[0]) + " to " + kmoney(r[1]); }
 
+  /* a short working beat: Watt reads the answers before the readout */
+  function working(done) {
+    stage("work");
+    var n = $('<section class="screen working"><div class="w-big" id="w-work"></div><h2>Reading your answers against ' + esc(S.stateName || "your state") + '&rsquo;s rates and demand charges</h2><p class="sub">Watt is matching your ' + esc(fac().units) + ' to the fixes that pay back first.</p></section>');
+    wattIn(n, "#w-work", 132);
+    show(n);
+    setTimeout(done, reduce ? 400 : 2300);
+  }
+
   function reveal() {
+    stage("found");
     setProgress(TOTAL, "");
     var r = compute(), F = fac(), fs = findings(r), multi = S.locs > 1, L = S.locs;
     var lo = r.total[0], hi = r.total[1], typ = r.typical, annualAll = r.annual * L;
@@ -437,12 +458,14 @@
       "Savings use Energy Plus program ranges; your answers set where in the range you land. Typical is the middle of the range, not the top.",
       "This is an estimate. Your building sets your number, verified only by a site pilot."
     ];
-    var n = $('<section class="screen readout"><div class="panel"><div class="grat"></div><div class="in"><h2>' + esc(S.name) + ', here&rsquo;s what your ' + esc(multi ? F.units : F.unit) + ' could save each year</h2><div class="range"><span id="lo">$0</span> to <span id="hi">$0</span></div><div class="per">per year &middot; ' + Math.round(r.perSite[0] / r.annual * 100) + " to " + Math.round(r.perSite[1] / r.annual * 100) + '% of your electric spend &middot; typical <span id="typ">$0</span></div><div class="ticks"><div><b id="ten">$0</b><span>10-year savings, typical</span></div><div><b>' + kmoney(annualAll) + "</b><span>annual electric spend" + (S.estimated ? ", est." : "") + "</span></div><div><b>" + escPct + "%</b><span>yearly rate climb used</span></div></div></div></div>" +
+    var n = $('<section class="screen readout"><div class="panel"><div class="grat"></div><div class="in"><div class="watt-hi"><span id="w-found"></span><span class="watt-says">Watt found savings in your answers.</span></div><h2>' + esc(S.name) + ', here&rsquo;s what your ' + esc(multi ? F.units : F.unit) + ' could save each year</h2><div class="range"><span id="lo">$0</span> to <span id="hi">$0</span></div><div class="per">per year &middot; ' + Math.round(r.perSite[0] / r.annual * 100) + " to " + Math.round(r.perSite[1] / r.annual * 100) + '% of your electric spend &middot; typical <span id="typ">$0</span></div><div class="ticks"><div><b id="ten">$0</b><span>10-year savings, typical</span></div><div><b>' + kmoney(annualAll) + "</b><span>annual electric spend" + (S.estimated ? ", est." : "") + "</span></div><div><b>" + escPct + "%</b><span>yearly rate climb used</span></div></div></div></div>" +
       '<div class="blocks">' + order.map(function (k) { return blocks[k]; }).join("") +
-      '<div class="blk"><h2>Find out if these numbers hold for your ' + esc(F.units) + '</h2><p class="sub">A 15-minute call turns this estimate into a site-specific number. Text Dan directly.</p><div class="cta" style="margin-top:16px"><a class="btn" id="sms" href="sms:' + PHONE_E164 + "?body=" + encodeURIComponent(smsBody) + '">Text Dan <span class="ar">&rarr;</span></a><div class="num"><span>' + PHONE_DISPLAY + '</span><button class="copy" id="cp">Copy number</button></div><a class="link" href="' + bookUrl(r) + '" target="_blank" rel="noopener">Or book a call</a></div></div>' +
+      '<div class="blk"><h2>Find out if these numbers hold for your ' + esc(F.units) + '</h2><p class="sub">A 15-minute call turns this estimate into a site-specific number. Text Dan directly.</p><div class="verify-row"><span id="w-ver"></span><p>An Energy Plus engineer checks every number with you before anything is installed.</p></div><div class="cta" style="margin-top:16px"><a class="btn" id="sms" href="sms:' + PHONE_E164 + "?body=" + encodeURIComponent(smsBody) + '">Text Dan <span class="ar">&rarr;</span></a><div class="num"><span>' + PHONE_DISPLAY + '</span><button class="copy" id="cp">Copy number</button></div><a class="link" href="' + bookUrl(r) + '" target="_blank" rel="noopener">Or book a call</a></div></div>' +
       '<div class="blk assume"><h2 style="font-size:22px">How we estimated this</h2><ul>' + assumptions.map(function (a) { return "<li>" + a + "</li>"; }).join("") + '</ul><p style="margin-top:14px"><button class="link" id="again">Run another building</button></p></div></div></section>');
     n.querySelector("#cp").addEventListener("click", function (e) { var b = e.currentTarget; try { navigator.clipboard.writeText(PHONE_DISPLAY).then(function () { b.textContent = "Copied"; }, function () { b.textContent = PHONE_DISPLAY; }); } catch (_) { b.textContent = PHONE_DISPLAY; } });
     n.querySelector("#again").addEventListener("click", function () { intro(); syncBack(); });
+    wattIn(n, "#w-found", 64, { onPetrol: true });
+    wattIn(n, "#w-ver", 56, { state: "verify", fixed: true });
     show(n);
     var tenTyp = r.typical * ENG.escalationFactor(r.escRate, 10);
     setTimeout(function () { countUp(document.getElementById("lo"), lo, kmoney, 1600); countUp(document.getElementById("hi"), hi, kmoney, 1900); countUp(document.getElementById("typ"), typ, kmoney, 1900); countUp(document.getElementById("ten"), tenTyp, kmoney, 2200); }, reduce ? 0 : 420);

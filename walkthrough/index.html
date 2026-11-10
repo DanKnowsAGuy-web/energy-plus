@@ -188,16 +188,38 @@ select.state{font-size:20px;padding:16px}
 .copy{font-size:15px;padding:8px 12px}
 .link{font-size:17px}
 .panel h2{font-size:clamp(25px,5vw,32px)}
+
+/* Watt, the avatar */
+:root{--watt-body:var(--petrol);--watt-eye:#ffffff}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--watt-body:#2a7482}}
+:root[data-theme="dark"]{--watt-body:#2a7482}
+.watt{display:block;overflow:visible}
+.watt .w-body{fill:var(--watt-body);stroke:var(--watt-body)}
+.watt .w-eye{fill:var(--watt-eye)}
+.watt .w-acc{fill:var(--ochre);transition:opacity .35s ease}
+.watt.on-petrol{--watt-body:#ffffff;--watt-eye:var(--petrol)}
+.bar-r{display:flex;align-items:center;gap:12px}
+.watt-top{display:block;width:40px;height:40px}
+.watt-hi{display:flex;align-items:center;gap:16px;margin-bottom:22px}
+.watt-says{font-family:var(--f-mono);font-size:17px;color:var(--on-petrol-dim);letter-spacing:.01em}
+.working{text-align:center;padding-top:36px}
+.working .w-big{display:flex;justify-content:center;margin-bottom:26px}
+.working h2{max-width:22ch;margin:0 auto}
+.working .sub{margin:14px auto 0}
+.verify-row{display:flex;align-items:center;gap:16px;margin-top:18px;padding:14px 16px;background:var(--card);border-left:3px solid var(--ochre)}
+.verify-row p{margin:0;font-size:18px;line-height:1.45;color:var(--ink)}
+.verify-row span{flex:0 0 auto}
 </style>
 </head>
 <body>
 <div class="wrap" id="topbar">
-  <div class="bar"><div class="bar-l"><button class="back" id="back" type="button" hidden onclick="history.back()"><span aria-hidden="true">&larr;</span> Back</button><a class="brand" href="../" style="text-decoration:none">ENERGY<span>+</span></a></div><div class="count" id="count">ENERGY DIAGNOSTIC</div></div>
+  <div class="bar"><div class="bar-l"><button class="back" id="back" type="button" hidden onclick="history.back()"><span aria-hidden="true">&larr;</span> Back</button><a class="brand" href="../" style="text-decoration:none">ENERGY<span>+</span></a></div><div class="bar-r"><span class="watt-top" id="watt-top"></span><div class="count" id="count">ENERGY DIAGNOSTIC</div></div></div>
   <div class="track"><i id="prog"></i></div>
 </div>
 <main id="app" class="wrap" aria-live="polite"></main>
 <script src="engine/constants.js"></script>
 <script src="engine/engine.js"></script>
+<script src="watt.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
