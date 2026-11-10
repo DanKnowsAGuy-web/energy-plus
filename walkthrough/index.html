@@ -457,6 +457,18 @@ body.look-a .wattline{margin:0 0 10px}
 @keyframes dpDim{to{opacity:.18}}
 @keyframes dpOut{to{opacity:0}}
 @keyframes dpGlow{0%{opacity:0;transform:scale(.6)}100%{opacity:.35;transform:scale(1)}}
+
+/* the human verifier */
+.verifier{display:flex;gap:16px;align-items:flex-start;margin-top:18px;padding:16px;background:var(--card);border:1px solid var(--rule);border-left:3px solid var(--ochre);border-radius:6px 18px 18px 6px}
+.vf-pics{position:relative;flex:0 0 auto;width:72px;height:72px}
+.vf-pics img{width:72px;height:72px;border-radius:50%;object-fit:cover;display:block}
+.vf-watt{position:absolute;right:-10px;bottom:-8px;width:34px;height:34px;background:var(--card);border-radius:50%;padding:2px}
+.vf-watt svg{width:100%;height:100%}
+.vf-t p{margin:0}
+.vf-role{font-family:var(--f-mono);font-size:14px;letter-spacing:.08em;text-transform:uppercase;color:var(--petrol-2)}
+.vf-name{font-weight:700;color:var(--ink);font-size:19px;margin-top:2px!important}
+.vf-title{font-size:16px;color:var(--faint)}
+.vf-say{font-size:17px;line-height:1.45;margin-top:6px!important;color:var(--body)}
 </style>
 </head>
 <body>
@@ -475,9 +487,9 @@ body.look-a .wattline{margin:0 0 10px}
     <div class="prof" id="profile" hidden><div class="chips" id="chips"></div></div>
   </div>
 </div>
-<script src="engine/constants.js?v=202611101445"></script>
-<script src="engine/engine.js?v=202611101445"></script>
-<script src="watt.js?v=202611101445"></script>
-<script src="app.js?v=202611101445"></script>
+<script src="engine/constants.js?v=202611101520"></script>
+<script src="engine/engine.js?v=202611101520"></script>
+<script src="watt.js?v=202611101520"></script>
+<script src="app.js?v=202611101520"></script>
 </body>
 </html>

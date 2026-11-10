@@ -63,14 +63,14 @@
       sizes: [["Small", "under 50K sq ft", 25000], ["Mid-size", "50K to 150K sq ft", 75000], ["Large", "150K+ sq ft", 200000]],
       path: function () { return [
         info("stored", "What you store", "What do you mostly store?", [["frozen", "Mostly frozen"], ["chilled", "Mostly chilled or fresh"], ["mix", "A mix"]], function (k) {
-          return k === "frozen" ? { tag: "Your load", h: "At frozen sites, refrigeration can be around three quarters of the electric bill.", p: "Small efficiency gains move big dollars." } : { tag: "Your load", h: "Refrigeration is still the biggest line on your bill.", p: "The rest is lighting, docks, and material handling." }; }),
+          return k === "frozen" ? { tag: "Where your power goes", h: "At frozen sites, refrigeration can be around three quarters of the electric bill.", p: "Small efficiency gains move big dollars." } : { tag: "Where your power goes", h: "Refrigeration is still the biggest line on your bill.", p: "The rest is lighting, docks, and material handling." }; }),
         info("docks", "Docks", "How busy are your dock doors?", [["constant", "Constant traffic"], ["moderate", "Moderate"], ["closed", "Mostly closed"]], function (k) {
           if (k === "constant") { S.refrigRange = [0.08, 0.12]; return { tag: "Docks", h: "Every open door pulls warm, wet air into a space you paid to freeze.", p: "Your refrigeration runs longer to pull that heat back out, and has to defrost more often from the moisture." }; }
           S.refrigRange = k === "moderate" ? [0.06, 0.10] : [0.05, 0.08];
           return { tag: "Docks", h: "Fewer openings, so the leak is inside the system.", p: "How often your refrigeration kicks on, and how it's set to defrost, is where the money hides." }; },
           function (k) { return k === "constant" ? ["Dock traffic is overworking your refrigeration", "Warm, wet air at every door makes it run longer and defrost more."] : null; }),
         AGE, SUMMER]; },
-      signature: "Your inventory can act like a battery. Most facilities never use it." },
+      signature: "Your frozen inventory can hold cold like a battery, so you can run refrigeration when power is cheap. Most facilities never use it." },
     hotel: { label: "Hotels / Hospitality", eng: "hotel", unit: "property", units: "properties",
       sizes: [["Under 80 rooms", "select service", 40000], ["80 to 200 rooms", "full service", 100000], ["200+ rooms", "large or resort", 250000]],
       path: function () { return [
@@ -92,7 +92,7 @@
       sizes: [["Small", "under 3K sq ft", 2500], ["Standard", "3K to 5K sq ft", 4000], ["Travel center", "5K+ sq ft", 6000]],
       path: function () { return [
         CASES("coolers and cases"),
-        HOURS("How many hours a day are your stores open?", [["168", "24 hours"], ["126", "18 or more"], ["84", "Under 18"]], function () { return { tag: "Hours", h: "Your coolers are the biggest load in the store.", p: "They run every hour of the year, and so does the canopy lighting." }; }),
+        HOURS("How many hours a day are your stores open?", [["168", "24 hours"], ["126", "18 or more"], ["84", "Under 18"]], function () { return { tag: "Hours", h: "Your coolers use more power than anything else in the store.", p: "They run every hour of the year, and so does the canopy lighting." }; }),
         AGE, SUMMER]; },
       signature: "Your coolers never close, so neither does the meter." },
     health: { label: "Senior Living / Healthcare", eng: "healthcare", unit: "facility", units: "facilities",
@@ -124,13 +124,13 @@
       path: function () { return [
         info("cool", "Cooling", "How are your server rooms cooled?", [["crac", "Cooling units in the room"], ["chiller", "A central chilled-water plant"], ["unk", "Not sure"]], function () { return { tag: "Cooling", h: "After the servers themselves, cooling is your biggest cost.", p: "Every bit of cooling efficiency drops straight to the bottom line, every hour of the year." }; }),
         AGE, SUMMER]; },
-      signature: "Every watt of IT pulls a cooling watt behind it." },
+      signature: "Every bit of heat your servers give off, you pay again to remove." },
     mf: { label: "Multifamily", eng: "multifamily", unit: "property", units: "properties",
       sizes: [["Under 100 units", "", 60000], ["100 to 300 units", "", 150000], ["300+ units", "", 350000]],
       path: function () { return [
         info("cooling", "Cooling", "How is the building cooled?", [["central", "Central plant"], ["units", "Individual units"], ["mix", "A mix"]], function (k) {
           return k === "central" ? { tag: "Cooling", h: "A central plant is one big lever.", p: "One fix moves the whole common bill." } : { tag: "Cooling", h: "Your common areas still run on your meter.", p: "Corridors, lobbies, and amenities run every hour, on your dime." }; }),
-        info("amen", "Amenities", "Which do you carry on the house meter?", [["many", "Pool, gym, and garage"], ["some", "One or two of those"], ["few", "Mostly corridors and lighting"]], function () {
+        info("amen", "Amenities", "Which of these run on the building's own meter?", [["many", "Pool, gym, and garage"], ["some", "One or two of those"], ["few", "Mostly corridors and lighting"]], function () {
           return { tag: "Amenities", h: "Your common areas are a 24/7 building inside your building.", p: "Every dollar saved on the building's own meter goes straight to your bottom line (NOI)." }; }),
         AGE, SUMMER]; },
       signature: "Your common areas are a 24/7 building inside your building." },
@@ -150,7 +150,7 @@
       sizes: [["Strip center", "under 30K sq ft", 15000], ["Community center", "30K to 150K sq ft", 60000], ["Regional", "150K+ sq ft", 200000]],
       path: function () { return [
         info("pays", "Who pays", "Who pays for tenant energy?", [["tenants", "Tenants, on their own meters"], ["house", "House meter, we bill back"], ["mix", "A mix"]], function (k) {
-          return k === "tenants" ? { tag: "Who pays", h: "Then your bill is the common areas, and it's all yours.", p: "Parking lots, corridors, and vacant suites still send you a bill." } : { tag: "Who pays", h: "Every dollar you can't bill back comes out of your bottom line (NOI).", p: "Efficiency on the house meter is margin, not just savings." }; }),
+          return k === "tenants" ? { tag: "Who pays", h: "Then your bill is the common areas, and it's all yours.", p: "Parking lots, corridors, and vacant suites still send you a bill." } : { tag: "Who pays", h: "Every dollar you can't bill back comes out of your bottom line (NOI).", p: "Savings on the building's own meter are pure profit." }; }),
         info("vacancy", "Vacancy", "Roughly how much is vacant?", [["low", "Under 5%"], ["mid", "5 to 15%"], ["high", "Over 15%"]], function (k) {
           return k === "low" ? { tag: "Vacancy", h: "Even full centers waste power in the common areas.", p: "Lighting and rooftop units run on your schedule, not your tenants'." } : { tag: "Vacancy", h: "Vacant suites still pull power for HVAC and lighting.", p: "That cost lands on you, not a tenant." }; },
           function (k) { return k !== "low" ? ["Vacant suites on your meter", "Empty spaces still pull HVAC and lighting, and the cost is yours."] : null; }),
@@ -867,14 +867,14 @@
       "Savings use Energy Plus program ranges; your answers set where in the range you land. Typical is the middle of the range, not the top.",
       "This is an estimate. Your building sets your number, verified only by a site pilot."
     ];
-    var n = $('<section class="screen readout">' + ask(esc(S.name) + ", " + (WHY_OPEN[S.why] || "here&rsquo;s what I found.").replace(/^./, function (c) { return c.toLowerCase(); }), "Based on your answers. An engineer checks every number with you on a call.") + '<div class="panel"><div class="grat"></div><div class="in"><h2>Here&rsquo;s what your ' + esc(multi ? F.units : F.unit) + ' could save each year</h2><div class="range"><span id="lo">$0</span> to <span id="hi">$0</span></div><div class="per">per year &middot; ' + Math.round(r.perSite[0] / r.annual * 100) + " to " + Math.round(r.perSite[1] / r.annual * 100) + '% of your electric spend &middot; typical <span id="typ">$0</span></div><div class="ticks"><div><b id="ten">$0</b><span>10-year savings, typical</span></div><div><b>' + kmoney(annualAll) + "</b><span>annual electric spend" + (S.estimated ? ", est." : "") + "</span></div><div><b>" + escPct + "%</b><span>yearly rate climb used</span></div></div></div></div>" +
+    var n = $('<section class="screen readout">' + ask(esc(S.name) + ", " + (WHY_OPEN[S.why] || "here&rsquo;s what I found.").replace(/^./, function (c) { return c.toLowerCase(); }), "Based on your answers. Our Chief Engineer, Cliff, checks every number with you before anything is installed.") + '<div class="panel"><div class="grat"></div><div class="in"><h2>Here&rsquo;s what your ' + esc(multi ? F.units : F.unit) + ' could save each year</h2><div class="range"><span id="lo">$0</span> to <span id="hi">$0</span></div><div class="per">per year &middot; ' + Math.round(r.perSite[0] / r.annual * 100) + " to " + Math.round(r.perSite[1] / r.annual * 100) + '% of your electric spend &middot; typical <span id="typ">$0</span></div><div class="ticks"><div><b id="ten">$0</b><span>10-year savings, typical</span></div><div><b>' + kmoney(annualAll) + "</b><span>annual electric spend" + (S.estimated ? ", est." : "") + "</span></div><div><b>" + escPct + "%</b><span>yearly rate climb used</span></div></div></div></div>" +
       '<div class="blocks">' + order.map(function (k) { return blocks[k]; }).join("") +
-      '<div class="blk"><h2>Find out if these numbers hold for your ' + esc(F.units) + '</h2><p class="sub">A 15-minute call turns this estimate into a site-specific number. Text Dan directly.</p><div class="verify-row"><span id="w-ver"></span><p>An Energy Plus engineer checks every number with you before anything is installed.</p></div><div class="cta" style="margin-top:16px"><a class="btn" id="sms" href="sms:' + PHONE_E164 + "?body=" + encodeURIComponent(smsBody) + '">Text Dan <span class="ar">&rarr;</span></a><div class="num"><span>' + PHONE_DISPLAY + '</span><button class="copy" id="cp">Copy number</button></div><a class="link" href="' + bookUrl(r) + '" target="_blank" rel="noopener">Or book a call</a></div></div>' +
+      '<div class="blk"><h2>Find out if these numbers hold for your ' + esc(F.units) + '</h2><p class="sub">A 15-minute call turns this estimate into a site-specific number. Text Dan directly.</p><div class="verifier"><div class="vf-pics"><img src="../assets/img/cliff-head.jpg" alt="Cliff Suljak" width="72" height="72"><span id="w-ver" class="vf-watt"></span></div><div class="vf-t"><p class="vf-role">Your verifier</p><p class="vf-name">Cliff Suljak</p><p class="vf-title">Chief Engineer, Energy Plus</p><p class="vf-say">Watt finds it. Cliff checks it. Every number in your report is verified by Cliff before anything is installed.</p></div></div><div class="cta" style="margin-top:16px"><a class="btn" id="sms" href="sms:' + PHONE_E164 + "?body=" + encodeURIComponent(smsBody) + '">Text Dan <span class="ar">&rarr;</span></a><div class="num"><span>' + PHONE_DISPLAY + '</span><button class="copy" id="cp">Copy number</button></div><a class="link" href="' + bookUrl(r) + '" target="_blank" rel="noopener">Or book a call</a></div></div>' +
       '<div class="blk"><h2 style="font-size:22px">What you told Watt</h2><div class="told">' + S.order.filter(function (q) { return S.ans[q] != null && S.chip[q]; }).map(function (q) { return '<span class="chip">' + esc(S.chip[q]) + "</span>"; }).join("") + "</div></div>" +
       '<div class="blk assume"><h2 style="font-size:22px">How we estimated this</h2><ul>' + assumptions.filter(Boolean).map(function (a) { return "<li>" + a + "</li>"; }).join("") + '</ul><p style="margin-top:14px"><button class="link" id="again">Run another building</button></p></div></div></section>');
     n.querySelector("#cp").addEventListener("click", function (e) { var b = e.currentTarget; try { navigator.clipboard.writeText(PHONE_DISPLAY).then(function () { b.textContent = "Copied"; }, function () { b.textContent = PHONE_DISPLAY; }); } catch (_) { b.textContent = PHONE_DISPLAY; } });
     n.querySelector("#again").addEventListener("click", function () { intro(); syncBack(); });
-    wattIn(n, "#w-ver", 56, { state: "verify", fixed: true });
+    wattIn(n, "#w-ver", 34, { state: "verify", fixed: true });
     wireReplay(n); show(n, true); setAction("Text Dan", null, { href: n.querySelector("#sms").getAttribute("href") });
     var tenTyp = r.typical * ENG.escalationFactor(r.escRate, 10);
     setTimeout(function () { countUp(document.getElementById("lo"), lo, kmoney, 1600); countUp(document.getElementById("hi"), hi, kmoney, 1900); countUp(document.getElementById("typ"), typ, kmoney, 1900); countUp(document.getElementById("ten"), tenTyp, kmoney, 2200); }, reduce ? 0 : 420);
