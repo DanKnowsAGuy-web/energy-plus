@@ -385,6 +385,15 @@ html:has(body.has-profile){scroll-padding-bottom:0}
 /* a: Watt above his message, like a messenger name line */
 body.look-a{--av:64px}
 body.look-a .wattline{margin:0 0 10px}
+
+.readout .bubble.ask{text-align:left;border-top-left-radius:6px}
+.readout .bubble.ask::before{display:none}
+.readout .bubble.ask .sub{margin:12px 0 0}
+/* sources as quiet fine print */
+.bubble.say .src,.insight .src{font-size:12px;line-height:1.4;opacity:.7;margin-top:12px;letter-spacing:0}
+/* the teaser list before the phone number */
+.tease{margin:14px 0 0;padding-left:24px;display:grid;gap:8px;font-size:19px;color:var(--ink);font-weight:600}
+.tease li::marker{color:var(--ochre);font-family:var(--f-mono)}
 </style>
 </head>
 <body>
@@ -403,9 +412,9 @@ body.look-a .wattline{margin:0 0 10px}
     <div class="prof" id="profile" hidden><div class="chips" id="chips"></div></div>
   </div>
 </div>
-<script src="engine/constants.js?v=202611101235"></script>
-<script src="engine/engine.js?v=202611101235"></script>
-<script src="watt.js?v=202611101235"></script>
-<script src="app.js?v=202611101235"></script>
+<script src="engine/constants.js?v=202611101310"></script>
+<script src="engine/engine.js?v=202611101310"></script>
+<script src="watt.js?v=202611101310"></script>
+<script src="app.js?v=202611101310"></script>
 </body>
 </html>
