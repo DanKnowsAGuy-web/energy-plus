@@ -369,7 +369,7 @@ html:has(body.has-profile){scroll-padding-bottom:0}
 .told .chip{white-space:normal}
 @media (max-width:460px){.brow{grid-template-columns:minmax(0,1.2fr) minmax(0,1fr) 46px;font-size:17px}}
 
-/* ---------- Watt in the conversation without taking a margin: three draft looks ---------- */
+/* ---------- Watt in the conversation: above his message, like a messenger name line ---------- */
 .turn{display:flex;flex-direction:column;align-items:stretch}
 .turn > .opts.answered,.turn > .replypill,.turn > .change{align-self:flex-end}
 .reg-h{text-align:left;gap:12px}
@@ -385,17 +385,6 @@ html:has(body.has-profile){scroll-padding-bottom:0}
 /* a: Watt above his message, like a messenger name line */
 body.look-a{--av:64px}
 body.look-a .wattline{margin:0 0 10px}
-/* b: Watt inside his message, at the top */
-body.look-b{--av:58px}
-body.look-b .bubble.ask .wattline{margin:0 0 16px;padding-bottom:14px;border-bottom:1px solid var(--rule)}
-/* c: Watt peeking over the top of his message */
-body.look-c{--av:88px}
-body.look-c .bubble.ask{position:relative;margin-top:48px;padding-top:70px;text-align:center}
-body.look-c .bubble.ask .sub{margin-left:auto;margin-right:auto}
-body.look-c .bubble.ask .wattline{position:absolute;top:-44px;left:50%;transform:translateX(-50%);flex-direction:column;gap:2px}
-body.look-c .wattline .wname b{display:none}
-body.look-c .wattline .wstat{font-size:14px}
-body.look-c .turn{padding-top:8px}
 </style>
 </head>
 <body>
@@ -414,9 +403,9 @@ body.look-c .turn{padding-top:8px}
     <div class="prof" id="profile" hidden><div class="chips" id="chips"></div></div>
   </div>
 </div>
-<script src="engine/constants.js?v=202611101215"></script>
-<script src="engine/engine.js?v=202611101215"></script>
-<script src="watt.js?v=202611101215"></script>
-<script src="app.js?v=202611101215"></script>
+<script src="engine/constants.js?v=202611101235"></script>
+<script src="engine/engine.js?v=202611101235"></script>
+<script src="watt.js?v=202611101235"></script>
+<script src="app.js?v=202611101235"></script>
 </body>
 </html>

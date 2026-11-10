@@ -180,10 +180,8 @@
      the person taps a reply, Watt "thinks" for a beat, then answers with what that reply means.
      A "Your building" strip fills in along the bottom as they go. */
   /* one live Watt; each time he speaks he moves to sit beside that message */
-  /* three draft layouts, chosen with ?look=a|b|c: a = Watt above his message, b = inside it, c = peeking over it */
-  var LOOK = (new URLSearchParams(location.search).get("look") || "a").toLowerCase();
-  if (["a", "b", "c"].indexOf(LOOK) < 0) LOOK = "a";
-  document.body.classList.add("look-" + LOOK);
+  var LOOK = "a";
+  document.body.classList.add("look-a");
   var wl = $('<div class="wattline" aria-hidden="true"><span class="watt-live"></span><span class="wname"><b>Watt</b><span class="wstat"></span></span></div>');
   var seat = wl.querySelector(".watt-live");
   if (window.Watt) Watt.mount(seat, 64);
@@ -257,7 +255,7 @@
   function seatIn(node) {
     var a = node.querySelector(".bubble.ask");
     if (!a) return;
-    if (LOOK === "a") a.parentNode.insertBefore(wl, a); else a.insertBefore(wl, a.firstChild);
+    a.parentNode.insertBefore(wl, a);
   }
   /* the conversation builds up: earlier turns stay above, quieter; Back takes the last turn off */
   function show(node, fresh) {
