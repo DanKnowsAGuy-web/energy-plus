@@ -175,12 +175,28 @@
   function syncBack() { var b = document.getElementById("back"); if (b) b.hidden = !hist.length; }
   var S, app = document.getElementById("app"), prog = document.getElementById("prog"), countEl = document.getElementById("count");
   var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  /* Watt: the avatar changes with the stage of the walkthrough (hello, listen, work, found, verify) */
-  var wattTopHost = document.getElementById("watt-top");
-  if (window.Watt && wattTopHost) Watt.mount(wattTopHost, 40);
-  function stage(s) { if (!window.Watt) return; Watt.set(s); if (wattTopHost) wattTopHost.style.visibility = (s === "hello" || s === "work") ? "hidden" : "visible"; }
+  /* ---------- Watt runs the conversation ----------
+     Watt sits at the top of the stage. Every step is one turn: Watt asks (a speech bubble),
+     the person taps a reply, Watt "thinks" for a beat, then answers with what that reply means.
+     A "Your building" strip fills in along the bottom as they go. */
+  var seat = document.getElementById("watt-main");
+  if (window.Watt && seat) Watt.mount(seat, 136);
+  function stage(s) { if (window.Watt) Watt.set(s); }
+  function talk() { if (!seat || reduce) return; seat.classList.remove("talk"); void seat.offsetWidth; seat.classList.add("talk"); }
   function wattIn(node, sel, size, opt) { var h = node.querySelector(sel); if (h && window.Watt) Watt.mount(h, size, opt); }
-  function reset() { S = { pf: {}, ans: {}, locs: 1 }; hist = []; current = null; }
+  function reset() { S = { pf: {}, ans: {}, chip: {}, order: [], locs: 1 }; hist = []; current = null; renderProfile(); }
+
+  /* the "Your building" strip */
+  function setChip(q, text) { if (S.order.indexOf(q) < 0) S.order.push(q); S.chip[q] = text; renderProfile(); }
+  function renderProfile() {
+    var bar = document.getElementById("profile"), box = document.getElementById("chips");
+    if (!bar || !box || !S) return;
+    var items = S.order.filter(function (q) { return S.ans[q] != null && S.chip[q]; });
+    bar.hidden = !items.length;
+    document.body.classList.toggle("has-profile", !!items.length);
+    box.innerHTML = items.map(function (q, i) { return '<span class="chip' + (i === items.length - 1 ? " new" : "") + '">' + esc(S.chip[q]) + "</span>"; }).join("");
+    box.scrollLeft = box.scrollWidth;
+  }
   reset();
 
   function $(h) { var d = document.createElement("div"); d.innerHTML = h.trim(); return d.firstChild; }
@@ -197,13 +213,19 @@
   function fillBars(root) { requestAnimationFrame(function () { requestAnimationFrame(function () { root.querySelectorAll(".bt i").forEach(function (i) { i.style.width = i.dataset.w + "%"; }); }); }); }
   function show(node) {
     var old = app.firstChild;
-    function put() { app.innerHTML = ""; app.appendChild(node); window.scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" }); }
-    if (old && !reduce) { old.classList.add("leave"); setTimeout(put, 260); } else put();
+    function put() { app.innerHTML = ""; app.appendChild(node); talk(); window.scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" }); }
+    if (old && !reduce) { old.classList.add("leave"); setTimeout(put, 240); } else put();
   }
   function bars(rows) { return '<div class="bars">' + rows.map(function (r, i) { return '<div class="brow' + (i === 0 ? " lead" : "") + '"><span class="lbl">' + r[0] + '</span><span class="bt"><i data-w="' + r[1] + '"></i></span><span class="pv">' + r[1] + '%</span></div>'; }).join("") + "</div>"; }
 
+  /* Watt's question bubble */
+  function ask(q, sub, eyebrow) {
+    return '<div class="bubble ask">' + (eyebrow ? '<p class="eyebrow">' + esc(eyebrow) + "</p>" : "") + "<h1>" + q + "</h1>" + (sub ? '<p class="sub">' + sub + "</p>" : "") + "</div>";
+  }
+
+  /* Watt's answer: what the reply means, with anything worth showing inside it */
   function card(res, next, quiet) {
-    var c = $('<div class="insight"><h3>' + res.h + "</h3>" + (res.p ? "<p>" + res.p + "</p>" : "") + (res.viz || "") + '<div class="next"><button class="btn">Continue <span class="ar">&rarr;</span></button></div>' + (res.src ? '<div class="src">' + esc(res.src) + "</div>" : "") + '</div>');
+    var c = $('<div class="bubble say">' + (res.tag ? '<p class="eyebrow">' + esc(res.tag) + "</p>" : "") + "<h3>" + res.h + "</h3>" + (res.p ? "<p>" + res.p + "</p>" : "") + (res.viz ? '<div class="shown">' + res.viz + "</div>" : "") + (res.src ? '<div class="src">' + esc(res.src) + "</div>" : "") + '<div class="next"><button class="btn">Next <span class="ar">&rarr;</span></button></div></div>');
     c.querySelector(".btn").addEventListener("click", next);
     setTimeout(function () {
       fillBars(c);
@@ -214,33 +236,51 @@
     return c;
   }
 
-  /* generic question: options, lock, insight, continue */
+  /* a beat of "thinking" before Watt answers; found = Watt lights up as the spark */
+  function respond(slot, res, next, quiet, found) {
+    slot.innerHTML = "";
+    if (quiet || reduce) { stage(found ? "found" : "listen"); slot.appendChild(card(res, next, true)); return; }
+    var typing = $('<div class="bubble say typing" aria-label="Watt is thinking"><i></i><i></i><i></i></div>');
+    slot.appendChild(typing);
+    typing.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    if (window.Watt) Watt.blink();
+    setTimeout(function () {
+      if (!typing.isConnected) return;
+      slot.innerHTML = "";
+      stage(found ? "found" : "listen"); talk();
+      slot.appendChild(card(res, next, false));
+    }, 750);
+  }
+
+  /* generic question: Watt asks, the person replies, Watt answers */
   function question(cfg) {
     setProgress(cfg.step);
     stage("listen");
-    var html = '<section class="screen"><h1>' + esc(cfg.q) + "</h1>" + (cfg.sub ? '<p class="sub">' + esc(cfg.sub) + "</p>" : "") +
-      '<div class="opts' + (cfg.grid ? " grid2" : "") + '">' + cfg.opts.map(function (o) { return '<button class="opt" data-k="' + o[0] + '"><span>' + esc(o[1]) + "</span>" + (o[2] ? '<span class="hint">' + esc(o[2]) + "</span>" : "") + "</button>"; }).join("") + '</div><div class="slot"></div></section>';
-    var node = $(html), opts = node.querySelector(".opts"), slot = node.querySelector(".slot");
+    var html = '<section class="screen turn">' + ask(esc(cfg.q), cfg.sub ? esc(cfg.sub) : "", cfg.eyebrow) +
+      '<div class="opts' + (cfg.grid ? " grid2" : "") + '">' + cfg.opts.map(function (o) { return '<button class="opt" data-k="' + o[0] + '"><span>' + esc(o[1]) + "</span>" + (o[2] ? '<span class="hint">' + esc(o[2]) + "</span>" : "") + "</button>"; }).join("") + '</div><button class="link change" type="button" hidden>Change my answer</button><div class="slot"></div></section>';
+    var node = $(html), opts = node.querySelector(".opts"), slot = node.querySelector(".slot"), change = node.querySelector(".change");
+    change.addEventListener("click", function () { opts.classList.remove("answered"); change.hidden = true; slot.innerHTML = ""; stage("listen"); });
     function choose(b, quiet) {
-      if (!quiet && window.Watt) Watt.blink();
-      if (!b || b.classList.contains("chosen")) return;
-      opts.querySelectorAll(".opt").forEach(function (x) { x.classList.toggle("chosen", x === b); x.classList.toggle("dim", x !== b); });
+      if (!b) return;
+      opts.querySelectorAll(".opt").forEach(function (x) { x.classList.toggle("chosen", x === b); });
+      opts.classList.add("answered"); change.hidden = false;
       var k = b.dataset.k; S.ans[cfg.q] = k; if (cfg.pick) cfg.pick(k);
+      var label = b.querySelector("span").textContent;
+      setChip(cfg.q, cfg.chip ? cfg.chip(k, label) : (cfg.eyebrow ? cfg.eyebrow + ": " : "") + label);
       var res = cfg.insight(k);
-      slot.innerHTML = "";
-      if (!quiet && !S.hintShown) S.hintShown = true, opts.insertAdjacentHTML("afterend", '<p class="change-hint">Tap another answer to change it.</p>');
       if (res && res.redirect) {
-        if (!quiet) { setTimeout(function () { go(res.redirect); }, 350); return; }
-        var nx = $('<div class="next"><button class="btn">Continue <span class="ar">&rarr;</span></button></div>');
+        slot.innerHTML = "";
+        if (!quiet) { setTimeout(function () { go(res.redirect); }, 450); return; }
+        var nx = $('<div class="next"><button class="btn">Next <span class="ar">&rarr;</span></button></div>');
         nx.querySelector(".btn").addEventListener("click", function () { go(res.redirect); }); slot.appendChild(nx); return;
       }
-      slot.appendChild(card(res, function () { go(cfg.next); }, quiet));
+      respond(slot, res, function () { go(cfg.next); }, quiet, res.found || (cfg.id && S.pf[cfg.id]));
     }
-    opts.addEventListener("click", function (e) { choose(e.target.closest(".opt")); });
+    opts.addEventListener("click", function (e) { var b = e.target.closest(".opt"); if (b && !opts.classList.contains("answered")) choose(b); });
     show(node);
     var saved = S.ans[cfg.q];
-    if (saved != null) setTimeout(function () { choose(opts.querySelector('[data-k="' + saved + '"]'), true); }, reduce ? 0 : 300);
-    else if (cfg.preselect) setTimeout(function () { choose(opts.querySelector('[data-k="' + cfg.preselect + '"]')); }, reduce ? 0 : 700);
+    if (saved != null) setTimeout(function () { choose(opts.querySelector('[data-k="' + saved + '"]'), true); }, reduce ? 0 : 280);
+    else if (cfg.preselect) setTimeout(function () { choose(opts.querySelector('[data-k="' + cfg.preselect + '"]')); }, reduce ? 0 : 900);
   }
 
   /* ---------- screens ---------- */
@@ -250,16 +290,17 @@
     if (pre && FAC[pre]) S.preFac = pre;
     setProgress(0, "");
     stage("hello");
-    var label = S.preFac ? FAC[S.preFac].label.split(" /")[0] : "your building";
-    var n = $('<section class="screen"><div class="panel"><div class="grat"></div><div class="in"><div class="watt-hi"><span id="w-hi"></span><span class="watt-says">Hi, I&rsquo;m Watt, your Energy+ AI.</span></div><h1>A few taps. About two minutes. A read on ' + esc(label.toLowerCase() === "your building" ? "your building" : "your " + FAC[S.preFac].units) + ' most operators never get.</h1><p class="sub">Tap through the questions a senior energy strategist would ask on a first call. Every answer shows you something about your operation.</p><div class="dial"><div><b class="mono">~10</b>taps</div><div><b class="mono">~2 min</b>to finish</div></div><div style="margin-top:30px"><button class="btn" id="go">Start the diagnostic <span class="ar">&rarr;</span></button></div></div></div></section>');
+    var what = S.preFac ? "your " + FAC[S.preFac].units : "your building";
+    var n = $('<section class="screen turn">' + ask("Hi, I&rsquo;m Watt, your Energy+ AI.",
+      "I&rsquo;ll ask you about ten quick questions, the same ones a senior energy strategist asks on a first call. Every answer, I&rsquo;ll show you something about " + esc(what) + ". About two minutes.") +
+      '<div class="next start"><button class="btn" id="go">Let&rsquo;s start <span class="ar">&rarr;</span></button></div></section>');
     n.querySelector("#go").addEventListener("click", function () { go(facility); });
-    wattIn(n, "#w-hi", 84, { onPetrol: true });
     show(n);
   }
 
   function facility() {
     question({ step: 1, eyebrow: "Facility", q: "What kind of facility are we looking at?", grid: true,
-      opts: FAC_ORDER.map(function (k) { return [k, FAC[k].label]; }), preselect: S.preFac,
+      opts: FAC_ORDER.map(function (k) { return [k, FAC[k].label]; }), preselect: S.preFac, chip: function (k) { return FAC[k].label.split(" /")[0]; },
       pick: function (k) {
         if (S.fac && S.fac !== k) { S.path.forEach(function (q) { if (q.id !== "age" && q.id !== "summer") delete S.ans[q.q]; }); S.pf = {}; ["cases", "refrigRange", "occupancy", "engOverride", "hours"].forEach(function (x) { delete S[x]; }); }
         S.fac = k; S.path = FAC[k].path(); TOTAL = 6 + S.path.length + 1; },
@@ -277,37 +318,39 @@
   }
 
   function role() {
-    question({ step: 2, eyebrow: "Your seat", q: "What's your role?", opts: ROLES,
+    question({ step: 2, eyebrow: "Your seat", q: "What's your role?", opts: ROLES, chip: function (k, l) { return l; },
       pick: function (k) { S.role = k; },
       insight: function (k) { var r = ROLE_INSIGHT[k]; return { tag: "How we'll read this for you", h: r.h, p: r.p }; }, next: stateQ });
   }
 
   function stateQ() {
     setProgress(3);
-    var names = Object.keys(STATE_NAMES).sort();
-    var n = $('<section class="screen"><h1>Where are most of your ' + esc(fac().units) + '?</h1><select class="state" id="stsel" aria-label="State"><option value="">Choose a state</option>' + names.map(function (s) { return "<option>" + esc(s) + "</option>"; }).join("") + '</select><div class="slot"></div></section>');
+    stage("listen");
+    var names = Object.keys(STATE_NAMES).sort(), quietNext = false;
+    var n = $('<section class="screen turn">' + ask("Where are most of your " + esc(fac().units) + "?", "", "Location") + '<select class="state" id="stsel" aria-label="State"><option value="">Choose a state</option>' + names.map(function (s) { return "<option>" + esc(s) + "</option>"; }).join("") + '</select><div class="slot"></div></section>');
     var sel = n.querySelector("#stsel"), slot = n.querySelector(".slot");
     sel.addEventListener("change", function () {
-      if (!sel.value) return; S.state = STATE_NAMES[sel.value]; S.stateName = sel.value; slot.innerHTML = "";
-      var st = EP.states[S.state], nat = EP.national, rate = st.rate, diff = (rate / nat.rate12mo - 1) * 100, chg = EP.rateChange[S.state];
+      var quiet = quietNext; quietNext = false;
+      if (!sel.value) return; S.state = STATE_NAMES[sel.value]; S.stateName = sel.value; S.ans.__state = sel.value; setChip("__state", sel.value);
+      var st = EP.states[S.state], nat = EP.national, rate = st.rate, diff = (rate / nat.rate12mo - 1) * 100;
       var rise = riseFor(S.state), name = esc(sel.value);
       var h = diff >= 3 ? "Commercial power in " + name + " already costs about " + Math.round(diff) + "% more than the national average."
         : diff <= -3 ? "Power in " + name + " is cheaper than average. That makes waste easy to ignore, and it still compounds."
         : "Commercial power in " + name + " runs close to the national average.";
       var p = (rise.local ? "And it's climbing: rates here rose " + rise.pct.toFixed(1) + "% in the last 12 months." : "And it's climbing: commercial rates rose " + rise.pct.toFixed(1) + "% nationally in the last year. Yours may vary.") +
-        (st.retailChoice === true ? " Your state also lets businesses shop their supply rate, so we'll include that." : "");
-      slot.appendChild(card({ h: h, p: p,
+        (st.retailChoice === true ? " Your state also lets businesses shop their supply rate, so I'll include that." : "");
+      respond(slot, { tag: "Your rates", h: h, p: p,
         viz: '<div class="fig"><span class="big metered" data-count="' + rate + '" data-fmt="cents">0¢</span><span class="vs">per kWh here vs ' + nat.rate12mo.toFixed(2) + '¢ national</span></div><div class="fig" style="margin-top:8px"><span class="big" style="font-size:30px" data-count="' + rise.pct + '" data-fmt="pct">0%</span><span class="vs">' + (rise.local ? "rate rise here, last 12 months" : "rate rise nationally, last 12 months") + '</span></div>',
-        src: "EIA commercial retail prices, 12 months to Aug 2026; national change Aug 2026 vs Aug 2025" }, function () { go(locations); }));
+        src: "EIA commercial retail prices, 12 months to Aug 2026; national change Aug 2026 vs Aug 2025" }, function () { go(locations); }, quiet, false);
     });
     show(n);
-    if (S.stateName) setTimeout(function () { sel.value = S.stateName; sel.dispatchEvent(new Event("change")); }, reduce ? 0 : 300);
+    if (S.stateName) setTimeout(function () { quietNext = true; sel.value = S.stateName; sel.dispatchEvent(new Event("change")); }, reduce ? 0 : 280);
     else setTimeout(function () { sel.focus({ preventScroll: true }); }, 600);
   }
 
   function locations() {
     var F = fac();
-    question({ step: 4, eyebrow: "Footprint", q: "How many " + F.units + "?", opts: [["1", "1"], ["3", "2 to 5"], ["12", "6 to 20"], ["35", "21 to 50"], ["75", "50+"]],
+    question({ step: 4, eyebrow: "Footprint", q: "How many " + F.units + "?", opts: [["1", "1"], ["3", "2 to 5"], ["12", "6 to 20"], ["35", "21 to 50"], ["75", "50+"]], chip: function (k, l) { return l + " " + (k === "1" ? F.unit : F.units); },
       pick: function (k) { S.locs = parseInt(k, 10); S.locLabel = { "1": "1", "3": "2 to 5", "12": "6 to 20", "35": "21 to 50", "75": "50+" }[k]; },
       insight: function () { return { redirect: bill }; },
       next: bill });
@@ -333,7 +376,7 @@
       rateLine = " In " + name + ", the largest utilities charge about $" + Math.round(sd.rate) + " for every kW of that peak, every month" + (hi - lo >= 2 ? " ($" + lo + " to $" + hi + " depending on the utility)." : ".");
     }
     var src = "Based on demand rates at " + name + "&rsquo;s largest utilities and how a typical " + fac().unit + " uses power through the day." + (di.capped ? " Smaller bills usually carry less, so we scaled it down." : "");
-    return { h: "About " + dPct + "% of that, roughly " + kmoney(m * d) + " a month, is probably your demand charge.",
+    return { found: true, tag: "Your demand charge", h: "About " + dPct + "% of that, roughly " + kmoney(m * d) + " a month, is probably your demand charge.",
       p: "You're billed for the power you use, and again for your busiest 15 minutes of the month, when everything runs at once. That one moment sets this charge for the whole month." + rateLine + (S.estimated ? " (Your bill is estimated from size.)" : ""),
       viz: bars([["Demand charge", dPct], ["Power used", 100 - dPct]]),
       src: src };
@@ -344,7 +387,7 @@
     var F = fac(), edges = engFac().billBands, opts = [];
     for (var i = 0; i < edges.length - 1; i++) opts.push([edges[i] + "-" + edges[i + 1], "$" + fmtK(edges[i]) + " to $" + fmtK(edges[i + 1])]);
     opts.push(["unk", "Not sure, help me estimate"]);
-    question({ step: 5, q: "What's a typical monthly electric bill for one " + F.unit + "?", sub: "A rough range is fine. We'll narrow it down next.", opts: opts,
+    question({ step: 5, q: "What's a typical monthly electric bill for one " + F.unit + "?", sub: "A rough range is fine. We'll narrow it down next.", opts: opts, chip: function () { return ""; },
       pick: function (k) { if (k !== "unk") { var p = k.split("-"); S.band = [parseInt(p[0], 10), parseInt(p[1], 10)]; S.estimated = false; S.sqft = null; } },
       insight: function (k) { return k === "unk" ? { redirect: sizeQ } : { redirect: dial }; }, next: season });
   }
@@ -354,19 +397,19 @@
     var opts = [];
     for (var j = 0; j < 4; j++) if (e[j + 1] > e[j]) opts.push([String(Math.round(Math.sqrt(e[j] * e[j + 1]))), "$" + fmtK(e[j]) + " to $" + fmtK(e[j + 1])]);
     opts.push([String(Math.round(Math.sqrt(lo * hi))), "Somewhere in that range"]);
-    question({ step: 5, q: "Let's dial that in. Which is closest?", sub: "Between $" + fmtK(lo) + " and $" + fmtK(hi) + " a month.", opts: opts,
+    question({ step: 5, q: "Let's dial that in. Which is closest?", sub: "Between $" + fmtK(lo) + " and $" + fmtK(hi) + " a month.", opts: opts, chip: function (k) { return "About " + kmoney(parseInt(k, 10)) + "/mo per " + fac().unit; },
       pick: function (k) { S.monthly = parseInt(k, 10); },
       insight: billInsight, next: season });
   }
   function sizeQ() {
     var F = fac();
     question({ step: 5, eyebrow: "Your bill", q: "How big is a typical " + F.unit + "?", sub: "We'll estimate the bill from benchmarks and say so.",
-      opts: F.sizes.map(function (s, i) { return [String(i), s[0], s[1]]; }),
+      opts: F.sizes.map(function (s, i) { return [String(i), s[0], s[1]]; }), chip: function (k, l) { return l + " " + F.unit + ", bill estimated"; },
       pick: function (k) { var s = F.sizes[parseInt(k, 10)]; S.sqft = s[2]; S.monthly = Math.round(s[2] * engFac().eui_kwh_sqft * EP.states[S.state].rate / 100 / 12); S.estimated = true; },
       insight: billInsight, next: season });
   }
   function season() {
-    question({ step: 6, eyebrow: "Your bill", q: "Which time of year was that bill from?", opts: [["summer", "Summer"], ["winter", "Winter"], ["mild", "Spring or fall"], ["avg", "Not sure"]],
+    question({ step: 6, eyebrow: "Your bill", q: "Which time of year was that bill from?", opts: [["summer", "Summer"], ["winter", "Winter"], ["mild", "Spring or fall"], ["avg", "Not sure"]], chip: function () { return ""; },
       pick: function (k) { S.season = k; },
       insight: function (k) { var idx = EP.states[S.state].season[k] || 1, annual = S.monthly / idx * 12; S.annual = annual;
         return { tag: "Your year", h: "That works out to about " + kmoney(annual) + " a year per " + fac().unit + (S.locs > 1 ? ", and " + kmoney(annual * S.locs) + " across all of them." : "."), p: k === "avg" ? "We'll treat it as an average month for your state." : "We adjust for the season using your state's monthly pattern, so one bill can stand in for a year.", viz: '<div class="fig"><span class="big" data-count="' + annual * S.locs + '">$0</span><span class="vs">per year in electricity' + (S.estimated ? ", estimated" : "") + "</span></div>", src: "EIA-861M monthly commercial sales by state" }; },
@@ -382,7 +425,7 @@
   function under() {
     stage("listen");
     setProgress(TOTAL, "");
-    var n = $('<section class="screen"><h1>Our full program is built for portfolios spending $20K or more a month.</h1><p class="sub">We don\'t want to waste your time with a pitch that doesn\'t fit. Leave your number and we\'ll reach out as we roll out options sized for you.</p><div class="field"><label for="u-name">First name</label><input id="u-name" autocomplete="given-name"></div><div class="field"><label for="u-phone">Mobile</label><input id="u-phone" type="tel" inputmode="tel" autocomplete="tel"></div><div class="err" id="u-err"></div><div class="next" style="justify-content:space-between"><button class="link" id="restart">Start over</button><button class="btn" id="u-go">Keep me posted</button></div></section>');
+    var n = $('<section class="screen turn">' + ask("Our full program is built for portfolios spending $20K or more a month.", "I don&rsquo;t want to waste your time with a pitch that doesn&rsquo;t fit. Leave your number and we&rsquo;ll reach out as we roll out options sized for you.") + '<div class="field"><label for="u-name">First name</label><input id="u-name" autocomplete="given-name"></div><div class="field"><label for="u-phone">Mobile</label><input id="u-phone" type="tel" inputmode="tel" autocomplete="tel"></div><div class="err" id="u-err"></div><div class="next" style="justify-content:space-between"><button class="link" id="restart">Start over</button><button class="btn" id="u-go">Keep me posted</button></div></section>');
     n.querySelector("#restart").addEventListener("click", function () { intro(); syncBack(); });
     n.querySelector("#u-go").addEventListener("click", function () {
       var nm = n.querySelector("#u-name").value.trim(), ph = n.querySelector("#u-phone").value.replace(/\D/g, "");
@@ -396,7 +439,7 @@
   function capture() {
     stage("listen");
     setProgress(TOTAL);
-    var n = $('<section class="screen"><h1>Where should we text your diagnostic?</h1><p class="sub">No email, no spam. Your report arrives by text, and your strategist is one reply away.</p><div class="field"><label for="c-name">First name</label><input id="c-name" autocomplete="given-name"></div><div class="field"><label for="c-phone">Mobile</label><input id="c-phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="(555) 555-5555"></div><div class="err" id="c-err"></div><div class="next"><button class="btn" id="c-go">Show my diagnostic <span class="ar">&rarr;</span></button></div></section>');
+    var n = $('<section class="screen turn">' + ask("Last one. Where should I text your diagnostic?", "No email, no spam. Your report arrives by text, and your strategist is one reply away.") + '<div class="field"><label for="c-name">First name</label><input id="c-name" autocomplete="given-name"></div><div class="field"><label for="c-phone">Mobile</label><input id="c-phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="(555) 555-5555"></div><div class="err" id="c-err"></div><div class="next"><button class="btn" id="c-go">Show my diagnostic <span class="ar">&rarr;</span></button></div></section>');
     n.querySelector("#c-go").addEventListener("click", function () {
       var nm = n.querySelector("#c-name").value.trim(), ph = n.querySelector("#c-phone").value.replace(/\D/g, "");
       if (!nm) { n.querySelector("#c-err").textContent = "Add your first name so the report is addressed to you."; return; }
@@ -428,13 +471,12 @@
   /* a short working beat: Watt reads the answers before the readout */
   function working(done) {
     stage("work");
-    var n = $('<section class="screen working"><div class="w-big" id="w-work"></div><h2>Reading your answers against ' + esc(S.stateName || "your state") + '&rsquo;s rates and demand charges</h2><p class="sub">Watt is matching your ' + esc(fac().units) + ' to the fixes that pay back first.</p></section>');
-    wattIn(n, "#w-work", 132);
+    var n = $('<section class="screen turn">' + ask("Give me a second.", "I&rsquo;m reading your answers against " + esc(S.stateName || "your state") + "&rsquo;s rates and demand charges, and matching your " + esc(fac().units) + " to the fixes that pay back first.") + '<div class="bubble say typing slow" aria-hidden="true"><i></i><i></i><i></i></div></section>');
     show(n);
-    setTimeout(done, reduce ? 400 : 2300);
+    setTimeout(done, reduce ? 400 : 2400);
   }
 
-  function reveal() {
+    function reveal() {
     stage("found");
     setProgress(TOTAL, "");
     var r = compute(), F = fac(), fs = findings(r), multi = S.locs > 1, L = S.locs;
@@ -458,13 +500,12 @@
       "Savings use Energy Plus program ranges; your answers set where in the range you land. Typical is the middle of the range, not the top.",
       "This is an estimate. Your building sets your number, verified only by a site pilot."
     ];
-    var n = $('<section class="screen readout"><div class="panel"><div class="grat"></div><div class="in"><div class="watt-hi"><span id="w-found"></span><span class="watt-says">Watt found savings in your answers.</span></div><h2>' + esc(S.name) + ', here&rsquo;s what your ' + esc(multi ? F.units : F.unit) + ' could save each year</h2><div class="range"><span id="lo">$0</span> to <span id="hi">$0</span></div><div class="per">per year &middot; ' + Math.round(r.perSite[0] / r.annual * 100) + " to " + Math.round(r.perSite[1] / r.annual * 100) + '% of your electric spend &middot; typical <span id="typ">$0</span></div><div class="ticks"><div><b id="ten">$0</b><span>10-year savings, typical</span></div><div><b>' + kmoney(annualAll) + "</b><span>annual electric spend" + (S.estimated ? ", est." : "") + "</span></div><div><b>" + escPct + "%</b><span>yearly rate climb used</span></div></div></div></div>" +
+    var n = $('<section class="screen readout">' + ask(esc(S.name) + ", here&rsquo;s what I found.", "Based on your answers. An engineer checks every number with you on a call.") + '<div class="panel"><div class="grat"></div><div class="in"><h2>Here&rsquo;s what your ' + esc(multi ? F.units : F.unit) + ' could save each year</h2><div class="range"><span id="lo">$0</span> to <span id="hi">$0</span></div><div class="per">per year &middot; ' + Math.round(r.perSite[0] / r.annual * 100) + " to " + Math.round(r.perSite[1] / r.annual * 100) + '% of your electric spend &middot; typical <span id="typ">$0</span></div><div class="ticks"><div><b id="ten">$0</b><span>10-year savings, typical</span></div><div><b>' + kmoney(annualAll) + "</b><span>annual electric spend" + (S.estimated ? ", est." : "") + "</span></div><div><b>" + escPct + "%</b><span>yearly rate climb used</span></div></div></div></div>" +
       '<div class="blocks">' + order.map(function (k) { return blocks[k]; }).join("") +
       '<div class="blk"><h2>Find out if these numbers hold for your ' + esc(F.units) + '</h2><p class="sub">A 15-minute call turns this estimate into a site-specific number. Text Dan directly.</p><div class="verify-row"><span id="w-ver"></span><p>An Energy Plus engineer checks every number with you before anything is installed.</p></div><div class="cta" style="margin-top:16px"><a class="btn" id="sms" href="sms:' + PHONE_E164 + "?body=" + encodeURIComponent(smsBody) + '">Text Dan <span class="ar">&rarr;</span></a><div class="num"><span>' + PHONE_DISPLAY + '</span><button class="copy" id="cp">Copy number</button></div><a class="link" href="' + bookUrl(r) + '" target="_blank" rel="noopener">Or book a call</a></div></div>' +
       '<div class="blk assume"><h2 style="font-size:22px">How we estimated this</h2><ul>' + assumptions.map(function (a) { return "<li>" + a + "</li>"; }).join("") + '</ul><p style="margin-top:14px"><button class="link" id="again">Run another building</button></p></div></div></section>');
     n.querySelector("#cp").addEventListener("click", function (e) { var b = e.currentTarget; try { navigator.clipboard.writeText(PHONE_DISPLAY).then(function () { b.textContent = "Copied"; }, function () { b.textContent = PHONE_DISPLAY; }); } catch (_) { b.textContent = PHONE_DISPLAY; } });
     n.querySelector("#again").addEventListener("click", function () { intro(); syncBack(); });
-    wattIn(n, "#w-found", 64, { onPetrol: true });
     wattIn(n, "#w-ver", 56, { state: "verify", fixed: true });
     show(n);
     var tenTyp = r.typical * ENG.escalationFactor(r.escRate, 10);
