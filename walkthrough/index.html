@@ -6,6 +6,7 @@
 <title>Energy Plus Diagnostic</title>
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#174e58">
+<meta name="color-scheme" content="light">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=Geist+Mono:wght@400;500;600&display=swap">
@@ -18,12 +19,8 @@
   --f-display:"Archivo","Helvetica Neue",Arial,sans-serif;
   --f-mono:"Geist Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
 }
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --paper:#0d1214; --card:#151c1f; --ink:#eef2f3; --body:#b9c2c6; --faint:#88949a; --rule:#2a3439;
-  --petrol:#123f47; --petrol-2:#6cb8c4; --on-petrol:#ffffff; --on-petrol-dim:#a9c4c9; --ochre:#e8ad2c; --sel:#1b2629; color-scheme:dark}}
-:root[data-theme="dark"]{
-  --paper:#0d1214; --card:#151c1f; --ink:#eef2f3; --body:#b9c2c6; --faint:#88949a; --rule:#2a3439;
-  --petrol:#123f47; --petrol-2:#6cb8c4; --on-petrol:#ffffff; --on-petrol-dim:#a9c4c9; --ochre:#e8ad2c; --sel:#1b2629; color-scheme:dark}
+
+
 
 *{box-sizing:border-box}
 html,body{min-height:100%}
@@ -191,8 +188,8 @@ select.state{font-size:20px;padding:16px}
 
 /* Watt, the avatar */
 :root{--watt-body:var(--petrol);--watt-eye:#ffffff}
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--watt-body:#2a7482}}
-:root[data-theme="dark"]{--watt-body:#2a7482}
+
+
 .watt{display:block;overflow:visible}
 .watt .w-body{fill:var(--watt-body);stroke:var(--watt-body)}
 .watt .w-eye{fill:var(--watt-eye)}
@@ -285,13 +282,13 @@ html:has(body.has-profile){scroll-padding-bottom:120px}
 .verify-row{display:flex;align-items:center;gap:16px;margin-top:18px;padding:14px 16px;background:var(--card);border-left:3px solid var(--ochre);border-radius:4px 16px 16px 4px}
 .verify-row p{margin:0;font-size:18px;line-height:1.45;color:var(--ink)}
 .verify-row span{flex:0 0 auto}
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .btn:hover{color:#101416}}
-:root[data-theme="dark"] .btn:hover{color:#101416}
+
+
 .brand{display:inline-flex;align-items:center;line-height:0}
 .brand .logo{height:28px;width:auto;display:block}
 .brand .logo-white{display:none}
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .brand .logo-ink{display:none}:root:not([data-theme="light"]) .brand .logo-white{display:block}}
-:root[data-theme="dark"] .brand .logo-ink{display:none}:root[data-theme="dark"] .brand .logo-white{display:block}
+
+
 
 /* ---------- chat shell: Watt in the header, the conversation in the middle, one solid dock at the bottom ---------- */
 body{padding-block:0}
@@ -420,8 +417,8 @@ body.look-a .wattline{margin:0 0 10px}
 
 /* motion: shared */
 :root{--cold:#3d8fb5;--warm:#c8553d}
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--cold:#6fb8da;--warm:#e07a5f}}
-:root[data-theme="dark"]{--cold:#6fb8da;--warm:#e07a5f}
+
+
 .dviz svg .cv-a,.dviz svg .cv-b,.dviz svg .cv-c,.dviz svg .cs-t1,.dviz svg .cs-t2,.dviz svg .cs-t3,.dviz svg .dp-t1,.dviz svg .dp-t2,.dviz svg .dp-t3,.dviz svg .dp-t4{font-family:var(--f-display);font-size:15px;font-weight:700;opacity:0}
 .finds .dviz{margin-top:10px}
 /* coil */
@@ -502,6 +499,9 @@ body.look-a .wattline{margin:0 0 10px}
 .cmp-r.typ .cmp-b i{background:var(--faint)}
 @keyframes cmpGrow{from{transform:scaleX(0)}}
 @media (max-width:460px){.askw{padding:10px 12px 10px 10px;font-size:16px}}
+
+/* light mode only: it should feel like a chat */
+:root{color-scheme:light}
 </style>
 </head>
 <body>
@@ -520,9 +520,9 @@ body.look-a .wattline{margin:0 0 10px}
     <div class="prof" id="profile" hidden><div class="chips" id="chips"></div></div>
   </div>
 </div>
-<script src="engine/constants.js?v=202611101645"></script>
-<script src="engine/engine.js?v=202611101645"></script>
-<script src="watt.js?v=202611101645"></script>
-<script src="app.js?v=202611101645"></script>
+<script src="engine/constants.js?v=202611101700"></script>
+<script src="engine/engine.js?v=202611101700"></script>
+<script src="watt.js?v=202611101700"></script>
+<script src="app.js?v=202611101700"></script>
 </body>
 </html>
