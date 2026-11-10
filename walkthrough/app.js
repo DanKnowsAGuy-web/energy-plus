@@ -179,8 +179,9 @@
      Watt sits at the top of the stage. Every step is one turn: Watt asks (a speech bubble),
      the person taps a reply, Watt "thinks" for a beat, then answers with what that reply means.
      A "Your building" strip fills in along the bottom as they go. */
-  var seat = document.getElementById("watt-main");
-  if (window.Watt && seat) Watt.mount(seat, 56);
+  /* one live Watt; each time he speaks he moves to sit beside that message */
+  var seat = document.createElement("span"); seat.className = "watt-live"; seat.setAttribute("aria-hidden", "true");
+  if (window.Watt) Watt.mount(seat, 44);
   /* Watt's live status under his name, like a chat header */
   var STATUS = { hello: "Hi there", listen: "Listening", work: "Thinking\u2026", found: "Found something", verify: "Verified by engineers" };
   var statusEl = document.getElementById("status");
@@ -191,12 +192,13 @@
   var actEl = document.getElementById("act"), dockEl = document.getElementById("dock"), topEl = document.getElementById("top");
   function syncDock() {
     if (!dockEl) return;
-    var prof = document.getElementById("profile"), empty = actEl.hidden && (!prof || prof.hidden);
+    var empty = actEl.hidden;
     if (empty) dockEl.setAttribute("data-empty", ""); else dockEl.removeAttribute("data-empty");
     var h = empty ? 0 : dockEl.offsetHeight;
     document.body.style.paddingBottom = (h + 28) + "px";
     document.documentElement.style.scrollPaddingBottom = (h + 12) + "px";
     document.documentElement.style.scrollPaddingTop = ((topEl ? topEl.offsetHeight : 0) + 8) + "px";
+    document.documentElement.style.setProperty("--toph", (topEl ? topEl.offsetHeight : 0) + "px");
   }
   function setAction(label, fn, opt) {
     opt = opt || {};
@@ -242,6 +244,21 @@
   function setProgress(i, label) { prog.style.width = Math.min(100, i / TOTAL * 100) + "%"; countEl.textContent = label != null ? label : (i > 0 ? i + " of " + TOTAL : ""); }
   function countUp(el, to, fmt, dur) { if (reduce) { el.textContent = fmt(to); return; } var t0 = performance.now(); dur = dur || 1100; (function st(t) { var p = Math.min((t - t0) / dur, 1), e = 1 - Math.pow(1 - p, 4); el.textContent = fmt(to * e); if (p < 1) requestAnimationFrame(st); })(t0); }
   function fillBars(root) { requestAnimationFrame(function () { requestAnimationFrame(function () { root.querySelectorAll(".bt i").forEach(function (i) { i.style.width = i.dataset.w + "%"; }); }); }); }
+  /* give each turn a gutter for Watt, so he sits beside what he's saying */
+  function seatIn(node) {
+    if (node.classList.contains("turn")) {
+      var body = document.createElement("div"); body.className = "tbody";
+      while (node.firstChild) body.appendChild(node.firstChild);
+      var g = $('<div class="gutter"><div class="avatar-slot"></div></div>');
+      node.appendChild(g); node.appendChild(body);
+      g.firstChild.appendChild(seat);
+    } else {
+      var a = node.querySelector(".bubble.ask");
+      if (!a) return;
+      var row = $('<div class="say-row"><div class="avatar-slot"></div></div>');
+      a.parentNode.insertBefore(row, a); row.appendChild(a); row.firstChild.appendChild(seat);
+    }
+  }
   /* the conversation builds up: earlier turns stay above, quieter; Back takes the last turn off */
   function show(node, fresh) {
     clearAction();
@@ -249,6 +266,7 @@
     else if (S._back) { if (app.lastElementChild) app.removeChild(app.lastElementChild); if (app.lastElementChild) app.removeChild(app.lastElementChild); }
     else if (app.lastElementChild) app.lastElementChild.classList.add("past");
     S._back = false;
+    seatIn(node);
     app.appendChild(node); talk();
     var y = fresh ? 0 : node.getBoundingClientRect().top + window.scrollY - (topEl ? topEl.offsetHeight : 0) - 6;
     window.scrollTo({ top: Math.max(0, y), behavior: reduce || fresh ? "auto" : "smooth" });
@@ -743,6 +761,7 @@
     var n = $('<section class="screen readout">' + ask(esc(S.name) + ", here&rsquo;s what I found.", "Based on your answers. An engineer checks every number with you on a call.") + '<div class="panel"><div class="grat"></div><div class="in"><h2>Here&rsquo;s what your ' + esc(multi ? F.units : F.unit) + ' could save each year</h2><div class="range"><span id="lo">$0</span> to <span id="hi">$0</span></div><div class="per">per year &middot; ' + Math.round(r.perSite[0] / r.annual * 100) + " to " + Math.round(r.perSite[1] / r.annual * 100) + '% of your electric spend &middot; typical <span id="typ">$0</span></div><div class="ticks"><div><b id="ten">$0</b><span>10-year savings, typical</span></div><div><b>' + kmoney(annualAll) + "</b><span>annual electric spend" + (S.estimated ? ", est." : "") + "</span></div><div><b>" + escPct + "%</b><span>yearly rate climb used</span></div></div></div></div>" +
       '<div class="blocks">' + order.map(function (k) { return blocks[k]; }).join("") +
       '<div class="blk"><h2>Find out if these numbers hold for your ' + esc(F.units) + '</h2><p class="sub">A 15-minute call turns this estimate into a site-specific number. Text Dan directly.</p><div class="verify-row"><span id="w-ver"></span><p>An Energy Plus engineer checks every number with you before anything is installed.</p></div><div class="cta" style="margin-top:16px"><a class="btn" id="sms" href="sms:' + PHONE_E164 + "?body=" + encodeURIComponent(smsBody) + '">Text Dan <span class="ar">&rarr;</span></a><div class="num"><span>' + PHONE_DISPLAY + '</span><button class="copy" id="cp">Copy number</button></div><a class="link" href="' + bookUrl(r) + '" target="_blank" rel="noopener">Or book a call</a></div></div>' +
+      '<div class="blk"><h2 style="font-size:22px">What you told Watt</h2><div class="told">' + S.order.filter(function (q) { return S.ans[q] != null && S.chip[q]; }).map(function (q) { return '<span class="chip">' + esc(S.chip[q]) + "</span>"; }).join("") + "</div></div>" +
       '<div class="blk assume"><h2 style="font-size:22px">How we estimated this</h2><ul>' + assumptions.filter(Boolean).map(function (a) { return "<li>" + a + "</li>"; }).join("") + '</ul><p style="margin-top:14px"><button class="link" id="again">Run another building</button></p></div></div></section>');
     n.querySelector("#cp").addEventListener("click", function (e) { var b = e.currentTarget; try { navigator.clipboard.writeText(PHONE_DISPLAY).then(function () { b.textContent = "Copied"; }, function () { b.textContent = PHONE_DISPLAY; }); } catch (_) { b.textContent = PHONE_DISPLAY; } });
     n.querySelector("#again").addEventListener("click", function () { intro(); syncBack(); });

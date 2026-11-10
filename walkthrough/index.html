@@ -339,14 +339,43 @@ body{padding-block:0}
 .readout .panel{margin-top:16px}
 body.has-profile{padding-bottom:0}
 html:has(body.has-profile){scroll-padding-bottom:0}
+
+/* ---------- Watt sits in the conversation, beside what he says ---------- */
+.top .bar{padding-block:8px 6px;min-height:56px}
+.top .brand{margin-right:auto}
+.top .count{font-family:var(--f-mono);font-size:15px;color:var(--faint)}
+.turn{display:grid;grid-template-columns:44px minmax(0,1fr);column-gap:12px;align-items:start}
+.turn > .gutter{grid-column:1;grid-row:1 / span 50;align-self:stretch}
+.turn > .tbody{grid-column:2;display:flex;flex-direction:column;min-width:0}
+.avatar-slot{position:sticky;top:calc(var(--toph,60px) + 10px);width:44px;height:44px}
+.watt-live{display:block;width:44px;height:44px}
+.watt-live svg{width:100%;height:100%}
+.watt-live.talk{animation:talk .42s cubic-bezier(.3,1.6,.5,1)}
+.turn.past .avatar-slot{opacity:0}
+.say-row{display:grid;grid-template-columns:44px minmax(0,1fr);column-gap:12px;align-items:start;padding-top:18px}
+.say-row .bubble.ask{margin-top:0;text-align:left;border-top-left-radius:6px}
+.say-row .bubble.ask::before{display:none}
+.say-row .bubble.ask .sub{margin:12px 0 0}
+@media (min-width:700px){.turn,.say-row{grid-template-columns:52px minmax(0,1fr)}.avatar-slot,.watt-live{width:52px;height:52px}}
+@media (max-width:460px){.turn,.say-row{grid-template-columns:36px minmax(0,1fr);column-gap:8px}.avatar-slot,.watt-live{width:36px;height:36px}.bubble{padding:20px 18px 18px}}
+
+/* the dock: one slim row, only when there's something to press */
+.dock{padding:8px max(16px,env(safe-area-inset-left,0px)) calc(8px + env(safe-area-inset-bottom,0px))}
+.dock .wrap{gap:0}
+.act .btn{min-width:0;padding:12px 24px;font-size:18px}
+.prof{display:none!important}
+/* what they told Watt, shown once at the end */
+.told{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.told .chip{white-space:normal}
+@media (max-width:460px){.brow{grid-template-columns:minmax(0,1.2fr) minmax(0,1fr) 46px;font-size:17px}}
 </style>
 </head>
 <body>
 <header class="top" id="top">
   <div class="wrap bar">
     <button class="back" id="back" type="button" hidden onclick="history.back()" aria-label="Back"><span aria-hidden="true">&larr;</span></button>
-    <div class="who"><span class="watt-av" id="watt-main" aria-hidden="true"></span><div class="who-t"><b>Watt</b><span class="status"><span id="status">Your Energy+ AI</span><span class="count" id="count"></span></span></div></div>
     <a class="brand" href="../" aria-label="Energy Plus home"><img class="logo logo-ink" src="../assets/img/energy-plus-logo-ink.png" alt="Energy Plus" width="85" height="24"><img class="logo logo-white" src="../assets/img/energy-plus-logo.png" alt="" width="85" height="24"></a>
+    <span class="count" id="count"></span>
   </div>
   <div class="track"><i id="prog"></i></div>
 </header>
@@ -354,12 +383,12 @@ html:has(body.has-profile){scroll-padding-bottom:0}
 <div class="dock" id="dock">
   <div class="wrap">
     <div class="act" id="act" hidden></div>
-    <div class="prof" id="profile" hidden><span class="p-lbl">Your building</span><div class="chips" id="chips"></div></div>
+    <div class="prof" id="profile" hidden><div class="chips" id="chips"></div></div>
   </div>
 </div>
-<script src="engine/constants.js?v=202611100530"></script>
-<script src="engine/engine.js?v=202611100530"></script>
-<script src="watt.js?v=202611100530"></script>
-<script src="app.js?v=202611100530"></script>
+<script src="engine/constants.js?v=202611100615"></script>
+<script src="engine/engine.js?v=202611100615"></script>
+<script src="watt.js?v=202611100615"></script>
+<script src="app.js?v=202611100615"></script>
 </body>
 </html>

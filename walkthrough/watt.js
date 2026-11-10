@@ -75,7 +75,6 @@
     if (!STATES[state]) return;
     if (!only && state === cur) return;
     if (!only) cur = state;
-    all = all.filter(function (x) { return x.svg.isConnected; });
     (only ? [only] : all.filter(function (x) { return !x.fixed; })).forEach(function (inst) { morph(inst, state); });
   }
 
