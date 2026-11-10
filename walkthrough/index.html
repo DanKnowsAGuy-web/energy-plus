@@ -263,11 +263,16 @@ html:has(body.has-profile){scroll-padding-bottom:120px}
 .verify-row{display:flex;align-items:center;gap:16px;margin-top:18px;padding:14px 16px;background:var(--card);border-left:3px solid var(--ochre);border-radius:4px 16px 16px 4px}
 .verify-row p{margin:0;font-size:18px;line-height:1.45;color:var(--ink)}
 .verify-row span{flex:0 0 auto}
+.brand{display:inline-flex;align-items:center;line-height:0}
+.brand .logo{height:28px;width:auto;display:block}
+.brand .logo-white{display:none}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .brand .logo-ink{display:none}:root:not([data-theme="light"]) .brand .logo-white{display:block}}
+:root[data-theme="dark"] .brand .logo-ink{display:none}:root[data-theme="dark"] .brand .logo-white{display:block}
 </style>
 </head>
 <body>
 <div class="wrap" id="topbar">
-  <div class="bar"><div class="bar-l"><button class="back" id="back" type="button" hidden onclick="history.back()"><span aria-hidden="true">&larr;</span> Back</button><a class="brand" href="../" style="text-decoration:none">ENERGY<span>+</span></a></div><div class="count" id="count">ENERGY DIAGNOSTIC</div></div>
+  <div class="bar"><div class="bar-l"><button class="back" id="back" type="button" hidden onclick="history.back()"><span aria-hidden="true">&larr;</span> Back</button><a class="brand" href="../" aria-label="Energy Plus home"><img class="logo logo-ink" src="../assets/img/energy-plus-logo-ink.png" alt="Energy Plus" width="99" height="28"><img class="logo logo-white" src="../assets/img/energy-plus-logo.png" alt="" width="99" height="28"></a></div><div class="count" id="count">ENERGY DIAGNOSTIC</div></div>
   <div class="track"><i id="prog"></i></div>
 </div>
 <div class="wrap convo">
