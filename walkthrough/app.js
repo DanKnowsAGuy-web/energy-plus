@@ -170,7 +170,7 @@
   /* ---------- state ---------- */
   var hist = [], current = null;
   function go(fn) { if (current) { hist.push(current); try { history.pushState({ wt: hist.length }, ""); } catch (e) {} } current = fn; fn(); syncBack(); }
-  function back() { if (!hist.length) return; current = hist.pop(); current(); syncBack(); }
+  function back() { if (!hist.length) return; current = hist.pop(); S._back = true; current(); syncBack(); }
   window.addEventListener("popstate", function () { back(); });
   function syncBack() { var b = document.getElementById("back"); if (b) b.hidden = !hist.length; }
   var S, app = document.getElementById("app"), prog = document.getElementById("prog"), countEl = document.getElementById("count");
@@ -180,8 +180,38 @@
      the person taps a reply, Watt "thinks" for a beat, then answers with what that reply means.
      A "Your building" strip fills in along the bottom as they go. */
   var seat = document.getElementById("watt-main");
-  if (window.Watt && seat) Watt.mount(seat, 136);
-  function stage(s) { if (window.Watt) Watt.set(s); }
+  if (window.Watt && seat) Watt.mount(seat, 56);
+  /* Watt's live status under his name, like a chat header */
+  var STATUS = { hello: "Hi there", listen: "Listening", work: "Thinking\u2026", found: "Found something", verify: "Verified by engineers" };
+  var statusEl = document.getElementById("status");
+  function setStatus(t) { if (statusEl) statusEl.textContent = t; }
+  function stage(s) { if (window.Watt) Watt.set(s); setStatus(STATUS[s] || ""); }
+
+  /* the dock: one solid footer for the next action and "Your building" */
+  var actEl = document.getElementById("act"), dockEl = document.getElementById("dock"), topEl = document.getElementById("top");
+  function syncDock() {
+    if (!dockEl) return;
+    var prof = document.getElementById("profile"), empty = actEl.hidden && (!prof || prof.hidden);
+    if (empty) dockEl.setAttribute("data-empty", ""); else dockEl.removeAttribute("data-empty");
+    var h = empty ? 0 : dockEl.offsetHeight;
+    document.body.style.paddingBottom = (h + 28) + "px";
+    document.documentElement.style.scrollPaddingBottom = (h + 12) + "px";
+    document.documentElement.style.scrollPaddingTop = ((topEl ? topEl.offsetHeight : 0) + 8) + "px";
+  }
+  function setAction(label, fn, opt) {
+    opt = opt || {};
+    var tag = opt.href ? '<a class="btn" href="' + opt.href + '">' : '<button class="btn" type="button"' + (opt.disabled ? " disabled" : "") + ">";
+    actEl.innerHTML = (opt.left || "") + tag + label + ' <span class="ar">&rarr;</span>' + (opt.href ? "</a>" : "</button>");
+    var b = actEl.querySelector(".btn"); if (fn) b.addEventListener("click", fn);
+    actEl.hidden = false; syncDock(); return b;
+  }
+  function clearAction() { actEl.innerHTML = ""; actEl.hidden = true; syncDock(); }
+  /* forms keep their own button for logic; the dock button presses it */
+  function dockProxy(node, sel, label) {
+    var inline = node.querySelector(sel); if (!inline) return;
+    setAction(label, function () { inline.click(); if (inline.disabled) setAction(inline.textContent, null, { disabled: true }); });
+  }
+  window.addEventListener("resize", syncDock);
   function talk() { if (!seat || reduce) return; seat.classList.remove("talk"); void seat.offsetWidth; seat.classList.add("talk"); }
   function wattIn(node, sel, size, opt) { var h = node.querySelector(sel); if (h && window.Watt) Watt.mount(h, size, opt); }
   function reset() { S = { pf: {}, ans: {}, chip: {}, order: [], locs: 1 }; hist = []; current = null; renderProfile(); }
@@ -196,6 +226,7 @@
     document.body.classList.toggle("has-profile", !!items.length);
     box.innerHTML = items.map(function (q, i) { return '<span class="chip' + (i === items.length - 1 ? " new" : "") + '">' + esc(S.chip[q]) + "</span>"; }).join("");
     box.scrollLeft = box.scrollWidth;
+    syncDock();
   }
   reset();
 
@@ -208,13 +239,19 @@
   function engFac() { return EP.facilities[engKey()]; }
 
   var TOTAL = 12;
-  function setProgress(i, label) { prog.style.width = Math.min(100, i / TOTAL * 100) + "%"; countEl.textContent = label != null ? label : (i > 0 ? String(i).padStart(2, "0") + " / " + TOTAL : ""); }
+  function setProgress(i, label) { prog.style.width = Math.min(100, i / TOTAL * 100) + "%"; countEl.textContent = label != null ? label : (i > 0 ? i + " of " + TOTAL : ""); }
   function countUp(el, to, fmt, dur) { if (reduce) { el.textContent = fmt(to); return; } var t0 = performance.now(); dur = dur || 1100; (function st(t) { var p = Math.min((t - t0) / dur, 1), e = 1 - Math.pow(1 - p, 4); el.textContent = fmt(to * e); if (p < 1) requestAnimationFrame(st); })(t0); }
   function fillBars(root) { requestAnimationFrame(function () { requestAnimationFrame(function () { root.querySelectorAll(".bt i").forEach(function (i) { i.style.width = i.dataset.w + "%"; }); }); }); }
-  function show(node) {
-    var old = app.firstChild;
-    function put() { app.innerHTML = ""; app.appendChild(node); talk(); window.scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" }); }
-    if (old && !reduce) { old.classList.add("leave"); setTimeout(put, 240); } else put();
+  /* the conversation builds up: earlier turns stay above, quieter; Back takes the last turn off */
+  function show(node, fresh) {
+    clearAction();
+    if (fresh) app.innerHTML = "";
+    else if (S._back) { if (app.lastElementChild) app.removeChild(app.lastElementChild); if (app.lastElementChild) app.removeChild(app.lastElementChild); }
+    else if (app.lastElementChild) app.lastElementChild.classList.add("past");
+    S._back = false;
+    app.appendChild(node); talk();
+    var y = fresh ? 0 : node.getBoundingClientRect().top + window.scrollY - (topEl ? topEl.offsetHeight : 0) - 6;
+    window.scrollTo({ top: Math.max(0, y), behavior: reduce || fresh ? "auto" : "smooth" });
   }
   function bars(rows) { return '<div class="bars">' + rows.map(function (r, i) { return '<div class="brow' + (i === 0 ? " lead" : "") + '"><span class="lbl">' + r[0] + '</span><span class="bt"><i data-w="' + r[1] + '"></i></span><span class="pv">' + r[1] + '%</span></div>'; }).join("") + "</div>"; }
 
@@ -225,14 +262,14 @@
 
   /* Watt's answer: what the reply means, with anything worth showing inside it */
   function card(res, next, quiet) {
-    var c = $('<div class="bubble say">' + (res.tag ? '<p class="eyebrow">' + esc(res.tag) + "</p>" : "") + "<h3>" + res.h + "</h3>" + (res.p ? "<p>" + res.p + "</p>" : "") + (res.viz ? '<div class="shown">' + res.viz + "</div>" : "") + (res.src ? '<div class="src">' + esc(res.src) + "</div>" : "") + '<div class="next"><button class="btn">Next <span class="ar">&rarr;</span></button></div></div>');
-    c.querySelector(".btn").addEventListener("click", next);
+    var c = $('<div class="bubble say">' + (res.tag ? '<p class="eyebrow">' + esc(res.tag) + "</p>" : "") + "<h3>" + res.h + "</h3>" + (res.p ? "<p>" + res.p + "</p>" : "") + (res.viz ? '<div class="shown">' + res.viz + "</div>" : "") + (res.src ? '<div class="src">' + esc(res.src) + "</div>" : "") + "</div>");
+    var nb = setAction("Next", next);
     setTimeout(function () {
       fillBars(c);
       c.querySelectorAll("[data-count]").forEach(function (el) { var v = parseFloat(el.dataset.count), f = el.dataset.fmt; countUp(el, v, f === "cents" ? function (x) { return x.toFixed(2) + "¢"; } : f === "pct" ? function (x) { return (x >= 0 ? "+" : "") + x.toFixed(1) + "%"; } : kmoney); });
       if (!quiet) c.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "nearest" });
     }, 120);
-    if (!quiet) setTimeout(function () { c.querySelector(".btn").focus({ preventScroll: true }); }, 500);
+    if (!quiet) setTimeout(function () { nb.focus({ preventScroll: true }); }, 500);
     return c;
   }
 
@@ -241,7 +278,7 @@
     slot.innerHTML = "";
     if (quiet || reduce) { stage(found ? "found" : "listen"); slot.appendChild(card(res, next, true)); return; }
     var typing = $('<div class="bubble say typing" aria-label="Watt is thinking"><i></i><i></i><i></i></div>');
-    slot.appendChild(typing);
+    slot.appendChild(typing); clearAction(); setStatus(STATUS.work);
     typing.scrollIntoView({ behavior: "smooth", block: "nearest" });
     if (window.Watt) Watt.blink();
     setTimeout(function () {
@@ -259,7 +296,7 @@
     var html = '<section class="screen turn">' + ask(esc(cfg.q), cfg.sub ? esc(cfg.sub) : "", cfg.eyebrow) +
       '<div class="opts' + (cfg.grid ? " grid2" : "") + '">' + cfg.opts.map(function (o) { return '<button class="opt" data-k="' + o[0] + '"><span>' + esc(o[1]) + "</span>" + (o[2] ? '<span class="hint">' + esc(o[2]) + "</span>" : "") + "</button>"; }).join("") + '</div><button class="link change" type="button" hidden>Change my answer</button><div class="slot"></div></section>';
     var node = $(html), opts = node.querySelector(".opts"), slot = node.querySelector(".slot"), change = node.querySelector(".change");
-    change.addEventListener("click", function () { opts.classList.remove("answered"); change.hidden = true; slot.innerHTML = ""; stage("listen"); });
+    change.addEventListener("click", function () { opts.classList.remove("answered"); change.hidden = true; slot.innerHTML = ""; clearAction(); stage("listen"); });
     function choose(b, quiet) {
       if (!b) return;
       opts.querySelectorAll(".opt").forEach(function (x) { x.classList.toggle("chosen", x === b); });
@@ -271,8 +308,7 @@
       if (res && res.redirect) {
         slot.innerHTML = "";
         if (!quiet) { setTimeout(function () { go(res.redirect); }, 450); return; }
-        var nx = $('<div class="next"><button class="btn">Next <span class="ar">&rarr;</span></button></div>');
-        nx.querySelector(".btn").addEventListener("click", function () { go(res.redirect); }); slot.appendChild(nx); return;
+        setAction("Next", function () { go(res.redirect); }); return;
       }
       respond(slot, res, function () { go(cfg.next); }, quiet, res.found || (cfg.id && S.pf[cfg.id]));
     }
@@ -292,10 +328,9 @@
     stage("hello");
     var what = S.preFac ? "your " + FAC[S.preFac].units : "your building";
     var n = $('<section class="screen turn">' + ask("Hi, I&rsquo;m Watt, your Energy+ AI.",
-      "I&rsquo;ll ask you about ten quick questions, the same ones a senior energy strategist asks on a first call. Every answer, I&rsquo;ll show you something about " + esc(what) + ". About two minutes.") +
-      '<div class="next start"><button class="btn" id="go">Let&rsquo;s start <span class="ar">&rarr;</span></button></div></section>');
-    n.querySelector("#go").addEventListener("click", function () { go(facility); });
-    show(n);
+      "I&rsquo;ll ask you about ten quick questions, the same ones a senior energy strategist asks on a first call. Every answer, I&rsquo;ll show you something about " + esc(what) + ". About two minutes.") + "</section>");
+    show(n, true);
+    setAction("Let&rsquo;s start", function () { go(facility); });
   }
 
   function facility() {
@@ -411,6 +446,7 @@
       var quiet = quietNext; quietNext = false;
       if (!sel.value) return;
       if (S.locs === 1) S.spread = "one"; setStates([STATE_NAMES[sel.value]]); S.ans.__state = sel.value; setChip("__state", sel.value);
+      var rp = n.querySelector(".replypill"); if (!rp) { rp = $('<div class="replypill"></div>'); sel.insertAdjacentElement("afterend", rp); } rp.textContent = sel.value;
       respond(slot, ratesInsight(), function () { go(statusQ); }, quiet, false);
     });
     show(n);
@@ -435,6 +471,7 @@
       box.querySelectorAll(".st").forEach(function (b) { b.classList.toggle("on", !!chosen[b.dataset.c]); });
       box.querySelectorAll(".reg-h").forEach(function (h) { var r = REGIONS[h.dataset.r][1], all = r.every(function (c) { return chosen[c]; }); h.classList.toggle("on", all); h.querySelector(".reg-all").textContent = all ? "Clear" : "Select all"; });
       var n = list().length; cnt.textContent = n ? n + (n === 1 ? " state" : " states") : ""; goB.disabled = n < 2;
+      if (!box.classList.contains("answered")) setAction("Done", function () { finish(list(), false); }, { disabled: n < 2, left: '<span class="picked">' + (n ? n + (n === 1 ? " state" : " states") : "Tap a region or states") + "</span>" });
     }
     box.addEventListener("click", function (e) {
       if (box.classList.contains("answered")) return;
@@ -448,9 +485,9 @@
       box.classList.add("answered"); row.hidden = true; change.hidden = false;
       respond(slot, ratesInsight(), function () { go(statusQ); }, quiet, false);
     }
-    change.addEventListener("click", function () { box.classList.remove("answered"); row.hidden = false; change.hidden = true; slot.innerHTML = ""; stage("listen"); });
+    change.addEventListener("click", function () { box.classList.remove("answered"); row.hidden = false; change.hidden = true; slot.innerHTML = ""; stage("listen"); paint(); });
     goB.addEventListener("click", function () { finish(list(), false); });
-    paint(); show(node);
+    show(node); paint();
     if (list().length > 1 && S.spread === "multi") setTimeout(function () { finish(list(), true); }, reduce ? 0 : 280);
   }
 
@@ -562,9 +599,10 @@
       if (b.dataset.k === "none") box.querySelectorAll(".opt").forEach(function (x) { if (x !== b) x.classList.remove("chosen"); });
       else { var nb = box.querySelector('[data-k="none"]'); if (nb) nb.classList.remove("chosen"); }
       b.classList.toggle("chosen");
-      go_.disabled = !picked().length;
+      go_.disabled = !picked().length; updateDone();
     });
-    change.addEventListener("click", function () { box.classList.remove("answered"); row.hidden = false; change.hidden = true; slot.innerHTML = ""; stage("listen"); });
+    function updateDone() { if (box.classList.contains("answered")) return; var n = picked().length; setAction("Done", function () { finish(picked(), false); }, { disabled: !n, left: '<span class="picked">' + (n ? "" : "Tap all that apply") + "</span>" }); }
+    change.addEventListener("click", function () { box.classList.remove("answered"); row.hidden = false; change.hidden = true; slot.innerHTML = ""; stage("listen"); updateDone(); });
     function finish(keys, quiet) {
       box.querySelectorAll(".opt").forEach(function (x) { x.classList.toggle("chosen", keys.indexOf(x.dataset.k) >= 0); });
       box.classList.add("answered"); row.hidden = true; change.hidden = false;
@@ -581,6 +619,7 @@
     }
     go_.addEventListener("click", function () { finish(picked(), false); });
     show(node);
+    if (!S.ans[q]) updateDone();
     if (S.ans[q]) setTimeout(function () { finish(S.ans[q].split(","), true); }, reduce ? 0 : 280);
   }
 
@@ -598,7 +637,7 @@
       n.querySelector("#p-err").textContent = ""; n.querySelector("#p-go").textContent = "Thanks, we'll be in touch"; n.querySelector("#p-go").disabled = true;
       stage("verify");
     });
-    show(n);
+    show(n); dockProxy(n, "#p-go", "Talk to an engineer");
   }
 
   function pathStep(i) {
@@ -619,7 +658,7 @@
       sendLead({ kind: "under-threshold", name: nm, phone: ph });
       n.querySelector("#u-err").textContent = ""; n.querySelector("#u-go").textContent = "Noted"; n.querySelector("#u-go").disabled = true;
     });
-    show(n);
+    show(n); dockProxy(n, "#u-go", "Keep me posted");
   }
 
   function capture() {
@@ -632,7 +671,7 @@
       if (ph.length < 10) { n.querySelector("#c-err").textContent = "Enter a 10-digit mobile number."; return; }
       S.name = nm; S.phone = ph; working(function () { go(reveal); });
     });
-    show(n);
+    show(n); dockProxy(n, "#c-go", "Show my diagnostic");
     setTimeout(function () { var i = n.querySelector("#c-name"); if (i) i.focus({ preventScroll: true }); }, 600);
   }
 
@@ -671,7 +710,7 @@
   function working(done) {
     stage("work");
     var n = $('<section class="screen turn">' + ask("Give me a second.", "I&rsquo;m reading your answers against " + placePoss() + " rates and demand charges, and matching your " + esc(fac().units) + " to the fixes that pay back first.") + '<div class="bubble say typing slow" aria-hidden="true"><i></i><i></i><i></i></div></section>');
-    show(n);
+    show(n, true);
     setTimeout(done, reduce ? 400 : 2400);
   }
 
@@ -708,7 +747,7 @@
     n.querySelector("#cp").addEventListener("click", function (e) { var b = e.currentTarget; try { navigator.clipboard.writeText(PHONE_DISPLAY).then(function () { b.textContent = "Copied"; }, function () { b.textContent = PHONE_DISPLAY; }); } catch (_) { b.textContent = PHONE_DISPLAY; } });
     n.querySelector("#again").addEventListener("click", function () { intro(); syncBack(); });
     wattIn(n, "#w-ver", 56, { state: "verify", fixed: true });
-    show(n);
+    show(n, true); setAction("Text Dan", null, { href: n.querySelector("#sms").getAttribute("href") });
     var tenTyp = r.typical * ENG.escalationFactor(r.escRate, 10);
     setTimeout(function () { countUp(document.getElementById("lo"), lo, kmoney, 1600); countUp(document.getElementById("hi"), hi, kmoney, 1900); countUp(document.getElementById("typ"), typ, kmoney, 1900); countUp(document.getElementById("ten"), tenTyp, kmoney, 2200); }, reduce ? 0 : 420);
     sendLead({ kind: S.leadSent ? "diagnostic, updated answers" : "diagnostic", name: S.name, phone: S.phone, role: S.role, facility: F.label, state: S.stateName, states: (S.states || []).join(" "), locations: S.locLabel,
