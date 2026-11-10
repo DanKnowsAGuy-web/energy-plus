@@ -530,6 +530,61 @@ html.big #app,html.big .dock .wrap,html.big .ask-in{zoom:1.16}
 
 .top .count{white-space:nowrap}
 .bubble.ask a{color:var(--petrol-2);text-underline-offset:3px}
+
+/* master footnote and details */
+.master{margin:16px 0 0;font-size:18px;line-height:1.5;color:var(--body);background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:14px 16px}
+.master a{color:var(--petrol-2);font-weight:600;white-space:nowrap}
+.fine{background:var(--card);border:1px solid var(--rule);border-radius:16px;padding:0}
+.fine > summary,.disc > summary{cursor:pointer;list-style:none;padding:18px;font-size:20px;font-weight:700;color:var(--ink);display:flex;justify-content:space-between;align-items:center}
+.fine > summary::after,.disc > summary::after{content:"+";font-family:var(--f-mono);font-size:24px;color:var(--petrol-2)}
+.fine[open] > summary::after,.disc[open] > summary::after{content:"\2212"}
+.fine summary::-webkit-details-marker,.disc summary::-webkit-details-marker{display:none}
+.fine-in{padding:0 18px 18px;font-size:18px;line-height:1.55;color:var(--body)}
+.fine-in h3{font-size:20px;color:var(--ink);margin:18px 0 6px}
+.fine-in ul{padding-left:22px;margin:0}
+.fine-in li{margin-top:8px}
+.disc{margin-top:18px;border-top:1px solid var(--rule)}
+.disc > summary{padding:16px 0;font-size:19px}
+.disc-in{font-size:17px;line-height:1.55}
+.disc-in h4{font-size:18px;color:var(--ink);margin:16px 0 4px}
+.disc-in p{margin:6px 0}
+.disc-in a{color:var(--petrol-2)}
+.again{margin:22px 0 0}
+/* Cliff's credentials */
+.verifier{flex-wrap:wrap}
+.vf-cred{flex:1 1 100%;border-top:1px solid var(--rule);padding-top:12px;margin-top:4px}
+.vf-why{margin:0 0 8px;font-size:18px;line-height:1.5;color:var(--ink)}
+.vf-cred ul{margin:0;padding-left:20px;display:grid;gap:8px;font-size:18px;line-height:1.45;color:var(--body)}
+.vf-cred b{color:var(--ink)}
+/* 65+ readability: nothing in the results under 17px, body copy 19px */
+.readout .per{font-size:19px}
+.ticks span{font-size:17px}
+.ticks b{font-size:24px}
+.kv div,.kv b{font-size:19px}
+.finds li{font-size:19px}
+.finds .n{font-size:17px}
+.finds .fval{font-size:19px}
+.vf-role{font-size:16px}
+.vf-title{font-size:17px}
+.vf-say{font-size:19px}
+.vf-name{font-size:21px}
+.ch-t{font-size:21px}
+.ch-s{font-size:19px}
+.copy{font-size:17px}
+.num{font-size:19px}
+.link,.dv-replay{font-size:18px}
+.told .chip{font-size:17px}
+.sbtn{font-size:18px}
+.readout .sub,.blk .sub{font-size:19px}
+.top .count{font-size:16px}
+.whyask{font-size:16px}
+.wstat{font-size:17px}
+.whytext{font-size:18px}
+.cmp-r{font-size:17px}
+.cmp-r b{font-size:18px}
+.bubble .eyebrow{font-size:15px}
+.dviz svg text{font-size:17px!important}
+.dviz svg .dv-day{font-size:14px!important}
 </style>
 </head>
 <body>
@@ -548,9 +603,43 @@ html.big #app,html.big .dock .wrap,html.big .ask-in{zoom:1.16}
     <div class="prof" id="profile" hidden><div class="chips" id="chips"></div></div>
   </div>
 </div>
-<script src="engine/constants.js?v=202611101815"></script>
-<script src="engine/engine.js?v=202611101815"></script>
-<script src="watt.js?v=202611101815"></script>
-<script src="app.js?v=202611101815"></script>
+<template id="disc-tpl"><p><em>Effective date: October 31, 2026.</em> These disclosures apply to Energy Plus marketing and informational materials, including videos, presentations, web pages, and printed materials. They explain the basis for the statements, figures, and offers presented in those materials. By viewing or relying on those materials, you acknowledge these disclosures. Where a signed agreement exists, that agreement governs.</p>
+        <h4>1. General</h4>
+        <p>This content is provided for general informational purposes only. It is not an offer, warranty, guarantee, or professional advice. All figures are estimates, are illustrative, and are subject to change without notice. The only binding commitments between you and Energy Plus are those set out in a signed written agreement. Results vary by facility.</p>
+        <h4>2. Performance figures</h4>
+        <p>Stated efficiency and savings ranges, including but not limited to 15 to 30 percent, 30 to 50 percent, 20 to 55 percent of the heating-and-cooling portion of a bill, up to 24 percent, an IEER of 31, a COP of 6, and more than 10 degrees, reflect results observed under specific conditions or reported in specific studies. Where a range is quoted for combined measures, the low end reflects the outcomes we treat as the planning floor and the high end requires per-site modeling. Actual performance depends on factors including equipment type, equipment age, baseline efficiency, climate, occupancy, usage patterns, maintenance, and installation quality. Your actual results may differ from, and may fall below, the ranges shown.</p>
+        <h4>3. System and technical statements</h4>
+        <p>Descriptions of how heating and cooling systems operate, including any statement that the compressor accounts for a majority or a stated share of system energy use, are typical or representative rather than universal. Actual values vary by system design, configuration, and operation.</p>
+        <h4>4. Savings and return on investment</h4>
+        <p>Any savings, payback period, or return on investment figure is an estimate based on assumptions that may not reflect the conditions at your facility. It is not a guarantee of any specific financial outcome. Modeled results and prior results do not predict future performance.</p>
+        <h4>5. Cash flow and program cost</h4>
+        <p>Statements that a project can be cash-flow positive from day one, or that incentives can cover a significant share of a program, describe outcomes that are achievable only under certain financing structures, utility rates, program eligibility, and tax positions. These outcomes are not available in all cases and are not promised for any particular customer. Cash flow timing runs from install, where the numbers support it. Savings, financing terms, and incentive eligibility depend on your building, utility, and state, and are confirmed during the diagnosis.</p>
+        <h4>6. Tax credits, deductions, and rebates</h4>
+        <p>The availability, amounts, and eligibility requirements of tax deductions, tax credits, and utility rebates depend on jurisdiction, current law, program funding, and your individual tax situation. Programs change and may end without notice. Energy Plus does not provide tax, accounting, or legal advice and does not guarantee that any incentive will be approved or received. Consult your own qualified advisor regarding your specific circumstances.</p>
+        <h4>7. Measurement and verification</h4>
+        <p>Independent measurement and verification of results, including under recognized protocols such as the International Performance Measurement and Verification Protocol (IPMVP) Option C and ASHRAE Guideline 14, is available upon request on qualifying projects. Where performed, verification confirms measured results for that specific project only and does not guarantee future results or results at any other site.</p>
+        <h4>8. Third-party evaluations and named organizations</h4>
+        <p>References to NASA, Durham College, named utilities, and other organizations reflect publicly available reports and evaluations concerning the underlying technologies that Energy Plus deploys. They do not refer to Energy Plus itself. Such references are provided for identification and descriptive purposes only and do not constitute or imply endorsement, sponsorship, certification, or affiliation by those organizations with Energy Plus, unless expressly stated in writing.</p>
+        <h4>9. Case studies and references</h4>
+        <p>Case studies, study counts, and climate or geographic references reflect specific installations completed under specific conditions. They are illustrative and are not predictive of the results you will achieve at your facility.</p>
+        <h4>10. Third-party products and trademarks</h4>
+        <p>Certain technologies referenced are manufactured or supplied by third parties. All product names, logos, and trademarks are the property of their respective owners. Specifications are subject to change without notice.</p>
+        <h4>11. Equipment life and maintenance</h4>
+        <p>Statements regarding extended equipment life, reduced maintenance, improved humidity control, and single-application or long-lasting benefits assume proper installation, operation, and maintenance. They are not a warranty, and actual outcomes will vary. Warranty terms, if any, are provided separately in writing.</p>
+        <h4>12. Forward-looking statements</h4>
+        <p>Statements about future benefits, savings, performance, and outcomes are forward-looking and inherently uncertain. Actual results may differ materially from those expressed or implied.</p>
+        <h4>13. Not professional advice; assessment required</h4>
+        <p>The information presented is general and educational in nature. It is not engineering, financial, tax, or legal advice for your specific situation. A formal assessment of your facility is required before any specific recommendation, scope, or projected result can be provided.</p>
+        <h4>14. Analogies</h4>
+        <p>References to diagnosis, examinations, prescriptions, or disease are analogies used to describe the energy assessment process. They are not medical statements and are not intended to convey any medical meaning.</p>
+        <h4>15. Program terms, eligibility, and &ldquo;no cost&rdquo;</h4>
+        <p>Our done-for-you program, including negotiation, pricing, and contract terms, is offered case-by-case and depends on factors such as the number of facilities in your portfolio and the size of your electricity bills. Properties that do not qualify for the done-for-you program may instead be offered self-directed options, which carry different terms, pricing, and responsibilities. &ldquo;Free,&rdquo; &ldquo;no cost,&rdquo; &ldquo;the diagnosis is on us,&rdquo; and &ldquo;nothing owed&rdquo; describe the diagnosis and pilot phase for qualifying properties; they do not describe the cost of any installed solution. Eligibility, scheduling, and availability are determined during the application and diagnosis process.</p>
+        <h4>16. Professional history and credentials</h4>
+        <p>Biographical and credential statements reflect documented professional history. Supporting documentation is available for verification on request.</p>
+        <p><strong>Questions.</strong> For questions about these disclosures or any statement in our materials, contact Energy Plus at <a href="mailto:dan@yourenergyplus.com">dan@yourenergyplus.com</a> or <a href="tel:+18647770688">(864) 777-0688</a>.</p></template>
+<script src="engine/constants.js?v=202611101920"></script>
+<script src="engine/engine.js?v=202611101920"></script>
+<script src="watt.js?v=202611101920"></script>
+<script src="app.js?v=202611101920"></script>
 </body>
 </html>
