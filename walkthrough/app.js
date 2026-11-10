@@ -791,7 +791,7 @@
     setProgress(TOTAL);
     var fs = findings(compute()), F = fac();
     var tease = '<div class="bubble say"><p class="eyebrow">What I found</p><h3>I found ' + fs.length + ' ways your ' + esc(S.locs > 1 ? F.units : F.unit) + ' ' + (S.locs > 1 ? "are" : "is") + ' overspending.</h3><ol class="tease">' + fs.map(function (x) { return "<li>" + esc(x[0]) + "</li>"; }).join("") + '</ol><p>Your report puts a dollar amount on each one.</p></div>';
-    var n = $('<section class="screen turn">' + tease + ask("Where should I text your report?", "No email, no spam. Your report arrives by text, and your strategist is one reply away.") + '<div class="field"><label for="c-name">First name</label><input id="c-name" autocomplete="given-name"></div><div class="field"><label for="c-phone">Mobile</label><input id="c-phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="(555) 555-5555"></div><div class="err" id="c-err"></div><div class="next"><button class="btn" id="c-go">Show my diagnostic <span class="ar">&rarr;</span></button></div></section>');
+    var n = $('<section class="screen turn">' + tease + ask("Where can Dan text you a copy?", "Your report opens right here. Dan will also text you a copy so it&rsquo;s easy to find and forward. No email, no spam.") + '<div class="field"><label for="c-name">First name</label><input id="c-name" autocomplete="given-name"></div><div class="field"><label for="c-phone">Mobile</label><input id="c-phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="(555) 555-5555"></div><div class="err" id="c-err"></div><div class="next"><button class="btn" id="c-go">Show my diagnostic <span class="ar">&rarr;</span></button></div></section>');
     n.querySelector("#c-go").addEventListener("click", function () {
       var nm = n.querySelector("#c-name").value.trim(), ph = n.querySelector("#c-phone").value.replace(/\D/g, "");
       if (!nm) { n.querySelector("#c-err").textContent = "Add your first name so the report is addressed to you."; return; }
@@ -822,14 +822,39 @@
     return avgDeep(S.states.map(computeOne));
   }
 
+  /* each finding carries its own dollar range, drawn from the same math as the total.
+     Equipment lines are scaled to the capped equipment total, so the findings never add up to more than the headline. */
   function findings(r) {
-    var f = Object.keys(S.pf).map(function (k) { return S.pf[k]; });
-    if (S.loadShape === "peaky") f.push(["One hot afternoon is pricing your whole month", "Everything runs at once on hot afternoons, and that busiest 15 minutes sets your demand charge for the month."]);
-    if (S.cases && S.cases !== "door") f.push(["Your AC and refrigeration are fighting each other", "Open cases spill cold air into the aisles, and your heating pays to warm it back up."]);
-    if (S.age != null && S.age >= 10) f.push(["Equipment past 10 years old", "Buildup inside the system has likely cost your units about " + Math.round(ENG.lossByAge(S.age) * 100) + "% of their cooling power, and emergency repairs start stacking up."]);
-    f.push(["Dirty power on every circuit", "Modern electronics and motors send dirty power back through your wiring. It wastes electricity and wears out equipment early."]);
-    if (anyChoice()) f.push(["Your supply rate is negotiable", multiState() ? "Some of your states let you choose who sells you power, without changing utilities." : "Your state lets you choose who sells you power, without changing utilities."]);
-    return f.slice(0, 4);
+    var L = S.locs || 1, eqB = r.buckets.equipment, lines = {};
+    eqB.lines.forEach(function (l) { lines[l.id] = l.range || [0, 0]; });
+    var sum = [0, 1].map(function (i) { return eqB.lines.reduce(function (t, l) { return t + ((l.range || [0, 0])[i] || 0); }, 0); });
+    var sc = [0, 1].map(function (i) { return sum[i] > 0 ? Math.min(1, eqB.range[i] / sum[i]) : 0; });
+    function eq(ids) { return [0, 1].map(function (i) { return ids.reduce(function (t, id) { return t + ((lines[id] || [0, 0])[i] || 0); }, 0) * sc[i] * L; }); }
+    var money = {
+      peak: [r.buckets.peak.range[0] * L, r.buckets.peak.range[1] * L],
+      hvac: eq(["antifouling", "optimizer"]),
+      refrig: eq(["refrigeration"]),
+      power: eq(["harmonization"]),
+      supply: [r.buckets.brokering.range[0] * L, r.buckets.brokering.range[1] * L]
+    };
+    function keyFor(title) { var t = title.toLowerCase(); return /refrig|dock|walk-in|cooler/.test(t) ? "refrig" : /motor|dirty/.test(t) ? "power" : /peak|afternoon|busiest|startup/.test(t) ? "peak" : /supply/.test(t) ? "supply" : "hvac"; }
+    var cand = Object.keys(S.pf).map(function (k) { return S.pf[k]; });
+    if (S.loadShape === "peaky") cand.push(["One hot afternoon is pricing your whole month", "Everything runs at once on hot afternoons, and that busiest 15 minutes sets your demand charge for the month."]);
+    if (S.cases && S.cases !== "door") cand.push(["Your AC and refrigeration are fighting each other", "Open cases spill cold air into the aisles, and your heating pays to warm it back up."]);
+    if (S.age != null && S.age >= 10) cand.push(["Equipment past 10 years old", "Buildup inside the system has likely cost your units about " + Math.round(ENG.lossByAge(S.age) * 100) + "% of their cooling power, and emergency repairs start stacking up."]);
+    cand.push(["Your AC is working harder than it needs to", "Buildup inside the system, and settings never matched to your building, make the units run longer than they should."]);
+    if (engFac().refrigShare) cand.push(["Your refrigeration runs harder than it needs to", "It runs every hour of the year, so small inefficiencies add up to real money."]);
+    cand.push(["Dirty power on every circuit", "Modern electronics and motors send dirty power back through your wiring. It wastes electricity and wears out equipment early."]);
+    if (anyChoice()) cand.push(["Your supply rate is negotiable", multiState() ? "Some of your states let you choose who sells you power, without changing utilities." : "Your state lets you choose who sells you power, without changing utilities."]);
+    cand.push(["Your busiest 15 minutes sets a charge for the whole month", "Spreading out when your equipment runs lowers that charge on every bill."]);
+    var used = {}, out = [];
+    cand.forEach(function (c) {
+      if (out.length >= 4) return;
+      var k = keyFor(c[0]), m = money[k];
+      if (used[k] || !m || m[1] < 500) return;
+      used[k] = true; out.push([c[0], c[1], m]);
+    });
+    return out;
   }
   function rng(r) { return kmoney(r[0]) + " to " + kmoney(r[1]); }
 
@@ -851,7 +876,7 @@
     var buckets = '<div class="kv"><div><span>Fixing equipment that&rsquo;s wasting power</span><b>' + rng(eq) + '</b></div><div><span>Lowering your busiest-15-minutes charge</span><b>' + rng(pk) + "</b></div>" + (sp[1] > 0 ? '<div><span>Buying your power for less</span><b>' + rng(sp) + "</b></div>" : "") + "</div>";
     var blocks = {
       where: '<div class="blk"><h2>Where the savings come from</h2>' + buckets + "</div>",
-      findings: '<div class="blk"><h2>Top findings for your ' + esc(F.units) + '</h2><ol class="finds">' + fs.map(function (x, i) { return '<li style="animation-delay:' + (i * 120 + 300) + 'ms"><span class="n">' + String(i + 1).padStart(2, "0") + "</span><span><strong>" + esc(x[0]) + "</strong>" + esc(x[1]) + (x[0] === "Dirty power on every circuit" ? dirtyViz() : "") + "</span></li>"; }).join("") + "</ol></div>",
+      findings: '<div class="blk"><h2>Top findings for your ' + esc(F.units) + '</h2><ol class="finds">' + fs.map(function (x, i) { return '<li style="animation-delay:' + (i * 120 + 300) + 'ms"><span class="n">' + String(i + 1).padStart(2, "0") + "</span><span><strong>" + esc(x[0]) + '</strong><span class="fval">' + (kmoney(x[2][0]) === kmoney(x[2][1]) ? "about " + kmoney(x[2][1]) : rng(x[2])) + " a year</span>" + esc(x[1]) + (x[0] === "Dirty power on every circuit" ? dirtyViz() : "") + "</span></li>"; }).join("") + "</ol></div>",
       nothing: '<div class="blk"><h2>The cost of waiting</h2><div class="kv"><div><span>Electricity spend, next 10 years</span><b>' + kmoney(annualAll * ENG.escalationFactor(r.escRate, 10)) + "</b></div><div><span>Rate increase we used</span><b>" + escPct + "% / yr</b></div><div><span>Savings left on the table</span><b>" + kmoney(r.typical * ENG.escalationFactor(r.escRate, 10)) + '</b></div></div><p class="sub" style="margin-top:12px">We used a conservative ' + escPct + "% a year for " + esc(placeName()) + ". " + (riseFor(S.state).local && !multiState() ? "Rates here actually rose " + riseFor(S.state).pct.toFixed(1) + "% in the last 12 months." : "Commercial rates actually rose " + EP.national.augYoY + "% nationally in the last year.") + "</p></div>",
       beyond: '<div class="blk"><h2>Beyond the bill</h2><div class="kv"><div><span>Maintenance cost</span><b>up to 40% lower</b></div><div><span>Added equipment life</span><b>5 to 15 years</b></div>' + (multi ? "<div><span>Per " + esc(F.unit) + ", typical</span><b>" + kmoney(typ / L) + "/yr</b></div>" : "") + '</div><p class="sub" style="margin-top:14px">And it&rsquo;s paid from the savings: projects are structured to be cash flow positive from day one where the numbers support it. We walk through the structure on the call.</p></div>',
     };
