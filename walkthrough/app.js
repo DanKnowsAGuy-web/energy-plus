@@ -23,6 +23,7 @@
       return { tag: "Equipment", h: "At " + (age >= 15 ? "15+" : age) + " years, your units have typically lost about " + loss + "% of their cooling power.", p: "Over the years, the compressor slowly leaks oil into the refrigerant, and it coats the inside of the coils, where a normal cleaning can't reach. It works like insulation, so heat can't get out, the unit runs longer, and the compressor works harder to cool the same space. " + (age >= 10 ? "This is also the age where emergency calls and premium parts pricing start stacking up." : "Restoring that is usually the fastest payback on the roof.") };
     }
   };
+  var _ageInsight = AGE.insight; AGE.insight = function (k) { var r = _ageInsight(k); r.viz = coilViz(); return r; };
   var SUMMER = {
     id: "summer", eyebrow: "Pattern", q: "Is your summer electric bill noticeably higher than winter?",
     opts: [["much", "Much higher"], ["little", "A little higher"], ["same", "About the same"], ["unk", "Not sure"]],
@@ -44,7 +45,7 @@
       pick: function (k) { S.cases = k; S.refrigRange = { open: [0.08, 0.12], mix: [0.06, 0.10], unk: [0.06, 0.10], door: [0.05, 0.08] }[k]; },
       insight: function (k) {
         if (k === "door") return { tag: "Case setup", h: "Doors help. The next leak is in the machines that keep your cases cold.", p: "Doors stop cold air spilling out, but the refrigeration equipment behind them still runs every hour of the year, and it loses power to the same buildup inside." };
-        return { tag: "Case setup", h: "Open cases spill cold air into your aisles. Your HVAC then pays to reheat the space while refrigeration pays to replace the cold.", p: "You're paying twice for the same air." };
+        return { viz: casesViz(), tag: "Case setup", h: "Open cases spill cold air into your aisles. Your HVAC then pays to reheat the space while refrigeration pays to replace the cold.", p: "You're paying twice for the same air." };
       } };
   }
   function info(id, eyebrow, q, opts, insightFn, findingFn) {
@@ -106,7 +107,7 @@
       path: function () { return [
         HOURS("How many shifts do you run?", [["40", "One shift"], ["80", "Two shifts"], ["120", "Three shifts or 24/7"]], function () { return { tag: "Shifts", h: "Motors and compressed air use most of your power.", p: "Every time a big motor starts, it can set a new busiest-15-minutes charge for the month." }; }),
         info("motors", "Process", "How much of your power goes to large motors, pumps, or compressed air?", [["most", "Most of it"], ["some", "Some"], ["little", "Very little"]], function (k) {
-          return k === "little" ? { tag: "Process", h: "Then HVAC and lighting are the levers.", p: "We size those first." } : { tag: "Process", h: "Plants with big motors have the dirtiest power.", p: "Big motors and their speed controls send dirty power back through your wiring. It wastes electricity you pay for and wears out equipment early." }; },
+          return k === "little" ? { tag: "Process", h: "Then HVAC and lighting are the levers.", p: "We size those first." } : { viz: dirtyViz(), tag: "Process", h: "Plants with big motors have the dirtiest power.", p: "Big motors and their speed controls send dirty power back through your wiring. It wastes electricity you pay for and wears out equipment early." }; },
           function (k) { return k !== "little" ? ["Big motors, dirty power", "Your motors send dirty power through your wiring and set expensive startup spikes."] : null; }),
         AGE, SUMMER]; },
       signature: "Your demand charge is set by the moment your biggest motors start." },
@@ -578,6 +579,68 @@
       "</svg>" +
       '<button class="link dv-replay" type="button">Replay</button></div>';
   }
+  /* motion: oil building up inside the coil, where an outside cleaning can't reach */
+  var vizN = 0;
+  function coilViz() {
+    var id = "cvc" + (++vizN), cx = 104, cy = 108, f = function (n) { return n.toFixed(1); }, fins = "", heat = "";
+    for (var i = 0; i < 18; i++) { var a = i / 18 * 2 * Math.PI; fins += '<line class="cv-fin" x1="' + f(cx + 66 * Math.cos(a)) + '" y1="' + f(cy + 66 * Math.sin(a)) + '" x2="' + f(cx + 80 * Math.cos(a)) + '" y2="' + f(cy + 80 * Math.sin(a)) + '"/>'; }
+    for (var j = 0; j < 6; j++) {
+      var b = (j / 6) * 2 * Math.PI + 0.26, x1 = cx + 86 * Math.cos(b), y1 = cy + 86 * Math.sin(b), x2 = cx + 104 * Math.cos(b), y2 = cy + 104 * Math.sin(b);
+      var l = b + 2.6, r = b - 2.6;
+      heat += '<path d="M' + f(x1) + "," + f(y1) + " L" + f(x2) + "," + f(y2) + " M" + f(x2 + 7 * Math.cos(l)) + "," + f(y2 + 7 * Math.sin(l)) + " L" + f(x2) + "," + f(y2) + " L" + f(x2 + 7 * Math.cos(r)) + "," + f(y2 + 7 * Math.sin(r)) + '"/>';
+    }
+    return '<div class="dviz cviz" aria-label="Inside a coil: oil builds up on the inside wall, heat cannot escape, and the unit runs longer.">' +
+      '<svg viewBox="0 0 360 222" role="img"><defs><clipPath id="' + id + '"><circle cx="' + cx + '" cy="' + cy + '" r="56"/></clipPath></defs>' +
+        '<g class="cv-heat" style="transform-origin:' + cx + 'px ' + cy + 'px">' + heat + "</g>" +
+        fins +
+        '<circle class="cv-in" cx="' + cx + '" cy="' + cy + '" r="56"/>' +
+        '<circle class="cv-oil" cx="' + cx + '" cy="' + cy + '" r="56" clip-path="url(#' + id + ')"/>' +
+        '<circle class="cv-wall" cx="' + cx + '" cy="' + cy + '" r="60"/>' +
+        '<text class="cv-a" x="204" y="52">Outside cleaning</text><text class="cv-a" x="204" y="70">only reaches the fins</text>' +
+        '<text class="cv-b" x="204" y="112">Oil builds up inside,</text><text class="cv-b" x="204" y="130">where it can&rsquo;t reach</text>' +
+        '<text class="cv-c" x="204" y="172">Heat can&rsquo;t get out,</text><text class="cv-c" x="204" y="190">so the unit runs longer</text>' +
+      '</svg><button class="link dv-replay" type="button">Replay</button></div>';
+  }
+
+  /* motion: open cases spill cold into the aisle while the heat pushes back */
+  function casesViz() {
+    var wisps = "", warm = "";
+    [146, 156, 166].forEach(function (y, i) { wisps += '<path class="cs-cold" pathLength="1" style="animation-delay:' + (0.4 + i * 0.18) + 's" d="M90,' + (y - 22) + " C130," + (y - 6) + " 160," + (y + 2) + " 210," + (y - 4) + " S280," + (y - 2) + " 318," + (y - 6) + '"/>'; });
+    [258, 290, 322].forEach(function (x, i) { warm += '<path class="cs-warm" pathLength="1" style="animation-delay:' + (1.6 + i * 0.15) + 's" d="M' + x + ",34 L" + x + ",104 M" + (x - 7) + ",96 L" + x + ",106 L" + (x + 7) + ',96"/>'; });
+    return '<div class="dviz csviz" aria-label="Cold air spills out of an open case into the aisle, and the store heat pushes back. You pay for both.">' +
+      '<svg viewBox="0 0 360 214" role="img">' +
+        '<rect class="cs-case" x="16" y="58" width="72" height="116" rx="6"/>' +
+        '<line class="cs-shelf" x1="22" y1="92" x2="82" y2="92"/><line class="cs-shelf" x1="22" y1="124" x2="82" y2="124"/><line class="cs-shelf" x1="22" y1="154" x2="82" y2="154"/>' +
+        '<rect class="cs-vent" x="240" y="16" width="100" height="14" rx="4"/>' +
+        wisps + warm +
+        '<line class="cs-floor" x1="16" y1="176" x2="344" y2="176"/>' +
+        '<text class="cs-t1" x="100" y="86">Cold air spills</text><text class="cs-t1" x="100" y="104">into the aisle</text>' +
+        '<text class="cs-t2" x="344" y="128" text-anchor="end">Your heat pushes back</text>' +
+        '<text class="cs-t3" x="180" y="204" text-anchor="middle">You pay for both</text>' +
+      '</svg><button class="link dv-replay" type="button">Replay</button></div>';
+  }
+
+  /* motion: a clean wave turns jagged, and the motor heats up */
+  function dirtyViz() {
+    var X0 = 16, X1 = 344, cy = 62, A = 32, n = 220, c = [], d = [];
+    for (var i = 0; i < n; i++) {
+      var x = X0 + (X1 - X0) * i / (n - 1), t = i / (n - 1) * 3 * 2 * Math.PI, s = Math.sin(t);
+      var j = s + 0.32 * Math.sin(5 * t) + 0.2 * Math.sin(7 * t) + 0.12 * Math.sin(11 * t);
+      c.push(x.toFixed(1) + "," + (cy - A * s).toFixed(1)); d.push(x.toFixed(1) + "," + (cy - A * 0.85 * j).toFixed(1));
+    }
+    return '<div class="dviz dpviz" aria-label="A smooth power wave turns jagged when motors and electronics switch on. Dirty power wastes electricity and heats up equipment.">' +
+      '<svg viewBox="0 0 360 196" role="img">' +
+        '<line class="dp-axis" x1="' + X0 + '" y1="' + cy + '" x2="' + X1 + '" y2="' + cy + '"/>' +
+        '<path class="dp-clean" pathLength="1" d="M' + c.join(" L") + '"/>' +
+        '<path class="dp-dirty" pathLength="1" d="M' + d.join(" L") + '"/>' +
+        '<text class="dp-t1" x="' + X0 + '" y="12">Clean power</text>' +
+        '<text class="dp-t2" x="' + X0 + '" y="12">Dirty power from motors and electronics</text>' +
+        '<circle class="dp-glow" cx="52" cy="152" r="34" style="transform-origin:52px 152px"/>' +
+        '<circle class="dp-motor" cx="52" cy="152" r="22"/><circle class="dp-motor" cx="52" cy="152" r="8"/>' +
+        '<text class="dp-t3" x="96" y="146">Wastes power you pay for</text><text class="dp-t4" x="96" y="166">and wears out equipment early</text>' +
+      '</svg><button class="link dv-replay" type="button">Replay</button></div>';
+  }
+
   /* plays when the chart is actually on screen, so a phone user doesn't miss it */
   var dvObs = "IntersectionObserver" in window ? new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add("play"); dvObs.unobserve(e.target); } }); }, { threshold: 0.75 }) : null;
   function wireReplay(root) {
@@ -788,7 +851,7 @@
     var buckets = '<div class="kv"><div><span>Fixing equipment that&rsquo;s wasting power</span><b>' + rng(eq) + '</b></div><div><span>Lowering your busiest-15-minutes charge</span><b>' + rng(pk) + "</b></div>" + (sp[1] > 0 ? '<div><span>Buying your power for less</span><b>' + rng(sp) + "</b></div>" : "") + "</div>";
     var blocks = {
       where: '<div class="blk"><h2>Where the savings come from</h2>' + buckets + "</div>",
-      findings: '<div class="blk"><h2>Top findings for your ' + esc(F.units) + '</h2><ol class="finds">' + fs.map(function (x, i) { return '<li style="animation-delay:' + (i * 120 + 300) + 'ms"><span class="n">' + String(i + 1).padStart(2, "0") + "</span><span><strong>" + esc(x[0]) + "</strong>" + esc(x[1]) + "</span></li>"; }).join("") + "</ol></div>",
+      findings: '<div class="blk"><h2>Top findings for your ' + esc(F.units) + '</h2><ol class="finds">' + fs.map(function (x, i) { return '<li style="animation-delay:' + (i * 120 + 300) + 'ms"><span class="n">' + String(i + 1).padStart(2, "0") + "</span><span><strong>" + esc(x[0]) + "</strong>" + esc(x[1]) + (x[0] === "Dirty power on every circuit" ? dirtyViz() : "") + "</span></li>"; }).join("") + "</ol></div>",
       nothing: '<div class="blk"><h2>The cost of waiting</h2><div class="kv"><div><span>Electricity spend, next 10 years</span><b>' + kmoney(annualAll * ENG.escalationFactor(r.escRate, 10)) + "</b></div><div><span>Rate increase we used</span><b>" + escPct + "% / yr</b></div><div><span>Savings left on the table</span><b>" + kmoney(r.typical * ENG.escalationFactor(r.escRate, 10)) + '</b></div></div><p class="sub" style="margin-top:12px">We used a conservative ' + escPct + "% a year for " + esc(placeName()) + ". " + (riseFor(S.state).local && !multiState() ? "Rates here actually rose " + riseFor(S.state).pct.toFixed(1) + "% in the last 12 months." : "Commercial rates actually rose " + EP.national.augYoY + "% nationally in the last year.") + "</p></div>",
       beyond: '<div class="blk"><h2>Beyond the bill</h2><div class="kv"><div><span>Maintenance cost</span><b>up to 40% lower</b></div><div><span>Added equipment life</span><b>5 to 15 years</b></div>' + (multi ? "<div><span>Per " + esc(F.unit) + ", typical</span><b>" + kmoney(typ / L) + "/yr</b></div>" : "") + '</div><p class="sub" style="margin-top:14px">And it&rsquo;s paid from the savings: projects are structured to be cash flow positive from day one where the numbers support it. We walk through the structure on the call.</p></div>',
     };
@@ -812,7 +875,7 @@
     n.querySelector("#cp").addEventListener("click", function (e) { var b = e.currentTarget; try { navigator.clipboard.writeText(PHONE_DISPLAY).then(function () { b.textContent = "Copied"; }, function () { b.textContent = PHONE_DISPLAY; }); } catch (_) { b.textContent = PHONE_DISPLAY; } });
     n.querySelector("#again").addEventListener("click", function () { intro(); syncBack(); });
     wattIn(n, "#w-ver", 56, { state: "verify", fixed: true });
-    show(n, true); setAction("Text Dan", null, { href: n.querySelector("#sms").getAttribute("href") });
+    wireReplay(n); show(n, true); setAction("Text Dan", null, { href: n.querySelector("#sms").getAttribute("href") });
     var tenTyp = r.typical * ENG.escalationFactor(r.escRate, 10);
     setTimeout(function () { countUp(document.getElementById("lo"), lo, kmoney, 1600); countUp(document.getElementById("hi"), hi, kmoney, 1900); countUp(document.getElementById("typ"), typ, kmoney, 1900); countUp(document.getElementById("ten"), tenTyp, kmoney, 2200); }, reduce ? 0 : 420);
     sendLead({ kind: S.leadSent ? "diagnostic, updated answers" : "diagnostic", name: S.name, phone: S.phone, role: S.role, facility: F.label, state: S.stateName, states: (S.states || []).join(" "), locations: S.locLabel,

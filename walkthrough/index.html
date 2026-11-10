@@ -416,6 +416,47 @@ body.look-a .wattline{margin:0 0 10px}
 @keyframes dvStretch{to{transform:scaleX(1)}}
 @keyframes dvBand{to{opacity:.14}}
 @keyframes dvFade{to{opacity:1}}
+
+/* motion: shared */
+:root{--cold:#3d8fb5;--warm:#c8553d}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--cold:#6fb8da;--warm:#e07a5f}}
+:root[data-theme="dark"]{--cold:#6fb8da;--warm:#e07a5f}
+.dviz svg .cv-a,.dviz svg .cv-b,.dviz svg .cv-c,.dviz svg .cs-t1,.dviz svg .cs-t2,.dviz svg .cs-t3,.dviz svg .dp-t1,.dviz svg .dp-t2,.dviz svg .dp-t3,.dviz svg .dp-t4{font-family:var(--f-display);font-size:15px;font-weight:700;opacity:0}
+.finds .dviz{margin-top:10px}
+/* coil */
+.cv-fin{stroke:var(--faint);stroke-width:3;stroke-linecap:round}
+.cv-wall{fill:none;stroke:var(--petrol-2);stroke-width:8}
+.cv-in{fill:var(--cold);opacity:.18}
+.cv-oil{fill:none;stroke:#8a5a14;stroke-width:0;opacity:.9;animation:cvGrow 1.9s .8s cubic-bezier(.4,0,.2,1) forwards}
+.cv-heat{fill:none;stroke:var(--warm);stroke-width:3;stroke-linecap:round;stroke-linejoin:round;transform-box:view-box;animation:cvShrink 1.4s 2.3s ease forwards}
+.cv-a{fill:var(--faint);animation:dvFade .5s .3s ease forwards}
+.cv-b{fill:var(--ink);animation:dvFade .5s 2.1s ease forwards}
+.cv-c{fill:var(--warm);animation:dvFade .5s 3.5s ease forwards}
+@keyframes cvGrow{to{stroke-width:30}}
+@keyframes cvShrink{to{transform:scale(.82);opacity:.25}}
+/* open cases */
+.cs-case{fill:var(--card);stroke:var(--petrol-2);stroke-width:2.5}
+.cs-shelf{stroke:var(--rule);stroke-width:2}
+.cs-vent{fill:var(--petrol-2)}
+.cs-floor{stroke:var(--rule);stroke-width:2}
+.cs-cold{fill:none;stroke:var(--cold);stroke-width:4;stroke-linecap:round;stroke-dasharray:1;stroke-dashoffset:1;animation:dvDraw 1.4s cubic-bezier(.4,0,.2,1) forwards}
+.cs-warm{fill:none;stroke:var(--warm);stroke-width:3.5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1;stroke-dashoffset:1;animation:dvDraw .9s ease forwards}
+.cs-t1{fill:var(--cold);animation:dvFade .5s 1s ease forwards}
+.cs-t2{fill:var(--warm);animation:dvFade .5s 2.2s ease forwards}
+.cs-t3{fill:var(--ink);font-size:16px!important;animation:dvFade .5s 3s ease forwards}
+/* dirty power */
+.dp-axis{stroke:var(--rule);stroke-width:1.5}
+.dp-clean{fill:none;stroke:var(--petrol-2);stroke-width:2.5;stroke-dasharray:1;stroke-dashoffset:1;animation:dvDraw 1.2s .2s ease forwards,dpDim .6s 1.9s ease forwards}
+.dp-dirty{fill:none;stroke:var(--warm);stroke-width:2.5;stroke-dasharray:1;stroke-dashoffset:1;animation:dvDraw 1.3s 1.9s ease forwards}
+.dp-t1{fill:var(--petrol-2);animation:dvFade .4s .3s ease forwards,dpOut .3s 1.8s ease forwards}
+.dp-t2{fill:var(--warm);animation:dvFade .4s 2s ease forwards}
+.dp-motor{fill:none;stroke:var(--petrol-2);stroke-width:4}
+.dp-glow{fill:var(--warm);opacity:0;transform-box:view-box;animation:dpGlow 1.2s 2.8s ease forwards}
+.dp-t3{fill:var(--ink);animation:dvFade .5s 3s ease forwards}
+.dp-t4{fill:var(--ink);animation:dvFade .5s 3.3s ease forwards}
+@keyframes dpDim{to{opacity:.18}}
+@keyframes dpOut{to{opacity:0}}
+@keyframes dpGlow{0%{opacity:0;transform:scale(.6)}100%{opacity:.35;transform:scale(1)}}
 </style>
 </head>
 <body>
@@ -434,9 +475,9 @@ body.look-a .wattline{margin:0 0 10px}
     <div class="prof" id="profile" hidden><div class="chips" id="chips"></div></div>
   </div>
 </div>
-<script src="engine/constants.js?v=202611101345"></script>
-<script src="engine/engine.js?v=202611101345"></script>
-<script src="watt.js?v=202611101345"></script>
-<script src="app.js?v=202611101345"></script>
+<script src="engine/constants.js?v=202611101445"></script>
+<script src="engine/engine.js?v=202611101445"></script>
+<script src="watt.js?v=202611101445"></script>
+<script src="app.js?v=202611101445"></script>
 </body>
 </html>
