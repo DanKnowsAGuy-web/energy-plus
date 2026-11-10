@@ -412,10 +412,32 @@
     box.appendChild(you); host.appendChild(box);
     you.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "nearest" });
     var parts = build({ tag: "", h: a[1], p: a[2] });
-    if (reduce) { box.appendChild(parts[0]); box.appendChild(parts[1]); return; }
+    if (reduce) { box.appendChild(parts[0]); box.appendChild(parts[1]); resume(host, box); return; }
     var t = typingBubble(); box.appendChild(t);
     setTimeout(function () { t.remove(); box.appendChild(parts[0]); talk(); var t2 = typingBubble(); box.appendChild(t2);
-      setTimeout(function () { t2.remove(); box.appendChild(parts[1]); parts[1].scrollIntoView({ behavior: "smooth", block: "nearest" }); }, 600); }, 650);
+      setTimeout(function () { t2.remove(); box.appendChild(parts[1]); parts[1].scrollIntoView({ behavior: "smooth", block: "nearest" });
+        setTimeout(function () { resume(host, box); }, 700); }, 600); }, 650);
+  }
+  /* after a side question, Watt picks the thread back up: the open question and its answers move to the bottom */
+  function pendingIn(host) {
+    if (!host.classList.contains("turn")) return false;
+    var sel = host.querySelector("select.state");
+    return !!(host.querySelector(".opts:not(.answered)") || (sel && !sel.value) || host.querySelector(".regions:not(.answered)") || host.querySelector("#c-name"));
+  }
+  function resume(host, box) {
+    if (!host.isConnected || host !== app.lastElementChild) return;
+    var q = host.querySelector(".bubble.ask");
+    if (pendingIn(host) && q) {
+      var line = $('<div class="bubble say resume"><p class="eyebrow">Back to my question</p><h3></h3></div>');
+      line.querySelector("h3").textContent = q.querySelector("h1").textContent;
+      box.appendChild(line); talk();
+      var after = Array.prototype.filter.call(host.children, function (n) { return n !== box && !n.classList.contains("asked") && (q.compareDocumentPosition(n) & Node.DOCUMENT_POSITION_FOLLOWING) && !n.contains(q); });
+      after.forEach(function (n) { host.appendChild(n); });
+      line.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+    } else if (!actEl.hidden && host.classList.contains("turn")) {
+      var r = $('<div class="bubble say quiet"><h3>Ready when you are.</h3></div>');
+      box.appendChild(r); r.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "nearest" });
+    }
   }
   if (askBtn) askBtn.addEventListener("click", openSheet);
 
