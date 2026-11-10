@@ -368,6 +368,34 @@ html:has(body.has-profile){scroll-padding-bottom:0}
 .told{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
 .told .chip{white-space:normal}
 @media (max-width:460px){.brow{grid-template-columns:minmax(0,1.2fr) minmax(0,1fr) 46px;font-size:17px}}
+
+/* ---------- Watt in the conversation without taking a margin: three draft looks ---------- */
+.turn{display:flex;flex-direction:column;align-items:stretch}
+.turn > .opts.answered,.turn > .replypill,.turn > .change{align-self:flex-end}
+.reg-h{text-align:left;gap:12px}
+.reg-all{white-space:nowrap}
+.wattline{display:flex;align-items:center;gap:12px}
+.wattline .watt-live{width:var(--av,60px);height:var(--av,60px);flex:0 0 auto}
+.watt-live svg{width:100%;height:100%;display:block}
+.wname{display:flex;flex-direction:column;line-height:1.25;min-width:0}
+.wname b{font-size:19px;font-weight:700;color:var(--ink);font-stretch:108%}
+.wstat{font-family:var(--f-mono);font-size:15px;color:var(--petrol-2)}
+.top .mini{width:36px;height:36px;display:none}
+.top .mini.on{display:block}
+/* a: Watt above his message, like a messenger name line */
+body.look-a{--av:64px}
+body.look-a .wattline{margin:0 0 10px}
+/* b: Watt inside his message, at the top */
+body.look-b{--av:58px}
+body.look-b .bubble.ask .wattline{margin:0 0 16px;padding-bottom:14px;border-bottom:1px solid var(--rule)}
+/* c: Watt peeking over the top of his message */
+body.look-c{--av:88px}
+body.look-c .bubble.ask{position:relative;margin-top:48px;padding-top:70px;text-align:center}
+body.look-c .bubble.ask .sub{margin-left:auto;margin-right:auto}
+body.look-c .bubble.ask .wattline{position:absolute;top:-44px;left:50%;transform:translateX(-50%);flex-direction:column;gap:2px}
+body.look-c .wattline .wname b{display:none}
+body.look-c .wattline .wstat{font-size:14px}
+body.look-c .turn{padding-top:8px}
 </style>
 </head>
 <body>
@@ -375,7 +403,7 @@ html:has(body.has-profile){scroll-padding-bottom:0}
   <div class="wrap bar">
     <button class="back" id="back" type="button" hidden onclick="history.back()" aria-label="Back"><span aria-hidden="true">&larr;</span></button>
     <a class="brand" href="../" aria-label="Energy Plus home"><img class="logo logo-ink" src="../assets/img/energy-plus-logo-ink.png" alt="Energy Plus" width="85" height="24"><img class="logo logo-white" src="../assets/img/energy-plus-logo.png" alt="" width="85" height="24"></a>
-    <span class="count" id="count"></span>
+    <span class="mini watt-live" id="mini" aria-hidden="true"></span><span class="count" id="count"></span>
   </div>
   <div class="track"><i id="prog"></i></div>
 </header>
@@ -386,9 +414,9 @@ html:has(body.has-profile){scroll-padding-bottom:0}
     <div class="prof" id="profile" hidden><div class="chips" id="chips"></div></div>
   </div>
 </div>
-<script src="engine/constants.js?v=202611100615"></script>
-<script src="engine/engine.js?v=202611100615"></script>
-<script src="watt.js?v=202611100615"></script>
-<script src="app.js?v=202611100615"></script>
+<script src="engine/constants.js?v=202611101215"></script>
+<script src="engine/engine.js?v=202611101215"></script>
+<script src="watt.js?v=202611101215"></script>
+<script src="app.js?v=202611101215"></script>
 </body>
 </html>

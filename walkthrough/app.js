@@ -180,12 +180,21 @@
      the person taps a reply, Watt "thinks" for a beat, then answers with what that reply means.
      A "Your building" strip fills in along the bottom as they go. */
   /* one live Watt; each time he speaks he moves to sit beside that message */
-  var seat = document.createElement("span"); seat.className = "watt-live"; seat.setAttribute("aria-hidden", "true");
-  if (window.Watt) Watt.mount(seat, 44);
+  /* three draft layouts, chosen with ?look=a|b|c: a = Watt above his message, b = inside it, c = peeking over it */
+  var LOOK = (new URLSearchParams(location.search).get("look") || "a").toLowerCase();
+  if (["a", "b", "c"].indexOf(LOOK) < 0) LOOK = "a";
+  document.body.classList.add("look-" + LOOK);
+  var wl = $('<div class="wattline" aria-hidden="true"><span class="watt-live"></span><span class="wname"><b>Watt</b><span class="wstat"></span></span></div>');
+  var seat = wl.querySelector(".watt-live");
+  if (window.Watt) Watt.mount(seat, 64);
+  /* when his message scrolls out of view, a small Watt shows in the header so he never leaves */
+  var mini = document.getElementById("mini");
+  if (mini && window.Watt) Watt.mount(mini, 36);
+  if (mini && "IntersectionObserver" in window) new IntersectionObserver(function (es) { es.forEach(function (e) { mini.classList.toggle("on", !e.isIntersecting && wl.isConnected); }); }, { rootMargin: "-70px 0px 0px 0px" }).observe(wl);
   /* Watt's live status under his name, like a chat header */
   var STATUS = { hello: "Hi there", listen: "Listening", work: "Thinking\u2026", found: "Found something", verify: "Verified by engineers" };
-  var statusEl = document.getElementById("status");
-  function setStatus(t) { if (statusEl) statusEl.textContent = t; }
+  var statusEl = wl.querySelector(".wstat");
+  function setStatus(t) { statusEl.textContent = t; }
   function stage(s) { if (window.Watt) Watt.set(s); setStatus(STATUS[s] || ""); }
 
   /* the dock: one solid footer for the next action and "Your building" */
@@ -214,7 +223,7 @@
     setAction(label, function () { inline.click(); if (inline.disabled) setAction(inline.textContent, null, { disabled: true }); });
   }
   window.addEventListener("resize", syncDock);
-  function talk() { if (!seat || reduce) return; seat.classList.remove("talk"); void seat.offsetWidth; seat.classList.add("talk"); }
+  function talk() { if (reduce) return; seat.classList.remove("talk"); void seat.offsetWidth; seat.classList.add("talk"); }
   function wattIn(node, sel, size, opt) { var h = node.querySelector(sel); if (h && window.Watt) Watt.mount(h, size, opt); }
   function reset() { S = { pf: {}, ans: {}, chip: {}, order: [], locs: 1 }; hist = []; current = null; renderProfile(); }
 
@@ -246,18 +255,9 @@
   function fillBars(root) { requestAnimationFrame(function () { requestAnimationFrame(function () { root.querySelectorAll(".bt i").forEach(function (i) { i.style.width = i.dataset.w + "%"; }); }); }); }
   /* give each turn a gutter for Watt, so he sits beside what he's saying */
   function seatIn(node) {
-    if (node.classList.contains("turn")) {
-      var body = document.createElement("div"); body.className = "tbody";
-      while (node.firstChild) body.appendChild(node.firstChild);
-      var g = $('<div class="gutter"><div class="avatar-slot"></div></div>');
-      node.appendChild(g); node.appendChild(body);
-      g.firstChild.appendChild(seat);
-    } else {
-      var a = node.querySelector(".bubble.ask");
-      if (!a) return;
-      var row = $('<div class="say-row"><div class="avatar-slot"></div></div>');
-      a.parentNode.insertBefore(row, a); row.appendChild(a); row.firstChild.appendChild(seat);
-    }
+    var a = node.querySelector(".bubble.ask");
+    if (!a) return;
+    if (LOOK === "a") a.parentNode.insertBefore(wl, a); else a.insertBefore(wl, a.firstChild);
   }
   /* the conversation builds up: earlier turns stay above, quieter; Back takes the last turn off */
   function show(node, fresh) {
