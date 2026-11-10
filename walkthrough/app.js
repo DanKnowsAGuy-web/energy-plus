@@ -280,6 +280,7 @@
   function card(res, next, quiet) {
     var c = $('<div class="bubble say">' + (res.tag ? '<p class="eyebrow">' + esc(res.tag) + "</p>" : "") + "<h3>" + res.h + "</h3>" + (res.p ? "<p>" + res.p + "</p>" : "") + (res.viz ? '<div class="shown">' + res.viz + "</div>" : "") + (res.src ? '<div class="src">' + esc(res.src) + "</div>" : "") + "</div>");
     var nb = setAction("Next", next);
+    wireReplay(c);
     setTimeout(function () {
       fillBars(c);
       c.querySelectorAll("[data-count]").forEach(function (el) { var v = parseFloat(el.dataset.count), f = el.dataset.fmt; countUp(el, v, f === "cents" ? function (x) { return x.toFixed(2) + "¢"; } : f === "pct" ? function (x) { return (x >= 0 ? "+" : "") + x.toFixed(1) + "%"; } : kmoney); });
@@ -549,8 +550,41 @@
     var src = "Based on demand rates at " + name + "'s largest utilities and how a typical " + fac().unit + " uses power through the day." + (di.capped ? " Smaller bills usually carry less, so we scaled it down." : "");
     return { found: true, tag: "Your demand charge", h: "About " + dPct + "% of that bill, roughly " + kmoney(m * d) + " a month, is probably a demand charge.",
       p: "Your utility charges you twice: once for how much power you use, and again for your busiest 15 minutes of the month, when everything runs at once. It&rsquo;s like a speeding ticket priced on your top speed, not your average. That second charge is called a demand charge, and it&rsquo;s one of the easiest parts of the bill to bring down." + (S.estimated ? " (Your bill is estimated from your building&rsquo;s size.)" : ""),
-      viz: bars([["Busiest 15 minutes", dPct], ["Power you used", 100 - dPct]]),
+      viz: demandViz(),
       src: src };
+  }
+  /* motion: a month of power use; one spike; the ruler at that spike stretches across the whole month */
+  function demandViz() {
+    var X0 = 16, X1 = 344, Y0 = 40, YB = 172, perDay = 6, n = 30 * perDay, spikeAt = 18 * perDay + 3, pts = [], seed = 7;
+    function rnd() { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; }
+    for (var i = 0; i < n; i++) {
+      var ph = (i % perDay) / perDay, v = 0.22 + 0.2 * Math.max(0, Math.sin(ph * 2 * Math.PI)) + 0.05 * rnd();
+      if (i === spikeAt) v = 0.96; else if (Math.abs(i - spikeAt) === 1) v = 0.6;
+      pts.push([X0 + (X1 - X0) * i / (n - 1), YB - (YB - Y0) * Math.max(0.08, Math.min(v, 1))]);
+    }
+    var d = "M" + pts.map(function (p) { return p[0].toFixed(1) + "," + p[1].toFixed(1); }).join(" L");
+    var sx = pts[spikeAt][0], sy = pts[spikeAt][1];
+    return '<div class="dviz" aria-label="A month of power use with one spike. The spike sets the charge for the whole month.">' +
+      '<svg viewBox="0 0 360 206" role="img">' +
+        '<rect class="dv-band" x="' + X0 + '" y="' + sy.toFixed(1) + '" width="' + (X1 - X0) + '" height="' + (YB - sy).toFixed(1) + '"/>' +
+        '<line class="dv-axis" x1="' + X0 + '" y1="' + YB + '" x2="' + X1 + '" y2="' + YB + '"/>' +
+        '<path class="dv-line" pathLength="1" d="' + d + '"/>' +
+        '<line class="dv-ruler" x1="' + X0 + '" y1="' + sy.toFixed(1) + '" x2="' + X1 + '" y2="' + sy.toFixed(1) + '" style="transform-origin:' + sx.toFixed(1) + 'px ' + sy.toFixed(1) + 'px"/>' +
+        '<circle class="dv-dot" cx="' + sx.toFixed(1) + '" cy="' + sy.toFixed(1) + '" r="6" style="transform-origin:' + sx.toFixed(1) + 'px ' + sy.toFixed(1) + 'px"/>' +
+        '<text class="dv-t1" x="' + (sx - 10).toFixed(1) + '" y="' + (sy - 12).toFixed(1) + '" text-anchor="end">Busiest 15 minutes</text>' +
+        '<text class="dv-t2" x="' + X0 + '" y="' + (sy + 26).toFixed(1) + '">You&rsquo;re billed at this level</text>' +
+        '<text class="dv-t2 dv-t3" x="' + X0 + '" y="' + (sy + 46).toFixed(1) + '">for the whole month</text>' +
+        '<text class="dv-day" x="' + X0 + '" y="198">Day 1</text><text class="dv-day" x="' + X1 + '" y="198" text-anchor="end">Day 30</text>' +
+      "</svg>" +
+      '<button class="link dv-replay" type="button">Replay</button></div>';
+  }
+  /* plays when the chart is actually on screen, so a phone user doesn't miss it */
+  var dvObs = "IntersectionObserver" in window ? new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add("play"); dvObs.unobserve(e.target); } }); }, { threshold: 0.75 }) : null;
+  function wireReplay(root) {
+    root.querySelectorAll(".dviz").forEach(function (v) { if (dvObs) dvObs.observe(v); else v.classList.add("play"); });
+    root.querySelectorAll(".dv-replay").forEach(function (b) {
+      b.addEventListener("click", function () { var v = b.closest(".dviz"), svg = v.querySelector("svg"), c = svg.cloneNode(true); svg.parentNode.replaceChild(c, svg); });
+    });
   }
   function fmtK(x) { return ENG.fmtK(x).toUpperCase(); }
   function niceRound(x) { var st = x < 10000 ? 500 : x < 100000 ? 1000 : 5000; return Math.max(st, Math.round(x / st) * st); }

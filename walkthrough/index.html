@@ -394,6 +394,28 @@ body.look-a .wattline{margin:0 0 10px}
 /* the teaser list before the phone number */
 .tease{margin:14px 0 0;padding-left:24px;display:grid;gap:8px;font-size:19px;color:var(--ink);font-weight:600}
 .tease li::marker{color:var(--ochre);font-family:var(--f-mono)}
+
+/* motion: the demand charge */
+.dviz{margin-top:6px}
+.dviz svg{width:100%;height:auto;display:block;overflow:visible}
+.dviz svg *{animation-play-state:paused}
+.dviz.play svg *{animation-play-state:running}
+.dv-axis{stroke:var(--rule);stroke-width:2}
+.dv-line{fill:none;stroke:var(--petrol-2);stroke-width:2.2;stroke-linejoin:round;stroke-dasharray:1;stroke-dashoffset:1;animation:dvDraw 1.7s .2s cubic-bezier(.4,0,.2,1) forwards}
+.dv-dot{fill:var(--ochre);opacity:0;animation:dvPop .5s 1.75s cubic-bezier(.3,1.6,.5,1) forwards}
+.dv-ruler{stroke:var(--ochre);stroke-width:2.5;stroke-dasharray:7 5;transform:scaleX(0);transform-box:view-box;animation:dvStretch .9s 2.35s cubic-bezier(.2,.8,.2,1) forwards}
+.dv-band{fill:var(--ochre);opacity:0;animation:dvBand .7s 3.15s ease forwards}
+.dviz text{font-family:var(--f-display);font-size:15px;font-weight:700;opacity:0}
+.dv-t1{fill:var(--ochre);animation:dvFade .4s 1.95s ease forwards}
+.dv-t2{fill:var(--ink);animation:dvFade .5s 3.25s ease forwards}
+.dv-t3{animation-delay:3.45s}
+.dviz .dv-day{font-family:var(--f-mono);font-size:13px;font-weight:500;fill:var(--faint);opacity:1}
+.dv-replay{font-size:15px;margin-top:4px}
+@keyframes dvDraw{to{stroke-dashoffset:0}}
+@keyframes dvPop{0%{opacity:0;transform:scale(.2)}100%{opacity:1;transform:scale(1)}}
+@keyframes dvStretch{to{transform:scaleX(1)}}
+@keyframes dvBand{to{opacity:.14}}
+@keyframes dvFade{to{opacity:1}}
 </style>
 </head>
 <body>
@@ -412,9 +434,9 @@ body.look-a .wattline{margin:0 0 10px}
     <div class="prof" id="profile" hidden><div class="chips" id="chips"></div></div>
   </div>
 </div>
-<script src="engine/constants.js?v=202611101310"></script>
-<script src="engine/engine.js?v=202611101310"></script>
-<script src="watt.js?v=202611101310"></script>
-<script src="app.js?v=202611101310"></script>
+<script src="engine/constants.js?v=202611101345"></script>
+<script src="engine/engine.js?v=202611101345"></script>
+<script src="watt.js?v=202611101345"></script>
+<script src="app.js?v=202611101345"></script>
 </body>
 </html>
