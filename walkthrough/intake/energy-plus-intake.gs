@@ -61,7 +61,10 @@ function doGet(e) {
       var v = cache.get('utilities');
       if (!v) {
         var r = bayou_('/utilities');
-        var list = (r.body || []).filter(function (u) { return u && u.is_active !== false; })
+        if (r.code !== 200) return out_({ ok: false, error: 'bayou ' + r.code, detail: (r.body && (r.body.detail || r.body.error || r.body.message)) || '' });
+        var raw = Array.isArray(r.body) ? r.body : (r.body && (r.body.utilities || r.body.data || r.body.results)) || [];
+        if (!Array.isArray(raw)) return out_({ ok: false, error: 'unexpected utilities shape', keys: Object.keys(r.body || {}) });
+        var list = raw.filter(function (u) { return u && u.is_active !== false; })
           .map(function (u) { return { id: u.id, name: u.name, intervals: u.interval_availability || '' }; })
           .sort(function (x, y) { return String(x.name).localeCompare(String(y.name)); });
         v = JSON.stringify(list);
