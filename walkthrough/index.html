@@ -621,6 +621,16 @@ html.big #app,html.big .dock .wrap,html.big .ask-in{zoom:1.16}
 @keyframes wstamp{0%{transform:scale(0) rotate(-20deg)}100%{transform:scale(1) rotate(0)}}
 @media (prefers-reduced-motion: reduce){.bubble.say h3 .hl{transition:none}.finds li .n::after{animation:none}}
 
+
+/* the newest exchange always has room to sit at the top of the screen, so nothing gets pinned to the bottom edge */
+#app > .turn:last-child{min-height:calc(100vh - 160px);min-height:calc(100svh - 160px)}
+/* smooth taps: the other choices fade, the picked one glides into place, replies rise in */
+.turn .opts.leaving .opt:not(.chosen){opacity:0;transform:scale(.97);transition:opacity .18s ease,transform .18s ease}
+.turn .opts.leaving .opt.chosen{background:var(--sel)}
+.turn .opts.flip .opt.chosen{animation:none}
+.slot .bubble.say{animation:sayin .35s cubic-bezier(.2,.8,.2,1) both}
+@keyframes sayin{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion: reduce){.slot .bubble.say{animation:none}}
 </style>
 </head>
 <body>
@@ -673,9 +683,9 @@ html.big #app,html.big .dock .wrap,html.big .ask-in{zoom:1.16}
         <h4>16. Professional history and credentials</h4>
         <p>Biographical and credential statements reflect documented professional history. Supporting documentation is available for verification on request.</p>
         <p><strong>Questions.</strong> For questions about these disclosures or any statement in our materials, contact Energy Plus at <a href="mailto:dan@yourenergyplus.com">dan@yourenergyplus.com</a> or <a href="tel:+18647770688">(864) 777-0688</a>.</p></template>
-<script src="engine/constants.js?v=202611111200"></script>
-<script src="engine/engine.js?v=202611111200"></script>
-<script src="watt.js?v=202611111200"></script>
-<script src="app.js?v=202611111200"></script>
+<script src="engine/constants.js?v=202611111325"></script>
+<script src="engine/engine.js?v=202611111325"></script>
+<script src="watt.js?v=202611111325"></script>
+<script src="app.js?v=202611111325"></script>
 </body>
 </html>

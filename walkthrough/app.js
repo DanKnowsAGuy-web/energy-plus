@@ -390,6 +390,27 @@
     a.parentNode.insertBefore(wl, a);
   }
   /* the conversation builds up: earlier turns stay above, quieter; Back takes the last turn off */
+  /* placement: the current exchange starts just under the header and grows downward.
+     If it no longer fits on screen, ease down to the first anchor that lets the newest content show in full. */
+  function headerH() { return (topEl ? topEl.offsetHeight : 0) + 10; }
+  function roomH() { return window.innerHeight - headerH() - (dockEl && !dockEl.hasAttribute("data-empty") ? dockEl.offsetHeight : 0) - 12; }
+  function scrollToEl(el) {
+    if (!el) return;
+    var y = el.getBoundingClientRect().top + window.scrollY - headerH();
+    if (Math.abs(y - window.scrollY) < 4) return;
+    window.scrollTo({ top: Math.max(0, y), behavior: reduce ? "auto" : "smooth" });
+  }
+  function settle(turn) {
+    if (!turn || !turn.isConnected) return;
+    var kids = turn.querySelectorAll(".bubble, .opts.answered, .asked, .wattline, .slot > *");
+    var last = kids[kids.length - 1]; if (!last) return;
+    var bottom = last.getBoundingClientRect().bottom;
+    var cands = [turn.querySelector(".bubble.ask"), turn.querySelector(".opts.answered, .asked"), turn.querySelector(".slot .wattline, .asked .wattline"), turn.querySelector(".slot .bubble.say")].filter(Boolean);
+    for (var i = 0; i < cands.length; i++) {
+      if (bottom - cands[i].getBoundingClientRect().top <= roomH()) return scrollToEl(cands[i]);
+    }
+    scrollToEl(cands[cands.length - 1]);
+  }
   function show(node, fresh) {
     clearAction();
     if (fresh) app.innerHTML = "";
@@ -449,14 +470,14 @@
       if (b2 && !b2.isConnected) { slot.appendChild(b2); bring(b2); }
       var nb = setAction("Next", next);
       if (!quiet) {
-        setTimeout(function () { (b2 || b1).scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "nearest" }); nb.focus({ preventScroll: true }); }, 120);
+        setTimeout(function () { settle(slot.closest(".turn")); nb.focus({ preventScroll: true }); }, 140);
         if (res.quiet) setTimeout(function () { if (b1.isConnected && slot.closest(".turn") === app.lastElementChild) next(); }, 1300);
       }
     }
     if (quiet || reduce) { finish(); return; }
     var t = typingBubble();
     slot.appendChild(wl); slot.appendChild(t); clearAction(); stage("work");
-    t.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    setTimeout(function () { settle(slot.closest(".turn")); }, 420);
     if (window.Watt) Watt.blink();
     skipNow = finish;
     timers.push(setTimeout(function () {
@@ -464,7 +485,6 @@
       t.remove(); replied(found || res.viz, res.quiet); talk();
       slot.appendChild(b1); bring(b1);
       if (!res.viz && !res.quiet) setTimeout(function () { b1.classList.add("hl-on"); if (window.Watt) Watt.lookAt(b1, 800); }, 260);
-      b1.scrollIntoView({ behavior: "smooth", block: "nearest" });
       if (res.quiet || !b2) { finish(); return; }
       slot.appendChild(typingBubble());
       timers.push(setTimeout(finish, 380 + Math.min(420, (res.p || "").length * 1.5)));
@@ -612,6 +632,20 @@
     change.addEventListener("click", function () { opts.classList.remove("answered"); change.hidden = true; slot.innerHTML = ""; clearAction(); stage("listen"); });
     function choose(b, quiet) {
       if (!b) return;
+      if (quiet || reduce) return commit(b, quiet);
+      opts.classList.add("leaving"); b.classList.add("chosen");
+      setTimeout(function () {
+        var r0 = b.getBoundingClientRect();
+        opts.classList.remove("leaving"); opts.classList.add("flip");
+        commit(b, quiet);
+        var r1 = b.getBoundingClientRect();
+        b.style.transition = "none"; b.style.transform = "translate(" + (r0.left - r1.left) + "px," + (r0.top - r1.top) + "px)";
+        void b.offsetWidth;
+        b.style.transition = "transform .38s cubic-bezier(.2,.8,.2,1)"; b.style.transform = "";
+        setTimeout(function () { b.style.transition = ""; opts.classList.remove("flip"); }, 420);
+      }, 200);
+    }
+    function commit(b, quiet) {
       opts.querySelectorAll(".opt").forEach(function (x) { x.classList.toggle("chosen", x === b); });
       opts.classList.add("answered"); change.hidden = false;
       var k = b.dataset.k; S.ans[cfg.q] = k; if (cfg.pick) cfg.pick(k);
@@ -627,7 +661,7 @@
       if (cfg.id && !res.mem) { res = Object.assign({}, res); res.mem = cfg.id; }
       respond(slot, res, function () { go(cfg.next); }, quiet, res.found || (cfg.id && S.pf[cfg.id]));
     }
-    opts.addEventListener("click", function (e) { var b = e.target.closest(".opt"); if (b && !opts.classList.contains("answered")) choose(b); });
+    opts.addEventListener("click", function (e) { var b = e.target.closest(".opt"); if (b && !opts.classList.contains("answered") && !opts.classList.contains("leaving")) choose(b); });
     show(node);
     var saved = S.ans[cfg.q];
     if (saved != null) setTimeout(function () { choose(opts.querySelector('[data-k="' + saved + '"]'), true); }, reduce ? 0 : 280);
