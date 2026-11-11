@@ -194,7 +194,9 @@
   var STATUS = { hello: "Hi there", listen: "Listening", work: "Thinking\u2026", found: "Found something", verify: "Verified by engineers" };
   var statusEl = wl.querySelector(".wstat");
   function setStatus(t) { statusEl.textContent = t; }
-  function stage(s) { if (window.Watt) Watt.set(s); setStatus(STATUS[s] || ""); }
+  /* Watt's looks: neutral hexagon while listening, a quick spark while he works it out, the energy bolt while he answers */
+  var LOOKS = { work: "found", found: "work" };
+  function stage(s) { if (window.Watt) Watt.set(LOOKS[s] || s); setStatus(STATUS[s] || ""); }
 
   /* the dock: one solid footer for the next action and "Your building" */
   var actEl = document.getElementById("act"), dockEl = document.getElementById("dock"), topEl = document.getElementById("top");
@@ -383,11 +385,9 @@
   function countUp(el, to, fmt, dur) { if (reduce) { el.textContent = fmt(to); return; } var t0 = performance.now(); dur = dur || 1100; (function st(t) { var p = Math.min((t - t0) / dur, 1), e = 1 - Math.pow(1 - p, 4); el.textContent = fmt(to * e); if (p < 1) requestAnimationFrame(st); })(t0); }
   function fillBars(root) { requestAnimationFrame(function () { requestAnimationFrame(function () { root.querySelectorAll(".bt i").forEach(function (i) { i.style.width = i.dataset.w + "%"; }); }); }); }
   /* give each turn a gutter for Watt, so he sits beside what he's saying */
-  /* Watt travels with the card he's working on: above each new question, then above his own reply */
-  function seatIn(node) {
-    var a = node.querySelector(".bubble.ask, .bubble.say");
-    if (!a) return;
-    a.parentNode.insertBefore(wl, a);
+  /* Watt has one home: a band right under the header, always on screen. The conversation moves underneath him. */
+  function seatIn() {
+    if (topEl && wl.parentNode !== topEl) { topEl.insertBefore(wl, topEl.querySelector(".track")); wl.classList.add("docked"); }
   }
   /* the conversation builds up: earlier turns stay above, quieter; Back takes the last turn off */
   /* placement: the current exchange starts just under the header and grows downward.
@@ -405,7 +405,7 @@
     var kids = turn.querySelectorAll(".bubble, .opts.answered, .asked, .wattline, .slot > *");
     var last = kids[kids.length - 1]; if (!last) return;
     var bottom = last.getBoundingClientRect().bottom;
-    var cands = [turn.querySelector(".bubble.ask"), turn.querySelector(".opts.answered, .asked"), turn.querySelector(".slot .wattline, .asked .wattline"), turn.querySelector(".slot .bubble.say")].filter(Boolean);
+    var cands = [turn.querySelector(".bubble.ask"), turn.querySelector(".opts.answered, .asked"), turn.querySelector(".slot .bubble.say")].filter(Boolean);
     for (var i = 0; i < cands.length; i++) {
       if (bottom - cands[i].getBoundingClientRect().top <= roomH()) return scrollToEl(cands[i]);
     }
@@ -464,7 +464,6 @@
       timers.forEach(clearTimeout);
       Array.prototype.slice.call(slot.querySelectorAll(".typing")).forEach(function (t) { t.remove(); });
       replied(found || res.viz, res.quiet);
-      if (!quiet && wl.parentNode !== slot) slot.insertBefore(wl, slot.firstChild);
       if (!b1.isConnected) { slot.appendChild(b1); bring(b1); }
       if (!res.viz && !res.quiet && !quiet) b1.classList.add("hl-on");
       if (b2 && !b2.isConnected) { slot.appendChild(b2); bring(b2); }
@@ -476,7 +475,7 @@
     }
     if (quiet || reduce) { finish(); return; }
     var t = typingBubble();
-    slot.appendChild(wl); slot.appendChild(t); clearAction(); stage("work");
+    slot.appendChild(t); clearAction(); stage("work");
     setTimeout(function () { settle(slot.closest(".turn")); }, 420);
     if (window.Watt) Watt.blink();
     skipNow = finish;
@@ -488,7 +487,7 @@
       if (res.quiet || !b2) { finish(); return; }
       slot.appendChild(typingBubble());
       timers.push(setTimeout(finish, 380 + Math.min(420, (res.p || "").length * 1.5)));
-    }, 1100));
+    }, 1000));
   }
 
   /* Watt remembers: he ties each new reply back to what they already told him */
