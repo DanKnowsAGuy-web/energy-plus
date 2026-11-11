@@ -250,84 +250,35 @@
     Object.keys(extra || {}).forEach(function (k) { o[k] = extra[k]; });
     return o;
   }
-  function meterBlock() {
-    var live = !!INTAKE_URL;
-    return '<div class="blk meter" id="meter"><h2>Get your real number: share your meter data</h2>' +
-      '<p class="sub">Your utility&rsquo;s meter records your power use every 15 minutes. That record, called interval data, shows exactly when your busiest 15 minutes happen, so we can replace this estimate with your real number.</p>' +
-      (live ? '<div class="mstep" id="m-connect"><p class="ch-t"><span class="mnum">1</span>Connect your utility account</p><p class="ch-s">About 2 minutes. You log in through Bayou Energy, a secure utility-data service, so your password goes to them, not to us.</p>' +
-        '<label class="mlabel" for="m-util">Who is your electric utility?</label><input class="minput" id="m-util" list="m-utils" autocomplete="off" placeholder="Start typing your utility"><datalist id="m-utils"></datalist>' +
-        '<div class="mrow"><button class="btn" id="m-go" type="button">Connect <span class="ar">&rarr;</span></button><button class="link" id="m-skip" type="button">Download it myself instead</button></div><div class="mstate" id="m-state" aria-live="polite"></div></div>' : "") +
-      '<div class="mstep" id="m-diy"' + (live ? " hidden" : "") + '><p class="ch-t"><span class="mnum">' + (live ? "2" : "1") + '</span>Download it yourself</p><ol class="diy">' +
-        '<li>Log in to your electric utility&rsquo;s website, the one that sends your bill.</li>' +
-        '<li>Look for <b>Usage</b>, <b>Energy use</b>, or <b>Green Button: Download My Data</b>.</li>' +
-        '<li>Choose <b>15-minute</b> (or hourly) data for the <b>last 12 months</b>, and download it as a spreadsheet or CSV file.</li>' +
-        '<li>In Texas, most areas get this data from <b>Smart Meter Texas</b> at smartmetertexas.com.</li>' +
-        '<li>' + (live ? "Upload the file here." : "Email the file to Dan.") + '</li></ol>' +
-        (live ? '<label class="mlabel" for="m-file">Your file</label><input class="minput" id="m-file" type="file" multiple accept=".csv,.xlsx,.xls,.xml,.zip,.pdf,.txt"><div class="mrow"><button class="btn" id="m-up" type="button">Upload <span class="ar">&rarr;</span></button></div><div class="mstate" id="m-upstate" aria-live="polite"></div>'
-          : '<div class="mrow"><a class="btn" href="mailto:' + DATA_EMAIL + "?subject=" + encodeURIComponent("Interval data" + (S.name ? " from " + S.name : "")) + "&body=" + encodeURIComponent("Attached is my interval data.") + '">Email it to Dan <span class="ar">&rarr;</span></a></div>') +
-      '</div>' +
-      '<div class="mstep"><p class="ch-t"><span class="mnum">' + (live ? "3" : "2") + '</span>Still stuck? We&rsquo;ll do it with you.</p><p class="ch-s">Book a quick screen share and we&rsquo;ll pull the data together. It takes about 15 minutes.</p><div class="mrow"><button class="btn" id="m-help" type="button">Pick a time <span class="ar">&rarr;</span></button></div></div>' +
-      "</div>";
+  /* get started yourself: we set up a private savings plan page (Drive folder per client) and email them the link */
+  function diyBlock() {
+    var refrig = !!engFac().refrigShare;
+    return '<div class="blk meter" id="diy"><h2>Want to get started yourself?</h2>' +
+      '<p class="sub">See your real numbers sooner. Two things from you turn this estimate into real numbers:</p>' +
+      '<ol class="diy"><li><b>Your meter&rsquo;s 15-minute data.</b> Connect your utility account in about 2 minutes, or upload the file.</li>' +
+      '<li><b>Your HVAC equipment.</b> A list if you have one, or phone photos of the label on each unit.</li>' +
+      (refrig ? '<li>Refrigeration details too, if you have them handy. Optional.</li>' : '') + '</ol>' +
+      '<p class="sub">I&rsquo;ll set up a private page where you can add them anytime, and email you the link.</p>' +
+      '<div id="d-form"' + (S.projectLink ? " hidden" : "") + '><label class="mlabel" for="d-email">Your email</label><input class="minput" id="d-email" type="email" inputmode="email" autocomplete="email" placeholder="you@company.com" value="' + esc(S.email || "") + '">' +
+      '<div class="mrow"><button class="btn" id="d-go" type="button">Set up my page <span class="ar">&rarr;</span></button></div></div>' +
+      '<div class="mstate" id="d-state" aria-live="polite">' + (S.projectLink ? diyDone() : "") + '</div></div>';
   }
-  function wireMeter(n) {
-    var help = n.querySelector("#m-help"), book = n.querySelector("#bookgo");
-    if (help && book) help.addEventListener("click", function () { book.click(); });
-    if (!INTAKE_URL) return;
-    var utilIn = n.querySelector("#m-util"), list = n.querySelector("#m-utils"), state = n.querySelector("#m-state"), diy = n.querySelector("#m-diy"), utils = [], cid = null, poll = null, tries = 0;
-    function showDiy(why) {
-      diy.hidden = false;
-      if (why) intakePost(who({ action: "stuck", id: cid || "", reason: why })).catch(function () {});
-      setTimeout(function () { diy.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" }); }, 60);
-    }
-    intakeGet({ action: "utilities" }).then(function (d) {
-      utils = (d && d.utilities) || [];
-      list.innerHTML = utils.map(function (u) { return '<option value="' + esc(u.name) + '"></option>'; }).join("");
-    }).catch(function () {});
-    n.querySelector("#m-skip").addEventListener("click", function () { showDiy(""); });
-    n.querySelector("#m-go").addEventListener("click", function () {
-      var v = (utilIn.value || "").trim().toLowerCase(), u = utils.filter(function (x) { return String(x.name).toLowerCase() === v; })[0];
-      if (!u && v) u = utils.filter(function (x) { return String(x.name).toLowerCase().indexOf(v) === 0; })[0];
-      if (!u) { state.innerHTML = '<p class="mwarn">Pick your utility from the list as you type. Not listed? Tap &ldquo;Download it myself instead.&rdquo;</p>'; return; }
-      utilIn.value = u.name;
-      state.innerHTML = '<p class="mwait">Setting up your secure login&hellip;</p>';
-      intakePost(who({ action: "start", utility: u.id, utilityName: u.name })).then(function (d) {
-        if (!d || !d.ok || !d.link) throw new Error("start");
-        cid = d.id;
-        state.innerHTML = '<a class="btn" href="' + esc(d.link) + '" target="_blank" rel="noopener">Open my utility login <span class="ar">&rarr;</span></a>' +
-          '<p class="mwait">Log in there, then come back to this page. I&rsquo;ll know when it worked.</p><button class="link" id="m-bad" type="button">It&rsquo;s not working</button>';
-        state.querySelector("#m-bad").addEventListener("click", function () { clearInterval(poll); showDiy("tapped It's not working"); });
-        clearInterval(poll); tries = 0;
-        poll = setInterval(function () {
-          if (document.hidden) return;
-          if (++tries > 150) { clearInterval(poll); showDiy("timed out waiting for login"); return; }
-          intakeGet({ action: "status", id: cid }).then(function (s) {
-            if (s && s.has_filled_credentials) {
-              clearInterval(poll);
-              stage("verify");
-              state.innerHTML = '<p class="mok">Connected. Your meter data is on its way to us, and Dan will follow up with your real number.</p>';
-              intakePost(who({ action: "connected", id: cid, utilityName: u.name })).catch(function () {});
-            }
-          }).catch(function () {});
-        }, 6000);
+  function diyDone() {
+    return '<p class="mok">Your page is ready' + (S.email ? ". I emailed the link to " + esc(S.email) : "") + '.</p><div class="mrow"><a class="btn" href="' + esc(S.projectLink) + '" target="_blank" rel="noopener">Open my savings plan <span class="ar">&rarr;</span></a></div>';
+  }
+  function wireDiy(n) {
+    var go = n.querySelector("#d-go"); if (!go) return;
+    go.addEventListener("click", function () {
+      var em = (n.querySelector("#d-email").value || "").trim(), st = n.querySelector("#d-state");
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) { st.innerHTML = '<p class="mwarn">Enter your email so I can send you the link.</p>'; return; }
+      go.disabled = true; st.innerHTML = '<p class="mwait">Setting up your page&hellip;</p>';
+      intakePost(who({ action: "project_create", email: em, refrig: !!engFac().refrigShare })).then(function (d) {
+        if (!d || !d.ok || !d.link) throw new Error(d && d.error || "create");
+        S.email = em; S.projectLink = d.link; save();
+        n.querySelector("#d-form").hidden = true; st.innerHTML = diyDone(); stage("verify");
       }).catch(function () {
-        state.innerHTML = '<p class="mwarn">That didn&rsquo;t connect. No problem, here&rsquo;s the do-it-yourself way.</p>';
-        showDiy("Bayou setup failed");
-      });
-    });
-    n.querySelector("#m-up").addEventListener("click", function () {
-      var f = n.querySelector("#m-file"), st = n.querySelector("#m-upstate"), files = Array.prototype.slice.call(f.files || []);
-      if (!files.length) { st.innerHTML = '<p class="mwarn">Choose your file first.</p>'; return; }
-      var total = files.reduce(function (t, x) { return t + x.size; }, 0);
-      if (total > 25 * 1024 * 1024) { st.innerHTML = '<p class="mwarn">That&rsquo;s over 25 MB. Email it to ' + DATA_EMAIL + ' instead.</p>'; return; }
-      st.innerHTML = '<p class="mwait">Uploading&hellip;</p>';
-      Promise.all(files.map(function (x) {
-        return new Promise(function (res, rej) { var rd = new FileReader(); rd.onload = function () { res({ name: x.name, type: x.type, data: String(rd.result).split(",")[1] || "" }); }; rd.onerror = rej; rd.readAsDataURL(x); });
-      })).then(function (enc) { return intakePost(who({ action: "upload", files: enc })); }).then(function (d) {
-        if (!d || !d.ok) throw new Error("upload");
-        stage("verify");
-        st.innerHTML = '<p class="mok">Got it. ' + d.count + (d.count === 1 ? " file" : " files") + ' sent to Dan. He&rsquo;ll follow up with your real number.</p>';
-      }).catch(function () {
-        st.innerHTML = '<p class="mwarn">The upload didn&rsquo;t go through. Please email the file to <a href="mailto:' + DATA_EMAIL + '">' + DATA_EMAIL + "</a>, or book a time and we&rsquo;ll do it with you.</p>";
+        go.disabled = false;
+        st.innerHTML = '<p class="mwarn">That didn&rsquo;t go through. Text Dan at ' + PHONE_DISPLAY + ' and he&rsquo;ll set it up for you.</p>';
       });
     });
   }
@@ -338,7 +289,7 @@
   function snapshot(dropPhone) {
     var o = {};
     Object.keys(S).forEach(function (k) { if (k !== "path" && k !== "_back" && k !== "viewOnly" && k !== "resumed") o[k] = S[k]; });
-    if (dropPhone) delete o.phone;
+    if (dropPhone) { delete o.phone; delete o.email; delete o.projectLink; }
     return o;
   }
   function save() { if (!S || S.viewOnly || !S.at) return; try { localStorage.setItem(SAVE_KEY, JSON.stringify(snapshot(false))); } catch (e) {} }
@@ -1280,8 +1231,8 @@
         '<li><b>Sandia National Laboratories.</b> Hired directly, no bid, to lead 22 engineers across DOE and DOD sites.</li>' +
         '<li><b>Salt River Project.</b> Built the quality program on a $600M utility project. His methods were later adopted by utilities across the country.</li>' +
         '<li><b>ASTM national standards.</b> Eight years helping write the test methods utilities use.</li>' +
-        '<li><b>UAE national grid.</b> Called in to assess grid reliability across Dubai, Abu Dhabi, and Sharjah.</li></ul></div></div><div class="choices"><div class="choice"><p class="ch-t">Text Dan</p><p class="ch-s">Ask a question or set up a time, by text.</p><a class="btn" id="sms" href="sms:' + PHONE_E164 + "?body=" + encodeURIComponent(smsBody) + '">Text Dan <span class="ar">&rarr;</span></a><div class="num"><span>' + PHONE_DISPLAY + '</span><button class="copy" id="cp">Copy number</button></div></div><div class="choice"><p class="ch-t">Book a 15-minute call</p><p class="ch-s">Add your email, then pick a time that works.</p><button class="btn" id="bookgo" type="button">Pick a time <span class="ar">&rarr;</span></button></div></div><div class="bookpanel" id="bookpanel" hidden><iframe title="Book a 15-minute call with Dan" data-src="' + esc(bookUrl(r)) + '"></iframe><a class="link" href="' + esc(bookUrl(r)) + '" target="_blank" rel="noopener">Calendar not showing? Open it in a new tab</a></div></div>' +
-      '' + meterBlock() + '<div class="blk"><h2>Send this to someone</h2><p class="sub">Your CFO, owner, or partner can open this full report. Your phone number isn&rsquo;t included.</p><div class="share-row">' + (navigator.share ? '<button class="sbtn primary" id="shareit" type="button">Share</button>' : '') + '<a class="sbtn" href="sms:?&body=' + encodeURIComponent(shareText + " " + reportLink()) + '">Text</a><a class="sbtn" href="mailto:?subject=' + encodeURIComponent(shareTitle) + '&body=' + encodeURIComponent(shareText + "\n\n" + reportLink()) + '">Email</a><button class="sbtn" type="button" data-copy="' + esc(reportLink()) + '">Copy link</button></div></div>' +
+        '<li><b>UAE national grid.</b> Called in to assess grid reliability across Dubai, Abu Dhabi, and Sharjah.</li></ul></div></div><div class="choices"><div class="choice main"><p class="ch-t">Text Dan</p><p class="ch-s">The quickest way to your real numbers. Dan answers personally.</p><a class="btn" id="sms" href="sms:' + PHONE_E164 + "?body=" + encodeURIComponent(smsBody) + '">Text Dan <span class="ar">&rarr;</span></a><div class="num"><span>' + PHONE_DISPLAY + '</span><button class="copy" id="cp">Copy number</button></div></div><div class="choice"><p class="ch-t">Rather talk? Book 15 minutes</p><p class="ch-s">Pick a time that works for you.</p><button class="btn alt" id="bookgo" type="button">Pick a time <span class="ar">&rarr;</span></button></div></div><div class="bookpanel" id="bookpanel" hidden><iframe title="Book a 15-minute call with Dan" data-src="' + esc(bookUrl(r)) + '"></iframe><a class="link" href="' + esc(bookUrl(r)) + '" target="_blank" rel="noopener">Calendar not showing? Open it in a new tab</a></div></div>' +
+      '' + diyBlock() + '<div class="blk"><h2>Send this to someone</h2><p class="sub">Your CFO, owner, or partner can open this full report. Your phone number isn&rsquo;t included.</p><div class="share-row">' + (navigator.share ? '<button class="sbtn primary" id="shareit" type="button">Share</button>' : '') + '<a class="sbtn" href="sms:?&body=' + encodeURIComponent(shareText + " " + reportLink()) + '">Text</a><a class="sbtn" href="mailto:?subject=' + encodeURIComponent(shareTitle) + '&body=' + encodeURIComponent(shareText + "\n\n" + reportLink()) + '">Email</a><button class="sbtn" type="button" data-copy="' + esc(reportLink()) + '">Copy link</button></div></div>' +
       '<div class="blk"><h2 style="font-size:22px">What you told Watt</h2><div class="told">' + S.order.filter(function (q) { return S.ans[q] != null && S.chip[q]; }).map(function (q) { return '<span class="chip">' + esc(S.chip[q]) + "</span>"; }).join("") + "</div></div>" +
       '<details class="blk fine" id="details"><summary>Details and disclosures</summary><div class="fine-in">' +
         '<p>Every figure here, including savings, payback, maintenance, equipment life, and cash flow timing, comes from your answers, public data, and results from specific buildings under their own conditions. Weather, equipment age and condition, occupancy, operating hours, and utility rates all change the outcome, so set expectations only by your own building. That is why we measure it and prove the savings on site before you commit. Watt is an automated estimating tool; this is not engineering, financial, tax, or legal advice.</p>' +
@@ -1295,7 +1246,7 @@
       if (!fr.src) fr.src = fr.getAttribute("data-src");
       pnl.hidden = false; setTimeout(function () { pnl.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" }); }, 60);
     });
-    wireMeter(n);
+    wireDiy(n);
     var shb = n.querySelector("#shareit");
     if (shb) shb.addEventListener("click", function () { try { navigator.share({ title: shareTitle, text: shareText, url: reportLink() }).catch(function () {}); } catch (e) {} });
     wattIn(n, "#w-ver", 34, { state: "verify", fixed: true });
