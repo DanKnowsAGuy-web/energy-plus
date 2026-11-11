@@ -241,7 +241,7 @@
   reset();
 
   /* ---------- send your meter data: connect through Bayou, or download it yourself, or do it live with us ---------- */
-  var INTAKE_URL = ""; /* the Energy Plus intake web app (Google Apps Script, walkthrough/intake/). Empty until it's deployed. */
+  var INTAKE_URL = "https://script.google.com/macros/s/AKfycby0oCtF2DdFc4a8CI9OGv42wnNedcGFvEWuIj0FE-bZjA21tcx_AJ29wdpoSavDZTpm/exec"; /* the Energy Plus intake web app (Google Apps Script, walkthrough/intake/) */
   var DATA_EMAIL = "dan@yourenergyplus.com";
   function intakeGet(params) { return fetch(INTAKE_URL + "?" + new URLSearchParams(params).toString()).then(function (r) { return r.json(); }); }
   function intakePost(body) { return fetch(INTAKE_URL, { method: "POST", body: JSON.stringify(body) }).then(function (r) { return r.json(); }); }
