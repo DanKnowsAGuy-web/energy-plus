@@ -730,6 +730,21 @@
     });
     Object.keys(EP.states).forEach(function (k) { if (!EP.states[k].country) EP.states[k].country = "US"; });
   })();
+  /* Canadian utilities by province. commRate where the Hydro-Québec 2025 comparison prices that utility's city (CAD ¢/kWh, medium-power profile). */
+  EP.utilitiesCA = {
+    ON: [{ id: "torontohydro", name: "Toronto Hydro", commRate: 22.01 }, { id: "hydroottawa", name: "Hydro Ottawa", commRate: 19.37 },
+         { id: "hydroone", name: "Hydro One", pfNote: "Hydro One bills on 90% of your peak kVA instead of kW when your power factor drops below 90%." },
+         { id: "alectra", name: "Alectra Utilities" }, { id: "elexicon", name: "Elexicon Energy" }, { id: "londonhydro", name: "London Hydro" }, { id: "enova", name: "Enova Power" }],
+    AB: [{ id: "enmax", name: "ENMAX (Calgary)", commRate: 16.26 }, { id: "epcor", name: "EPCOR (Edmonton)", commRate: 17.87 },
+         { id: "fortisab", name: "FortisAlberta" }, { id: "atco", name: "ATCO Electric" }],
+    BC: [{ id: "bchydro", name: "BC Hydro", commRate: 13.02 }, { id: "fortisbc", name: "FortisBC", pfNote: "" }],
+    MB: [{ id: "mbhydro", name: "Manitoba Hydro", commRate: 11.43 }],
+    SK: [{ id: "saskpower", name: "SaskPower", commRate: 18.55 }, { id: "saskatoonlp", name: "Saskatoon Light & Power" }, { id: "swiftcurrent", name: "Swift Current Light & Power" }],
+    NS: [{ id: "nspower", name: "Nova Scotia Power", commRate: 20.90 }],
+    NB: [{ id: "nbpower", name: "NB Power", commRate: 19.30 }, { id: "saintjohn", name: "Saint John Energy" }, { id: "edmundston", name: "Energie Edmundston" }],
+    NL: [{ id: "nfpower", name: "Newfoundland Power", commRate: 14.77 }, { id: "nlhydro", name: "Newfoundland and Labrador Hydro" }],
+    PE: [{ id: "maritime", name: "Maritime Electric", commRate: 20.72 }, { id: "summerside", name: "Summerside Electric" }]
+  };
   EP.rateChangeCA = { ON: 6.6, AB: -16.0, BC: 3.7, MB: 0.0, SK: 0.0, NS: 3.7, NB: 9.7, NL: 7.0, PE: 2.2 }; /* % change, Hydro-Québec comparison April 2025 vs April 2024, same profile */
   EP.nationalCA = { rate12mo: 17.38, augYoY: 1.5 }; /* simple average of the nine provinces above, April 2025; change vs April 2024 */
 

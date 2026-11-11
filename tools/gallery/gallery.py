@@ -136,6 +136,8 @@ async def do(pg, act, opts):
         await pg.wait_for_timeout(200); await click_next(pg); return ", ".join(val)
     if kind == "state":
         await pg.select_option(".turn:not(.past) #stsel", label=val); return val
+    if kind == "utility":
+        await pg.select_option(".turn:not(.past) #utsel", value=val); return val
     if kind == "regions":
         for v in val:
             await t.locator(".reg-h", has_text=v).first.click(); await pg.wait_for_timeout(150)
@@ -144,7 +146,7 @@ async def do(pg, act, opts):
         await click_next(pg); return ""
     raise ValueError(kind)
 
-DEFAULTS = {"country": ("opt", "United States"), "intro": ("next", None), "pickStates": ("regions", ["Southeast"]), "singleState": ("state", "Texas"),
+DEFAULTS = {"utilityQ": ("utility", "__unk"), "country": ("opt", "United States"), "intro": ("next", None), "pickStates": ("regions", ["Southeast"]), "singleState": ("state", "Texas"),
             "doneQ": ("multi", ["None of these"])}
 
 async def main(scs, outjson):

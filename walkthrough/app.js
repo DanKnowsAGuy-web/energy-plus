@@ -259,7 +259,7 @@
   function intakeGet(params) { return fetch(INTAKE_URL + "?" + new URLSearchParams(params).toString()).then(function (r) { return r.json(); }); }
   function intakePost(body) { return fetch(INTAKE_URL, { method: "POST", body: JSON.stringify(body) }).then(function (r) { return r.json(); }); }
   function who(extra) {
-    var o = { name: S.name || "", phone: S.viewOnly ? "" : (S.phone || ""), facility: fac() ? fac().label : "", locations: S.locLabel || "", state: S.stateName || "", estimate: S.estText || "", source: location.href.split("#")[0] };
+    var o = { name: S.name || "", phone: S.viewOnly ? "" : (S.phone || ""), facility: fac() ? fac().label : "", locations: S.locLabel || "", state: S.stateName || "", utilityName: S.utility ? S.utility.name : "", estimate: S.estText || "", source: location.href.split("#")[0] };
     Object.keys(extra || {}).forEach(function (k) { o[k] = extra[k]; });
     return o;
   }
@@ -533,6 +533,7 @@
     hours: "The longer things run, the more every bit of waste costs you.",
     done: "So I don&rsquo;t count savings you already have.",
     role: "So I can put what matters most to them at the top.",
+    utility: "Each utility has its own demand charges, power factor rules and rebate programs.",
     country: "Utility rates, demand charges, rebates and tax rules are different in the U.S. and Canada.",
     owner: "Tax credits, write-offs and financing work differently for businesses, nonprofits and public buildings. This lets me show the ones that fit you.",
     stored: "Frozen and chilled storage use power very differently.",
@@ -865,7 +866,7 @@
       if (!sel.value) return;
       if (S.locs === 1) S.spread = "one"; setStates([STATE_NAMES[sel.value]]); S.ans.__state = sel.value; setChip("__state", sel.value);
       var rp = n.querySelector(".replypill"); if (!rp) { rp = $('<div class="replypill"></div>'); sel.insertAdjacentElement("afterend", rp); } rp.textContent = sel.value;
-      respond(slot, ratesInsight(), function () { go(statusQ); }, quiet, false);
+      respond(slot, ratesInsight(), function () { go(utilityQ); }, quiet, false);
     });
     show(n);
     if (S.states && S.states.length === 1) setTimeout(function () { quietNext = true; sel.value = EP.states[S.states[0]].name; sel.dispatchEvent(new Event("change")); }, reduce ? 0 : 280);
@@ -908,6 +909,54 @@
     goB.addEventListener("click", function () { finish(list(), false); });
     show(node); paint();
     if (list().length > 1 && S.spread === "multi") setTimeout(function () { finish(list(), true); }, reduce ? 0 : 280);
+  }
+
+  /* the utility that sends the bill: sharper demand and power factor rules, local programs, right meter-data steps. Optional. */
+  function utilityList() {
+    if (isCA()) return (EP.utilitiesCA[S.state] || []).slice();
+    return (EP.utilities || []).filter(function (u) { return u.state === S.state || (u.id === "dukecarolinas" && S.state === "SC"); }).map(function (u) { return { id: u.id, name: u.name, us: true }; });
+  }
+  function utilityObj() {
+    var u = S.utility; if (!u || !u.id || multiState()) return null;
+    if (isCA()) { var c = (EP.utilitiesCA[S.state] || []).filter(function (x) { return x.id === u.id; })[0]; return c && c.commRate ? { commRate: c.commRate } : null; }
+    return (EP.utilities || []).filter(function (x) { return x.id === u.id; })[0] || null;
+  }
+  function utilityQ() {
+    at("utilityQ");
+    if (multiState()) return go(statusQ);
+    var list = utilityList();
+    if (isCA() && list.length === 1) { S.utility = { id: list[0].id, name: list[0].name }; return go(statusQ); }
+    setProgress(4);
+    stage("listen");
+    var opts = list.map(function (u) { return '<option value="' + u.id + '">' + esc(u.name) + "</option>"; }).join("");
+    var n = $('<section class="screen turn">' + ask("Which utility sends your electric bill?", "Optional. It lets me use your utility&rsquo;s exact rules.", "Location", "utility") +
+      '<select class="state" id="utsel" aria-label="Utility"><option value="">Choose your utility</option>' + opts + '<option value="__other">Another utility</option><option value="__unk">Not sure</option></select>' +
+      '<div class="field" id="ut-other" hidden><label for="ut-name">Utility name</label><input id="ut-name" autocomplete="off" placeholder="Type your utility"></div>' +
+      '<div class="slot"></div></section>');
+    var sel = n.querySelector("#utsel"), slot = n.querySelector(".slot"), other = n.querySelector("#ut-other"), nm = n.querySelector("#ut-name"), done = false;
+    function finish(quiet) {
+      if (done) return; done = true;
+      var v = sel.value, u = list.filter(function (x) { return x.id === v; })[0];
+      S.utility = v === "__unk" ? null : u ? { id: u.id, name: u.name } : { id: "", name: (nm.value || "").trim() || "Another utility" };
+      var label = S.utility ? S.utility.name : "Not sure";
+      S.ans.__utility = v + (v === "__other" ? ":" + (nm.value || "") : ""); setChip("__utility", "Utility: " + label);
+      var rp = $('<div class="replypill"></div>'); rp.textContent = label; (v === "__other" ? other : sel).insertAdjacentElement("afterend", rp);
+      sel.disabled = true; nm.disabled = true;
+      var c = isCA() && u ? (EP.utilitiesCA[S.state] || []).filter(function (x) { return x.id === u.id; })[0] : null;
+      var res = !S.utility ? { quiet: true, h: "No problem. I&rsquo;ll use " + esc(placeName()) + " averages." }
+        : c && c.commRate ? { tag: "Your utility", h: "Got it. Business power from " + esc(c.name) + " runs about " + c.commRate.toFixed(1) + "&cent; per kWh.", p: "I&rsquo;ll use that instead of the " + W().st + " average." + (c.pfNote ? " " + c.pfNote : ""), src: rateSrc() }
+        : { quiet: true, h: "Got it. I&rsquo;ll use " + esc(S.utility.name) + "&rsquo;s rules where I have them." };
+      respond(slot, res, function () { go(statusQ); }, quiet, false);
+    }
+    sel.addEventListener("change", function () {
+      if (!sel.value) return;
+      if (sel.value === "__other") { other.hidden = false; nm.focus(); setAction("Next", function () { finish(false); }); return; }
+      finish(false);
+    });
+    nm.addEventListener("keydown", function (e) { if (e.key === "Enter") finish(false); });
+    show(n);
+    var saved = S.ans.__utility;
+    if (saved != null) setTimeout(function () { var parts = saved.split(":"); sel.value = parts[0]; if (parts[0] === "__other") { other.hidden = false; nm.value = parts.slice(1).join(":"); } finish(true); }, reduce ? 0 : 280);
   }
 
   function locations() {
@@ -1227,7 +1276,7 @@
 
   /* ---------- math ---------- */
   function computeOne(code) {
-    return ENG.compute({ state: code, utility: null, facility: engKey(), billMonthly: S.monthsOpen ? S.monthly * S.monthsOpen / 12 : S.monthly, season: S.monthsOpen ? "avg" : S.season, heat: "unknown", done: S.done || {},
+    return ENG.compute({ state: code, utility: utilityObj(), facility: engKey(), billMonthly: S.monthsOpen ? S.monthly * S.monthsOpen / 12 : S.monthly, season: S.monthsOpen ? "avg" : S.season, heat: "unknown", done: S.done || {},
       hoursWeek: S.hours || null, occupancy: S.occupancy || "typical", locations: S.locs,
       nudges: { age: S.age != null ? S.age : null, sqft: S.sqft != null ? S.sqft : null },
       refrigRange: S.refrigRange || null, loadShape: S.loadShape || null });
@@ -1272,7 +1321,7 @@
       ["peak", "Peak demand is likely " + dLo + "% to " + dHi + "% of your bill", "Your busiest 15 minutes sets a charge for the whole month. Spreading out when equipment starts and runs lowers it on every bill." + (isCA() && EP.states[S.state].peakNote ? " " + EP.states[S.state].peakNote : "")],
       ["hvac", "Your HVAC is working harder than it needs to", "Cleaning and tuning the system lowers the bill, cuts maintenance by up to 40%, and can add 5 to 15 years of equipment life." + hvacMore],
       ["refrig", "Your refrigeration runs harder than it needs to", "It runs every hour of the year, so small inefficiencies add up to real money, and the same fix extends compressor life."],
-      ["power", "Dirty power on every circuit", "Modern electronics and motors send dirty power back through your wiring. It wastes electricity and wears out equipment early." + (isCA() && EP.states[S.state].pfNote ? " " + EP.states[S.state].pfNote + " Fixing power factor lowers that charge." : "")],
+      ["power", "Dirty power on every circuit", "Modern electronics and motors send dirty power back through your wiring. It wastes electricity and wears out equipment early." + (function () { if (!isCA()) return ""; var c = S.utility && (EP.utilitiesCA[S.state] || []).filter(function (x) { return x.id === S.utility.id; })[0]; var note = c && c.pfNote != null ? c.pfNote : (S.state === "ON" && S.utility && S.utility.id !== "hydroone" ? "Many Ontario utilities bill demand on kVA, so low power factor raises the charge." : EP.states[S.state].pfNote); return note ? " " + note + " Fixing power factor lowers that charge." : ""; })()],
       ["supply", "Your supply rate is negotiable", multiState() ? "Some of your " + W().sts + " let you choose who sells you power, without changing utilities." : "Your " + W().st + " lets you choose who sells you power, without changing utilities."]
     ];
     /* every lever that applies shows (up to five); never fewer than three, even if one is small */
@@ -1299,6 +1348,7 @@
       if (x.id === "usda-reap" || x.id === "itc48e-solar") return false;
       if (exempt && (x.id === "bonus-depreciation" || x.taxable)) return false;
       if (x.states === "all" && isCA()) return false;
+      if (x.level === "Utility" && x.utilities && S.utility && S.utility.id && x.utilities.indexOf(S.utility.id) < 0) return false;
       var inState = x.states === "all" || codes.some(function (c) { return x.states.indexOf(c) >= 0; });
       return inState && x.measures.some(function (m) { return PAY_MEASURES.test(m); });
     }).map(function (x) { return exempt && x.id === "itc48e-storage" ? Object.assign({}, x, { display: EXEMPT_STORAGE, url: "https://www.irs.gov/credits-deductions/elective-pay-and-transferability" }) : x; })
@@ -1410,7 +1460,7 @@
     function countAll() { countUp(document.getElementById("lo"), lo, kmoney, 1600); countUp(document.getElementById("hi"), hi, kmoney, 1900); countUp(document.getElementById("typ"), typ, kmoney, 1900); countUp(document.getElementById("ten"), tenTyp, kmoney, 2200); }
     setTimeout(function () { var rg = n.querySelector(".range"); if (rg && window.Watt) Watt.fly(rg, countAll); else countAll(); }, reduce ? 0 : 420);
     if (!reduce) n.querySelectorAll(".finds li").forEach(function (li, i) { setTimeout(function () { li.classList.add("stamped"); }, i * 120 + 900); });
-    if (!S.viewOnly && !(S.resumed && S.leadSent)) sendLead({ kind: S.leadSent ? "diagnostic, updated answers" : "diagnostic", name: S.name, phone: S.phone, role: S.role, owner: S.owner || "", country: S.country || "US", consent: JSON.stringify(S.consent || {}), facility: F.label, state: S.stateName, states: (S.states || []).join(" "), locations: S.locLabel,
+    if (!S.viewOnly && !(S.resumed && S.leadSent)) sendLead({ kind: S.leadSent ? "diagnostic, updated answers" : "diagnostic", name: S.name, phone: S.phone, role: S.role, owner: S.owner || "", country: S.country || "US", utility: S.utility ? S.utility.name : "", consent: JSON.stringify(S.consent || {}), facility: F.label, state: S.stateName, states: (S.states || []).join(" "), locations: S.locLabel,
       monthly_bill_each: S.monthly, bill_estimated: !!S.estimated, season: S.season, age: S.ageKey || "", summer: S.summer || "",
       why: S.why || "", status: S.status || "", months_open: S.monthsOpen || "", already_done: Object.keys(S.done || {}).join(", "), answers: JSON.stringify(S.answersLog || {}), savings_low: Math.round(lo), savings_high: Math.round(hi), savings_typical: Math.round(typ), ten_year_typical: Math.round(tenTyp) });
   }
@@ -1437,6 +1487,6 @@
     try { fetch(LEAD_ENDPOINT, { method: "POST", headers: { "Content-Type": "application/json", "Accept": "application/json" }, body: JSON.stringify(p) }).catch(function () {}); } catch (e) {}
   }
 
-  SCREENS = { country: country, owner: owner, why: why, facility: facility, locations: locations, stateQ: stateQ, singleState: singleState, pickStates: pickStates, statusQ: statusQ, monthsQ: monthsQ, planning: planning, under: under, bill: bill, dial: dial, sizeQ: sizeQ, season: season, doneQ: doneQ, role: role, capture: capture, reveal: reveal };
+  SCREENS = { utilityQ: utilityQ, country: country, owner: owner, why: why, facility: facility, locations: locations, stateQ: stateQ, singleState: singleState, pickStates: pickStates, statusQ: statusQ, monthsQ: monthsQ, planning: planning, under: under, bill: bill, dial: dial, sizeQ: sizeQ, season: season, doneQ: doneQ, role: role, capture: capture, reveal: reveal };
   intro();
 })();
