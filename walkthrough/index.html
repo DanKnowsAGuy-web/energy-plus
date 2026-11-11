@@ -604,6 +604,22 @@ html.big #app,html.big .dock .wrap,html.big .ask-in{zoom:1.16}
 .mok{color:var(--petrol-2);font-weight:600}
 .diy{margin:4px 0 0;padding-left:24px;display:grid;gap:8px;font-size:19px;line-height:1.45;color:var(--body)}
 .diy b{color:var(--ink)}
+
+/* Watt at work: underline sweep, pre-report checklist, finding stamps */
+.bubble.say h3 .hl{background:linear-gradient(var(--ochre),var(--ochre)) no-repeat 0 96%/0% 3px;-webkit-box-decoration-break:clone;box-decoration-break:clone;transition:background-size .55s cubic-bezier(.2,.8,.2,1)}
+.bubble.say.hl-on h3 .hl{background-size:100% 3px}
+.wcheck{list-style:none;margin:0;padding:0}
+.wcheck li{display:flex;align-items:center;gap:10px;padding:5px 0;opacity:.25;transition:opacity .3s}
+.wcheck li.on{opacity:1}
+.wcheck .wc{width:20px;height:20px;border-radius:50%;border:2px solid var(--rule);flex:none;display:grid;place-items:center;transition:background .25s,border-color .25s}
+.wcheck li.on .wc{border-color:var(--petrol-2);border-top-color:transparent;animation:wspin .6s linear infinite}
+.wcheck li.ok .wc{animation:none;border-color:var(--petrol-2);background:var(--petrol-2)}
+.wcheck li.ok .wc::after{content:"";width:5px;height:9px;border:solid #fff;border-width:0 2px 2px 0;transform:translateY(-1px) rotate(45deg)}
+@keyframes wspin{to{transform:rotate(360deg)}}
+.finds li .n{position:relative}
+.finds li.stamped .n::after{content:"\2713";position:absolute;left:0;top:22px;width:20px;height:20px;border-radius:50%;background:var(--ochre);color:#101416;font-size:12px;font-weight:700;display:grid;place-items:center;animation:wstamp .4s cubic-bezier(.3,1.6,.5,1) both}
+@keyframes wstamp{0%{transform:scale(0) rotate(-20deg)}100%{transform:scale(1) rotate(0)}}
+@media (prefers-reduced-motion: reduce){.bubble.say h3 .hl{transition:none}.finds li .n::after{animation:none}}
 </style>
 </head>
 <body>
@@ -656,9 +672,9 @@ html.big #app,html.big .dock .wrap,html.big .ask-in{zoom:1.16}
         <h4>16. Professional history and credentials</h4>
         <p>Biographical and credential statements reflect documented professional history. Supporting documentation is available for verification on request.</p>
         <p><strong>Questions.</strong> For questions about these disclosures or any statement in our materials, contact Energy Plus at <a href="mailto:dan@yourenergyplus.com">dan@yourenergyplus.com</a> or <a href="tel:+18647770688">(864) 777-0688</a>.</p></template>
-<script src="engine/constants.js?v=202611111110"></script>
-<script src="engine/engine.js?v=202611111110"></script>
-<script src="watt.js?v=202611111110"></script>
-<script src="app.js?v=202611111110"></script>
+<script src="engine/constants.js?v=202611111130"></script>
+<script src="engine/engine.js?v=202611111130"></script>
+<script src="watt.js?v=202611111130"></script>
+<script src="app.js?v=202611111130"></script>
 </body>
 </html>

@@ -228,6 +228,10 @@
 
   /* the "Your building" strip */
   function setChip(q, text) { if (S.order.indexOf(q) < 0) S.order.push(q); S.chip[q] = text; renderProfile(); save(); }
+  /* Watt takes a note: a small spark from him to the newest tag in "Your building" */
+  function fileChip() {
+    setTimeout(function () { var c = document.querySelector("#chips .chip.new"); if (c && window.Watt) Watt.fly(c, null, { dur: 380 }); }, 140);
+  }
   function renderProfile() {
     var bar = document.getElementById("profile"), box = document.getElementById("chips");
     if (!bar || !box || !S) return;
@@ -406,7 +410,7 @@
   /* Watt's reply, texted like a person: the headline first, then the detail in a second message.
      Quiet replies are one short line and move on by themselves. */
   function build(res) {
-    var b1 = $('<div class="bubble say' + (res.quiet ? " quiet" : "") + '">' + (res.tag && !res.quiet ? '<p class="eyebrow">' + esc(res.tag) + "</p>" : "") + "<h3>" + res.h + "</h3></div>");
+    var b1 = $('<div class="bubble say' + (res.quiet ? " quiet" : "") + '">' + (res.tag && !res.quiet ? '<p class="eyebrow">' + esc(res.tag) + "</p>" : "") + "<h3><span class=\"hl\">" + res.h + "</span></h3></div>");
     var rest = (res.p ? "<p>" + res.p + "</p>" : "") + (res.viz ? '<div class="shown">' + res.viz + "</div>" : "") + (res.src ? '<div class="src">' + esc(res.src) + "</div>" : "");
     var b2 = !res.quiet && rest ? $('<div class="bubble say cont">' + rest + "</div>") : null;
     return [b1, b2];
@@ -414,8 +418,13 @@
   function bring(b) {
     wireReplay(b);
     setTimeout(function () {
-      fillBars(b);
-      b.querySelectorAll("[data-count]").forEach(function (el) { var v = parseFloat(el.dataset.count), f = el.dataset.fmt; countUp(el, v, f === "cents" ? function (x) { return x.toFixed(2) + "¢"; } : f === "pct" ? function (x) { return (x >= 0 ? "+" : "") + x.toFixed(1) + "%"; } : kmoney); });
+      var nums = b.querySelectorAll("[data-count]"), bar = b.querySelector(".bars, .cmp, .shown svg, .shown canvas");
+      function go() {
+        fillBars(b);
+        nums.forEach(function (el) { var v = parseFloat(el.dataset.count), f = el.dataset.fmt; countUp(el, v, f === "cents" ? function (x) { return x.toFixed(2) + "¢"; } : f === "pct" ? function (x) { return (x >= 0 ? "+" : "") + x.toFixed(1) + "%"; } : kmoney); });
+      }
+      var target = nums[0] || bar;
+      if (target && window.Watt) Watt.fly(target, go); else go();
     }, 120);
   }
   function typingBubble() { return $('<div class="bubble say typing" aria-label="Watt is typing"><i></i><i></i><i></i></div>'); }
@@ -430,8 +439,9 @@
       if (done) return; done = true; skipNow = null;
       timers.forEach(clearTimeout);
       Array.prototype.slice.call(slot.querySelectorAll(".typing")).forEach(function (t) { t.remove(); });
-      stage(found ? "found" : "listen");
+      stage(found || res.viz ? "found" : "listen");
       if (!b1.isConnected) { slot.appendChild(b1); bring(b1); }
+      if (!res.viz && !res.quiet && !quiet) b1.classList.add("hl-on");
       if (b2 && !b2.isConnected) { slot.appendChild(b2); bring(b2); }
       var nb = setAction("Next", next);
       if (!quiet) {
@@ -441,14 +451,15 @@
     }
     if (quiet || reduce) { finish(); return; }
     var t = typingBubble();
-    slot.appendChild(t); clearAction(); setStatus(STATUS.work);
+    slot.appendChild(t); clearAction(); stage("work");
     t.scrollIntoView({ behavior: "smooth", block: "nearest" });
     if (window.Watt) Watt.blink();
     skipNow = finish;
     timers.push(setTimeout(function () {
       if (done) return;
-      t.remove(); stage(found ? "found" : "listen"); talk();
+      t.remove(); stage(found || res.viz ? "found" : "listen"); talk();
       slot.appendChild(b1); bring(b1);
+      if (!res.viz && !res.quiet) setTimeout(function () { b1.classList.add("hl-on"); if (window.Watt) Watt.lookAt(b1, 800); }, 260);
       b1.scrollIntoView({ behavior: "smooth", block: "nearest" });
       if (res.quiet || !b2) { finish(); return; }
       slot.appendChild(typingBubble());
@@ -602,6 +613,7 @@
       var k = b.dataset.k; S.ans[cfg.q] = k; if (cfg.pick) cfg.pick(k);
       var label = b.querySelector("span").textContent;
       setChip(cfg.q, cfg.chip ? cfg.chip(k, label) : (cfg.eyebrow ? cfg.eyebrow + ": " : "") + label);
+      if (!quiet && window.Watt) { Watt.lookAt(b, 600); fileChip(); }
       var res = cfg.insight(k);
       if (res && res.redirect) {
         slot.innerHTML = "";
@@ -1188,9 +1200,16 @@
   /* a short working beat: Watt reads the answers before the readout */
   function working(done) {
     stage("work");
-    var n = $('<section class="screen turn">' + ask("Give me a second.", "I&rsquo;m reading your answers against " + placePoss() + " rates and demand charges, and matching your " + esc(fac().units) + " to the fixes that pay back first.") + '<div class="bubble say typing slow" aria-hidden="true"><i></i><i></i><i></i></div></section>');
+    var F = fac(), steps = ["Reading " + placePoss() + " electric rates", "Checking your demand charges", "Matching your " + esc(F.units) + " to buildings like them", "Sizing the fixes that pay back first"];
+    var n = $('<section class="screen turn">' + ask("Give me a second.", "I&rsquo;m putting your numbers together.") + '<div class="bubble say"><ul class="wcheck">' + steps.map(function (t) { return "<li><span class=\"wc\"></span>" + t + "</li>"; }).join("") + "</ul></div></section>");
     show(n, true);
-    setTimeout(done, reduce ? 400 : 2400);
+    if (reduce) { n.querySelectorAll(".wcheck li").forEach(function (li) { li.classList.add("on", "ok"); }); setTimeout(done, 400); return; }
+    var lis = n.querySelectorAll(".wcheck li");
+    Array.prototype.forEach.call(lis, function (li, i) {
+      setTimeout(function () { li.classList.add("on"); if (window.Watt) Watt.lookAt(li, 400); }, 250 + i * 620);
+      setTimeout(function () { li.classList.add("ok"); }, 250 + i * 620 + 420);
+    });
+    setTimeout(done, 250 + lis.length * 620 + 500);
   }
 
     function reveal() {
@@ -1255,7 +1274,9 @@
     var tl = n.querySelector(".tolink"); if (tl) tl.addEventListener("click", function (e) { e.preventDefault(); var d = n.querySelector("#details"); d.open = true; d.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" }); });
     wireReplay(n); show(n, true); setAction("Text Dan", null, { href: n.querySelector("#sms").getAttribute("href") });
     var tenTyp = r.typical * ENG.escalationFactor(r.escRate, 10);
-    setTimeout(function () { countUp(document.getElementById("lo"), lo, kmoney, 1600); countUp(document.getElementById("hi"), hi, kmoney, 1900); countUp(document.getElementById("typ"), typ, kmoney, 1900); countUp(document.getElementById("ten"), tenTyp, kmoney, 2200); }, reduce ? 0 : 420);
+    function countAll() { countUp(document.getElementById("lo"), lo, kmoney, 1600); countUp(document.getElementById("hi"), hi, kmoney, 1900); countUp(document.getElementById("typ"), typ, kmoney, 1900); countUp(document.getElementById("ten"), tenTyp, kmoney, 2200); }
+    setTimeout(function () { var rg = n.querySelector(".range"); if (rg && window.Watt) Watt.fly(rg, countAll); else countAll(); }, reduce ? 0 : 420);
+    if (!reduce) n.querySelectorAll(".finds li").forEach(function (li, i) { setTimeout(function () { li.classList.add("stamped"); }, i * 120 + 900); });
     if (!S.viewOnly && !(S.resumed && S.leadSent)) sendLead({ kind: S.leadSent ? "diagnostic, updated answers" : "diagnostic", name: S.name, phone: S.phone, role: S.role, facility: F.label, state: S.stateName, states: (S.states || []).join(" "), locations: S.locLabel,
       monthly_bill_each: S.monthly, bill_estimated: !!S.estimated, season: S.season, age: S.ageKey || "", summer: S.summer || "",
       why: S.why || "", status: S.status || "", months_open: S.monthsOpen || "", already_done: Object.keys(S.done || {}).join(", "), answers: JSON.stringify(S.answersLog || {}), savings_low: Math.round(lo), savings_high: Math.round(hi), savings_typical: Math.round(typ), ten_year_typical: Math.round(tenTyp) });
