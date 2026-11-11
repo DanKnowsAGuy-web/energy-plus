@@ -62,7 +62,7 @@
     var S = STATES[to], p0 = inst.pts.slice(), p1 = SH[S.shape], e0 = inst.e.slice(), e1 = S.eyes;
     showAcc(inst, S.acc, reduce);
     if (reduce) { inst.pts = p1.slice(); inst.e = e1.slice(); draw(inst); return; }
-    var t0 = performance.now(), dur = 420;
+    var t0 = performance.now(), dur = 650;
     (function step(now) {
       var t = Math.min((now - t0) / dur, 1), k = ease(t);
       for (var i = 0; i < p1.length; i++) inst.pts[i] = p0[i] + (p1[i] - p0[i]) * k;

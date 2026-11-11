@@ -383,9 +383,11 @@
   function countUp(el, to, fmt, dur) { if (reduce) { el.textContent = fmt(to); return; } var t0 = performance.now(); dur = dur || 1100; (function st(t) { var p = Math.min((t - t0) / dur, 1), e = 1 - Math.pow(1 - p, 4); el.textContent = fmt(to * e); if (p < 1) requestAnimationFrame(st); })(t0); }
   function fillBars(root) { requestAnimationFrame(function () { requestAnimationFrame(function () { root.querySelectorAll(".bt i").forEach(function (i) { i.style.width = i.dataset.w + "%"; }); }); }); }
   /* give each turn a gutter for Watt, so he sits beside what he's saying */
-  /* Watt stays put in the header; the conversation scrolls underneath him so every change is visible */
+  /* Watt travels with the card he's working on: above each new question, then above his own reply */
   function seatIn(node) {
-    if (wl.parentNode !== topEl && topEl) { var tr = topEl.querySelector(".track"); topEl.insertBefore(wl, tr); wl.classList.add("docked"); }
+    var a = node.querySelector(".bubble.ask, .bubble.say");
+    if (!a) return;
+    a.parentNode.insertBefore(wl, a);
   }
   /* the conversation builds up: earlier turns stay above, quieter; Back takes the last turn off */
   function show(node, fresh) {
@@ -426,6 +428,8 @@
       if (target && window.Watt) Watt.fly(target, go); else go();
     }, 120);
   }
+  /* after he answers, Watt shows the spark: "Found something" for a figure, "Got it" for a plain reply */
+  function replied(fig, q) { if (q) { stage("listen"); return; } stage("found"); if (!fig) setStatus("Got it"); }
   function typingBubble() { return $('<div class="bubble say typing" aria-label="Watt is typing"><i></i><i></i><i></i></div>'); }
   /* faster replies: short typing pauses, and a tap anywhere in the chat skips the wait */
   var skipNow = null;
@@ -438,7 +442,8 @@
       if (done) return; done = true; skipNow = null;
       timers.forEach(clearTimeout);
       Array.prototype.slice.call(slot.querySelectorAll(".typing")).forEach(function (t) { t.remove(); });
-      stage(found || res.viz ? "found" : "listen");
+      replied(found || res.viz, res.quiet);
+      if (!quiet && wl.parentNode !== slot) slot.insertBefore(wl, slot.firstChild);
       if (!b1.isConnected) { slot.appendChild(b1); bring(b1); }
       if (!res.viz && !res.quiet && !quiet) b1.classList.add("hl-on");
       if (b2 && !b2.isConnected) { slot.appendChild(b2); bring(b2); }
@@ -450,20 +455,20 @@
     }
     if (quiet || reduce) { finish(); return; }
     var t = typingBubble();
-    slot.appendChild(t); clearAction(); stage("work");
+    slot.appendChild(wl); slot.appendChild(t); clearAction(); stage("work");
     t.scrollIntoView({ behavior: "smooth", block: "nearest" });
     if (window.Watt) Watt.blink();
     skipNow = finish;
     timers.push(setTimeout(function () {
       if (done) return;
-      t.remove(); stage(found || res.viz ? "found" : "listen"); talk();
+      t.remove(); replied(found || res.viz, res.quiet); talk();
       slot.appendChild(b1); bring(b1);
       if (!res.viz && !res.quiet) setTimeout(function () { b1.classList.add("hl-on"); if (window.Watt) Watt.lookAt(b1, 800); }, 260);
       b1.scrollIntoView({ behavior: "smooth", block: "nearest" });
       if (res.quiet || !b2) { finish(); return; }
       slot.appendChild(typingBubble());
       timers.push(setTimeout(finish, 380 + Math.min(420, (res.p || "").length * 1.5)));
-    }, 900));
+    }, 1100));
   }
 
   /* Watt remembers: he ties each new reply back to what they already told him */
