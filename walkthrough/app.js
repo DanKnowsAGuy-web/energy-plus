@@ -1148,7 +1148,7 @@
     stage("listen");
     setProgress(TOTAL);
     var fs = findings(compute()), F = fac();
-    var tease = '<div class="bubble say"><p class="eyebrow">What I found</p><h3>I found ' + fs.length + ' ways your ' + esc(S.locs > 1 ? F.units : F.unit) + ' ' + (S.locs > 1 ? "are" : "is") + ' overspending.</h3><ol class="tease">' + fs.map(function (x) { return "<li>" + esc(x[0]) + "</li>"; }).join("") + '</ol><p>Your report puts a dollar amount on each one.</p></div>';
+    var tease = '<div class="bubble say"><p class="eyebrow">What I found</p><h3>I found ' + fs.length + ' ways your ' + esc(S.locs > 1 ? F.units : F.unit) + ' ' + (S.locs > 1 ? "are" : "is") + ' overspending.</h3><ol class="tease">' + fs.map(function (x) { return "<li>" + esc(x[0]) + "</li>"; }).join("") + '</ol><p>Your report puts a dollar amount on each one' + (function () { var n = payPrograms().length; return n ? ", and shows " + n + (n === 1 ? " program" : " programs") + " that could help pay for it" : ""; })() + '.</p></div>';
     var n = $('<section class="screen turn">' + tease + ask("Where can Dan text you a copy?", "Your report opens right here. Dan will also text you a copy so it&rsquo;s easy to find and forward. No email, no spam.") + '<div class="field"><label for="c-name">First name</label><input id="c-name" autocomplete="given-name"></div><div class="field"><label for="c-phone">Mobile</label><input id="c-phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="(555) 555-5555"></div><div class="err" id="c-err"></div><div class="next"><button class="btn" id="c-go">Show my diagnostic <span class="ar">&rarr;</span></button></div></section>');
     n.querySelector("#c-go").addEventListener("click", function () {
       var nm = n.querySelector("#c-name").value.trim(), ph = n.querySelector("#c-phone").value.replace(/\D/g, "");
@@ -1226,6 +1226,28 @@
     return out;
   }
   function rng(r) { return kmoney(r[0]) + " to " + kmoney(r[1]); }
+  var PAY_MEASURES = /HVAC|Efficiency|Refrigeration|Chillers|Demand|Load management|Battery|Most capital|VFD|Motors|Building automation|Custom/i;
+  function payPrograms() {
+    var codes = S.states && S.states.length ? S.states : [S.state];
+    return (EP.incentives || []).filter(function (x) {
+      if (x.id === "usda-reap" || x.id === "itc48e-solar") return false;
+      var inState = x.states === "all" || codes.some(function (c) { return x.states.indexOf(c) >= 0; });
+      return inState && x.measures.some(function (m) { return PAY_MEASURES.test(m); });
+    }).sort(function (a, b) { var o = { Utility: 1, Financing: 2, State: 3, Federal: 4 }; return (o[a.level] || 9) - (o[b.level] || 9); });
+  }
+  function payBlock() {
+    var ps = payPrograms(), when = "";
+    ps.forEach(function (x) { if (x.verified && x.verified > when) when = x.verified; });
+    var mon = when ? new Date(when + "T12:00:00").toLocaleDateString("en-US", { month: "long", year: "numeric" }) : "";
+    var label = { Utility: "Utility rebate", Financing: "Financing", State: "State", Federal: "Tax" };
+    return '<div class="blk pay"><h2>Ways to pay for it</h2>' +
+      '<div class="payhero"><p class="ph-t">Designed to pay for itself</p><p>We structure projects so your savings run about <b>twice the payment</b>, so you&rsquo;re cash-flow positive in the first year. Financing typically runs up to 10 years, subject to lender approval. Have your own lender? Bring them in.</p>' +
+      '<p class="sub">Want us to carry more of the performance risk? That can be built into the agreement when you sign.</p></div>' +
+      (ps.length ? '<h3 class="ph-h">Programs that may help pay for it</h3><ul class="progs">' + ps.map(function (x) {
+        return '<li><span class="plvl">' + esc(label[x.level] || x.level) + '</span><span class="ptxt">' + esc(x.display) + (x.url ? ' <a href="' + esc(x.url) + '" target="_blank" rel="noopener">Details</a>' : "") + "</span></li>";
+      }).join("") + "</ul>" : "") +
+      '<p class="sub">Programs change and budgets run out, so we confirm what you qualify for before you commit. Check tax items with your tax advisor.' + (mon ? " Programs last checked " + mon + "." : "") + "</p></div>";
+  }
   /* each lever as a share of the whole bill: "lowers your bill 4% to 7%" */
   function billPct(m, annual) {
     if (!annual) return "";
@@ -1259,12 +1281,13 @@
     var escPct = (r.escRate * 100).toFixed(1);
     var buckets = '<div class="kv"><div><span>Fixing equipment that&rsquo;s wasting power</span><b>' + rng(eq) + '</b></div><div><span>Lowering your busiest-15-minutes charge</span><b>' + rng(pk) + "</b></div>" + (sp[1] > 0 ? '<div><span>Buying your power for less</span><b>' + rng(sp) + "</b></div>" : "") + "</div>";
     var blocks = {
+      pay: payBlock(),
       where: '<div class="blk"><h2>Where the savings come from</h2>' + buckets + "</div>",
       findings: '<div class="blk"><h2>Top findings for your ' + esc(F.units) + '</h2><ol class="finds">' + fs.map(function (x, i) { return '<li style="animation-delay:' + (i * 120 + 300) + 'ms"><span class="n">' + String(i + 1).padStart(2, "0") + "</span><span><strong>" + esc(x[0]) + '</strong><span class="fval">' + (kmoney(x[2][0]) === kmoney(x[2][1]) ? "about " + kmoney(x[2][1]) : rng(x[2])) + " a year" + (x[3] ? '<span class="fpct">' + esc(x[3]) + "</span>" : "") + "</span>" + esc(x[1]) + (x[0] === "Dirty power on every circuit" ? dirtyViz() : "") + "</span></li>"; }).join("") + "</ol></div>",
       nothing: '<div class="blk"><h2>The cost of waiting</h2><div class="kv"><div><span>Electricity spend, next 10 years</span><b>' + kmoney(annualAll * ENG.escalationFactor(r.escRate, 10)) + "</b></div><div><span>Rate increase we used</span><b>" + escPct + "% / yr</b></div><div><span>Savings left on the table</span><b>" + kmoney(r.typical * ENG.escalationFactor(r.escRate, 10)) + '</b></div></div><p class="sub" style="margin-top:12px">We used a conservative ' + escPct + "% a year for " + esc(placeName()) + ". " + (riseFor(S.state).local && !multiState() ? "Rates here actually rose " + riseFor(S.state).pct.toFixed(1) + "% in the last 12 months." : "Commercial rates actually rose " + EP.national.augYoY + "% nationally in the last year.") + "</p></div>",
-      beyond: '<div class="blk"><h2>Beyond the bill</h2><div class="kv"><div><span>Maintenance cost</span><b>up to 40% lower</b></div><div><span>Added equipment life</span><b>5 to 15 years</b></div>' + (multi ? "<div><span>Per " + esc(F.unit) + ", typical</span><b>" + kmoney(typ / L) + "/yr</b></div>" : "") + '</div><p class="sub" style="margin-top:14px">And it&rsquo;s paid from the savings: projects are structured to be cash flow positive from day one where the numbers support it. We walk through the structure on the call.</p></div>',
+      beyond: '<div class="blk"><h2>Beyond the bill</h2><div class="kv"><div><span>Maintenance cost</span><b>up to 40% lower</b></div><div><span>Added equipment life</span><b>5 to 15 years</b></div>' + (multi ? "<div><span>Per " + esc(F.unit) + ", typical</span><b>" + kmoney(typ / L) + "/yr</b></div>" : "") + '</div><p class="sub" style="margin-top:14px">And it&rsquo;s paid from the savings: projects are structured so savings run about twice the payment, cash-flow positive in the first year. We walk through the structure on the call.</p></div>',
     };
-    var order = { owner: ["findings", "where", "nothing", "beyond"], fm: ["beyond", "findings", "where", "nothing"], cfo: ["nothing", "where", "findings", "beyond"], pm: ["beyond", "where", "nothing", "findings"], multi: ["where", "findings", "nothing", "beyond"] }[S.role] || ["findings", "where", "nothing", "beyond"];
+    var order = { owner: ["findings", "pay", "where", "nothing", "beyond"], fm: ["beyond", "findings", "pay", "where", "nothing"], cfo: ["nothing", "pay", "where", "findings", "beyond"], pm: ["beyond", "pay", "where", "nothing", "findings"], multi: ["where", "findings", "pay", "nothing", "beyond"] }[S.role] || ["findings", "pay", "where", "nothing", "beyond"];
     S.estText = kmoney(lo) + " to " + kmoney(hi) + "/yr";
     var shareTitle = "Energy Plus report: " + F.label.split(" /")[0];
     var shareText = "Here's the Energy Plus report for our " + (multi ? F.units : F.unit) + ": about " + kmoney(lo) + " to " + kmoney(hi) + " a year in possible savings.";
