@@ -78,7 +78,7 @@
         '<p class="why">If you have an equipment list, or can easily photograph the labels on your refrigeration racks or condensers, add them here. Skip it if it&rsquo;s a hassle.</p>' +
         '<span class="have" hidden></span>' + dropzone("refrig", "Add photos or files", "Photos, Excel, Word or PDF", "image/*,.heic,.heif,.pdf,.xlsx,.xls,.csv,.doc,.docx,.zip,.txt") + "</section>" : "") +
       '<div class="talk"><p>Rather we help? Dan will walk you through it.</p><div class="row" style="justify-content:center"><a class="btn" href="sms:' + PHONE_E164 + "?body=" + encodeURIComponent("Hi Dan, it's " + (P.name || "") + ". I have a question about my savings plan.") + '">Text Dan</a><a class="btn alt" href="' + BOOK + '" target="_blank" rel="noopener">Book a call</a></div></div>' +
-      '<p class="small">This page is private to you. Anyone with this link can add files, so share it only with your team.</p>';
+      '<p class="small">This page is private to you. Anyone with this link can add files, so share it only with your team. <a href="../privacy/" target="_blank" rel="noopener">Privacy notice</a></p>';
     main.innerHTML = html;
     progress();
     Array.prototype.forEach.call(document.querySelectorAll(".drop"), wireDrop);

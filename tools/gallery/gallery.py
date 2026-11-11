@@ -144,7 +144,7 @@ async def do(pg, act, opts):
         await click_next(pg); return ""
     raise ValueError(kind)
 
-DEFAULTS = {"intro": ("next", None), "pickStates": ("regions", ["Southeast"]), "singleState": ("state", "Texas"),
+DEFAULTS = {"country": ("opt", "United States"), "intro": ("next", None), "pickStates": ("regions", ["Southeast"]), "singleState": ("state", "Texas"),
             "doneQ": ("multi", ["None of these"])}
 
 async def main(scs, outjson):

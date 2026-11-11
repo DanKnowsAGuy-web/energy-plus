@@ -23,6 +23,9 @@ var MAX_UPLOADS_PER_HOUR = 60;
 var PROJECT_ROOT_NAME = 'Energy Plus projects';
 var PROJECT_PAGE = 'https://slashyourenergycost.com/energy-plus/walkthrough/project/';
 var DAN_PHONE = '864-777-0688';
+var PRIVACY_URL = 'https://slashyourenergycost.com/energy-plus/walkthrough/privacy/';
+/* sender identification and opt-out in every client email (required in Canada under CASL, good practice everywhere) */
+var FOOTER_TEXT = 'Sent by Energy Plus LLC, 10685-B Hazelhurst Dr. #42716, Houston, TX 77043, USA. You received this because you set up a savings plan page. To stop these emails, reply "unsubscribe."';
 var MAX_PROJECTS_PER_HOUR = 30;
 var MAX_PROJECT_FILES_PER_HOUR = 600;
 var CATS = { interval: 'Interval data', hvac: 'HVAC equipment', refrig: 'Refrigeration' };
@@ -162,6 +165,8 @@ function lines_(d, extra) {
     'Locations: ' + (d.locations || ''),
     'State(s): ' + (d.state || ''),
     'Estimate: ' + (d.estimate || ''),
+    'Country: ' + (d.country || 'US'),
+    'Consent: ' + (d.consent || 'n/a'),
     'From: ' + (d.source || '')
   ]).join('\n');
 }
@@ -222,7 +227,7 @@ function welcome_(p, id) {
   if (p.refrig) items.push(['Refrigeration (optional)', 'If you have an equipment list or photos of the rack labels, add those too.']);
   var text = hi + '\n\nHere is your private Energy Plus page: ' + link + '\n\nTwo things turn your estimate into real numbers:\n\n' +
     items.map(function (x, i) { return (i + 1) + '. ' + x[0] + ': ' + x[1]; }).join('\n') +
-    '\n\nAdd them anytime, from your phone or computer. Questions? Text me at ' + DAN_PHONE + '.\n\nKeep this link to yourself or your team. Anyone with it can add files to your page.\n\nDan Gutierrez\nEnergy Plus';
+    '\n\nAdd them anytime, from your phone or computer. Questions? Text me at ' + DAN_PHONE + '.\n\nKeep this link to yourself or your team. Anyone with it can add files to your page.\n\nDan Gutierrez\nEnergy Plus\n\n' + FOOTER_TEXT + ' Privacy notice: ' + PRIVACY_URL;
   var esc = function (t) { return String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;'); };
   var html = '<div style="font-family:Arial,sans-serif;font-size:16px;line-height:1.5;color:#14212a;max-width:560px">' +
     '<p>' + esc(hi) + '</p><p>Here is your private Energy Plus page:</p>' +
@@ -230,7 +235,7 @@ function welcome_(p, id) {
     '<p>Two things turn your estimate into real numbers:</p><ol>' + items.map(function (x) { return '<li style="margin-bottom:8px"><b>' + esc(x[0]) + '.</b> ' + esc(x[1]) + '</li>'; }).join('') + '</ol>' +
     '<p>Add them anytime, from your phone or computer. Questions? Text me at <a href="sms:+18647770688">' + DAN_PHONE + '</a>.</p>' +
     '<p style="color:#56656e;font-size:14px">Keep this link to yourself or your team. Anyone with it can add files to your page.<br>' + esc(link) + '</p>' +
-    '<p>Dan Gutierrez<br>Energy Plus</p></div>';
+    '<p>Dan Gutierrez<br>Energy Plus</p><p style="color:#56656e;font-size:12px;border-top:1px solid #d6dde0;padding-top:10px">' + esc(FOOTER_TEXT) + ' <a href="' + PRIVACY_URL + '">Privacy notice</a></p></div>';
   MailApp.sendEmail({ to: p.email, subject: 'Your Energy Plus savings plan', body: text, htmlBody: html, name: 'Dan Gutierrez, Energy Plus', replyTo: NOTIFY_EMAIL });
 }
 

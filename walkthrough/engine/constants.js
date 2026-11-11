@@ -646,6 +646,38 @@
       url: "https://www.coned.com/-/media/files/coned/documents/save-energy-money/rebates-incentives-tax-credits/rebates-incentives-tax-credits-for-commercial-industrial-buildings-customers/commercial-and-industrial-program/program-manual.pdf",
       verified: "2026-09-09", confidence: "High"
     }
+,
+    /* Canada: programs confirmed live 2026-11-11 (official program pages) */
+    { id: "ca-ctitc", level: "Federal", measures: ["Most capital equipment", "Battery storage", "HVAC"], states: ["ON","AB","BC","MB","SK","NS","NB","NL","PE"], utilities: null, taxable: true,
+      display: "May qualify for Canada's Clean Technology Investment Tax Credit, up to 30 percent on eligible equipment such as heat pumps and storage (taxable corporations)",
+      url: "https://www.canada.ca/en/revenue-agency/services/tax/businesses/topics/corporations/business-tax-credits/clean-economy-itc/clean-technology-itc.html", verified: "2026-11-11", confidence: "Medium" },
+    { id: "on-save-on-energy", level: "Utility", measures: ["HVAC", "Lighting", "Refrigeration", "Custom measures"], states: ["ON"], utilities: null,
+      display: "May qualify for Save on Energy Retrofit program incentives on efficient HVAC, lighting and custom upgrades",
+      url: "https://www.saveonenergy.ca/For-Business-and-Industry/Programs-and-incentives/Retrofit-Program", verified: "2026-11-11", confidence: "High" },
+    { id: "ab-ceip", level: "Financing", measures: ["HVAC", "Efficiency", "Solar"], states: ["AB"], utilities: null,
+      display: "May qualify for Commercial Clean Energy Improvement Program financing, repaid through your property taxes, where your municipality participates",
+      url: "https://ceip.abmunis.ca/commercial/", verified: "2026-11-11", confidence: "Medium" },
+    { id: "bc-hydro-business", level: "Utility", measures: ["HVAC", "Lighting", "Efficiency"], states: ["BC"], utilities: null,
+      display: "May qualify for BC Hydro business incentives and free energy-advisor help",
+      url: "https://www.bchydro.com/powersmart/business.html", verified: "2026-11-11", confidence: "High" },
+    { id: "mb-efficiency", level: "Utility", measures: ["HVAC", "Lighting", "Refrigeration"], states: ["MB"], utilities: null,
+      display: "May qualify for Efficiency Manitoba incentives on HVAC, lighting and refrigeration upgrades",
+      url: "https://efficiencymb.ca/business/", verified: "2026-11-11", confidence: "High" },
+    { id: "sk-ceop", level: "Utility", measures: ["HVAC", "Efficiency"], states: ["SK"], utilities: null,
+      display: "May qualify for SaskPower's Commercial Energy Optimization Program",
+      url: "https://www.saskpower.com/about-us/media-information/news-releases/2024/saskpower-launches-commercial-energy-optimization-program", verified: "2026-11-11", confidence: "Medium" },
+    { id: "ns-business-rebates", level: "Utility", measures: ["HVAC", "Lighting"], states: ["NS"], utilities: null,
+      display: "May qualify for Efficiency Nova Scotia business rebates of up to half the cost of efficient lighting and HVAC",
+      url: "https://www.efficiencyns.ca/business/", verified: "2026-11-11", confidence: "High" },
+    { id: "nb-business-rebates", level: "Utility", measures: ["HVAC", "Lighting", "Efficiency"], states: ["NB"], utilities: null,
+      display: "May qualify for Save Energy NB business rebates",
+      url: "https://saveenergynb.ca/for-business/business-rebate-program", verified: "2026-11-11", confidence: "Medium" },
+    { id: "nl-takecharge", level: "Utility", measures: ["Lighting", "Motors", "HVAC"], states: ["NL"], utilities: null,
+      display: "May qualify for takeCHARGE business rebates on lighting, motors, controls and custom upgrades",
+      url: "https://takechargenl.ca/business/", verified: "2026-11-11", confidence: "High" },
+    { id: "pe-business", level: "Utility", measures: ["HVAC", "Efficiency"], states: ["PE"], utilities: null,
+      display: "May qualify for Prince Edward Island's energy solutions programs for business",
+      url: "https://www.princeedwardisland.ca/en/information/transportation-infrastructure-and-energy/strategic-energy-solutions-for-business", verified: "2026-11-11", confidence: "Medium" }
   ];
 
   // ---------------------------------------------------------------------
@@ -653,6 +685,7 @@
   // ---------------------------------------------------------------------
 
   EP.sources = {
+    hqCompare2025: { label: "Hydro-Québec, Comparison of Electricity Prices in Major North American Cities, rates in effect April 1, 2025", url: "https://pannes.hydroquebec.com/data/documents-donnees/pdf/comparaison-prix-2025-en.pdf" },
     eia561: { label: "EIA Electric Power Monthly, Table 5.6.A, commercial sector", url: "https://www.eia.gov/electricity/monthly/epm_table_grapher.php?t=epmt_5_6_a" },
     cbecs2018: { label: "EIA CBECS 2018", url: "https://www.eia.gov/consumption/commercial/data/2018/" },
     noaaNormals: { label: "NOAA NCEI Climate at a Glance, statewide time series, 1991-2020 normals", url: "https://www.ncei.noaa.gov/access/monitoring/climate-at-a-glance/statewide/time-series/" },
@@ -672,6 +705,33 @@
     puco: { label: "PUCO Apples to Apples, Ohio small commercial price-to-compare charts", url: "https://energychoice.ohio.gov" },
     papuc: { label: "PA PUC PAPowerSwitch, small business shopping site", url: "https://www.papowerswitch.com" }
   };
+
+  /* ---------- Canada (provinces). Rates: Hydro-Québec, Comparison of Electricity Prices in Major North American Cities,
+     rates in effect April 1 2025, medium-power profile (500 kW, 100,000 kWh a month), CAD excluding taxes; provinces with
+     two cities averaged (ON: Toronto, Ottawa; AB: Calgary, Edmonton). Demand shares, cooling shares and seasonal patterns
+     are Energy Plus estimates (grade C) pending tariff verification. Quebec is not offered until a French version exists. */
+  (function () {
+    var winterPeak = { summer: 0.92, winter: 1.12, mild: 0.96 }, mixed = { summer: 1.02, winter: 1.03, mild: 0.96 };
+    var P = {
+      ON: ["Ontario", 20.69, 0.40, mixed, false, 0.30, "Hydro One bills on 90% of your peak kVA instead of kW when your power factor drops below 90%.", "In Ontario, the Global Adjustment is a large part of the bill. Larger (Class A) customers pay it based on their share of the province's five highest peak hours a year, so avoiding those hours can cut it sharply."],
+      AB: ["Alberta", 17.07, 0.25, mixed, true, 0.40, "Many Alberta distribution rates bill on the highest of metered demand or a contracted minimum, and some use a ratchet that holds a high peak for up to 11 months.", "Some Alberta rates use a ratchet: one high peak can set your demand charge for the next 11 months."],
+      BC: ["British Columbia", 13.02, 0.25, winterPeak, false, 0.25, "BC Hydro adds a surcharge to your whole bill when your power factor drops below 90%, starting at 2% and rising as it falls.", ""],
+      MB: ["Manitoba", 11.43, 0.25, winterPeak, false, 0.25, "", ""],
+      SK: ["Saskatchewan", 18.55, 0.25, winterPeak, false, 0.30, "", ""],
+      NS: ["Nova Scotia", 20.90, 0.15, winterPeak, false, 0.25, "", ""],
+      NB: ["New Brunswick", 19.30, 0.20, winterPeak, false, 0.30, "", ""],
+      NL: ["Newfoundland and Labrador", 14.77, 0.10, winterPeak, false, 0.25, "", ""],
+      PE: ["Prince Edward Island", 20.72, 0.15, winterPeak, false, 0.25, "", ""]
+    };
+    Object.keys(P).forEach(function (k) {
+      var r = P[k], o = st(r[0], r[1], r[2], "C", 3, r[4], false, r[3]);
+      o.country = "CA"; o.demandShare = r[5]; o.src = "hqCompare2025"; o.grade = "B"; o.pfNote = r[6]; o.peakNote = r[7];
+      EP.states[k] = o;
+    });
+    Object.keys(EP.states).forEach(function (k) { if (!EP.states[k].country) EP.states[k].country = "US"; });
+  })();
+  EP.rateChangeCA = { ON: 6.6, AB: -16.0, BC: 3.7, MB: 0.0, SK: 0.0, NS: 3.7, NB: 9.7, NL: 7.0, PE: 2.2 }; /* % change, Hydro-Québec comparison April 2025 vs April 2024, same profile */
+  EP.nationalCA = { rate12mo: 17.38, augYoY: 1.5 }; /* simple average of the nine provinces above, April 2025; change vs April 2024 */
 
   EP.rateChange = {AL:3.2,AK:3.4,AZ:-1.8,AR:7.8,CA:5.4,CO:9.0,CT:-7.3,DE:7.9,DC:20.3,FL:4.1,GA:3.2,HI:10.8,ID:4.7,IL:9.0,IN:3.5,IA:4.9,KS:3.9,KY:5.9,LA:4.2,ME:10.8,MD:18.5,MA:7.6,MI:7.4,MN:3.0,MS:7.0,MO:5.2,MT:8.2,NE:5.5,NV:-0.2,NH:6.4,NJ:8.6,NM:0.7,NY:9.5,NC:2.2,ND:4.8,OH:20.1,OK:2.4,OR:4.0,PA:14.7,RI:-0.3,SC:5.6,SD:7.0,TN:4.0,TX:0.1,UT:3.9,VT:6.7,VA:17.4,WA:10.6,WV:-1.2,WI:5.0,WY:1.9}; /* % change, 12 months to Aug 2026 vs prior 12, EIA via StartBusinessByState */
   EP.national = { rate12mo: 13.85, augRate: 14.47, augYoY: 4.3 }; /* EIA EPM: Aug 2026 14.47c, up 4.3% vs Aug 2025 */

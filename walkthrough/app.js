@@ -167,6 +167,13 @@
     multi: { h: "Whatever we find in one location, you have in every location.", p: "Small leaks at each site add up to real money across all of them. I'll lead your report with the total." }
   };
   var STATE_NAMES = {}; Object.keys(EP.states).forEach(function (a) { STATE_NAMES[EP.states[a].name] = a; });
+  /* USA or Canada: Canada swaps in provinces, CAD, Canadian programs and CASL consent */
+  function isCA() { return S && S.country === "CA"; }
+  function NAT() { return isCA() ? EP.nationalCA : EP.national; }
+  function W() { return isCA() ? { st: "province", sts: "provinces", nation: "Across Canada", the: "Canada", avg: "the Canadian average" } : { st: "state", sts: "states", nation: "Nationwide", the: "the U.S.", avg: "the national average" }; }
+  function rateSrc() { return isCA() ? "Hydro-Québec comparison of electricity prices, rates in effect April 1, 2025, medium-power business profile, CAD before tax" : "EIA commercial retail prices, 12 months to Aug 2026"; }
+  /* square feet everywhere; Canada also shows square metres */
+  function m2(label) { return isCA() ? label.replace(/(\d+)K sq ft/g, function (_, n) { return n + "K sq ft (" + (Math.round(n * 1000 * 0.0929 / 100) * 100).toLocaleString("en-US") + " m\u00b2)"; }) : label; }
 
   /* ---------- state ---------- */
   var hist = [], current = null;
@@ -266,7 +273,7 @@
       (refrig ? '<li>Refrigeration details too, if you have them handy. Optional.</li>' : '') + '</ol>' +
       '<p class="sub">I&rsquo;ll set up a private page where you can add them anytime, and email you the link.</p>' +
       '<div id="d-form"' + (S.projectLink ? " hidden" : "") + '><label class="mlabel" for="d-email">Your email</label><input class="minput" id="d-email" type="email" inputmode="email" autocomplete="email" placeholder="you@company.com" value="' + esc(S.email || "") + '">' +
-      '<div class="mrow"><button class="btn" id="d-go" type="button">Set up my page <span class="ar">&rarr;</span></button></div></div>' +
+      ''+ consentHtml("d") + '<div class="mrow"><button class="btn" id="d-go" type="button">Set up my page <span class="ar">&rarr;</span></button></div></div>' +
       '<div class="mstate" id="d-state" aria-live="polite">' + (S.projectLink ? diyDone() : "") + '</div></div>';
   }
   function diyDone() {
@@ -278,7 +285,8 @@
       var em = (n.querySelector("#d-email").value || "").trim(), st = n.querySelector("#d-state");
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) { st.innerHTML = '<p class="mwarn">Enter your email so I can send you the link.</p>'; return; }
       go.disabled = true; st.innerHTML = '<p class="mwait">Setting up your page&hellip;</p>';
-      intakePost(who({ action: "project_create", email: em, refrig: !!engFac().refrigShare })).then(function (d) {
+      readConsent(n, "d");
+      intakePost(who({ action: "project_create", email: em, refrig: !!engFac().refrigShare, country: S.country || "US", consent: JSON.stringify(S.consent || {}) })).then(function (d) {
         if (!d || !d.ok || !d.link) throw new Error(d && d.error || "create");
         S.email = em; S.projectLink = d.link; save();
         n.querySelector("#d-form").hidden = true; st.innerHTML = diyDone(); stage("verify");
@@ -525,6 +533,7 @@
     hours: "The longer things run, the more every bit of waste costs you.",
     done: "So I don&rsquo;t count savings you already have.",
     role: "So I can put what matters most to them at the top.",
+    country: "Utility rates, demand charges, rebates and tax rules are different in the U.S. and Canada.",
     owner: "Tax credits, write-offs and financing work differently for businesses, nonprofits and public buildings. This lets me show the ones that fit you.",
     stored: "Frozen and chilled storage use power very differently.",
     docks: "Every open dock door lets in warm, wet air your refrigeration has to pull back out.",
@@ -619,7 +628,7 @@
       : "That&rsquo;s right in line with a typical " + size[0].toLowerCase() + " " + esc(F.unit) + " in " + where + ". Typical isn&rsquo;t the same as efficient, though. Most of them overspend in the same places.";
     var mx = Math.max(yours, typ);
     var viz = '<div class="cmp"><div class="cmp-r"><span>Your ' + esc(F.unit) + '</span><span class="cmp-b"><i style="width:' + Math.round(yours / mx * 100) + '%"></i></span><b>' + kmoney(yours) + '/mo</b></div><div class="cmp-r typ"><span>' + lbl + '</span><span class="cmp-b"><i style="width:' + Math.round(typ / mx * 100) + '%"></i></span><b>' + kmoney(typ) + "/mo</b></div></div>";
-    return { tag: "Compared with buildings like yours", h: "That&rsquo;s about " + kmoney(annual) + " a year per " + esc(F.unit) + (S.locs > 1 ? ", and " + kmoney(annual * S.locs) + " across all of them." : "."), p: p, viz: viz, src: "Typical bill estimated from U.S. Energy Department building data for a " + size[1] + " " + F.unit + " at " + st.name + "'s average commercial rate." };
+    return { tag: "Compared with buildings like yours", h: "That&rsquo;s about " + kmoney(annual) + " a year per " + esc(F.unit) + (S.locs > 1 ? ", and " + kmoney(annual * S.locs) + " across all of them." : "."), p: p, viz: viz, src: (isCA() ? "Typical bill estimated from North American building energy data for a " + m2(size[1]) : "Typical bill estimated from U.S. Energy Department building data for a " + size[1]) + " " + F.unit + " at " + st.name + "'s average commercial rate." };
   }
 
   /* generic question: Watt asks, the person replies, Watt answers */
@@ -673,7 +682,7 @@
     if (!fresh && VIEW) { reset(); restore(VIEW, true); VIEW = null; current = reveal; return reveal(); }
     var saved = fresh ? null : loadSaved();
     reset();
-    if (saved && saved.at && saved.at[0] !== "why" && saved.at[0] !== "facility") return welcomeBack(saved);
+    if (saved && saved.at && saved.at[0] !== "country" && saved.at[0] !== "why" && saved.at[0] !== "facility") return welcomeBack(saved);
     var pre = new URLSearchParams(location.search).get("f");
     if (pre && FAC[pre]) S.preFac = pre;
     setProgress(0, "");
@@ -682,7 +691,7 @@
     var n = $('<section class="screen turn">' + ask("Hi, I&rsquo;m Watt, your Energy+ AI.",
       "I&rsquo;ll ask you about a dozen quick questions, the same ones a senior energy strategist asks on a first call. Every answer, I&rsquo;ll show you something about " + esc(what) + ". About two minutes, and I save as we go, so you can stop and come back anytime.") + "</section>");
     show(n, true);
-    setAction("Let&rsquo;s start", function () { go(why); });
+    setAction("Let&rsquo;s start", function () { go(country); });
   }
 
   /* opens like a discovery call: what brought them here, reflected back */
@@ -695,12 +704,21 @@
     curious: { h: "Fair enough. I&rsquo;ll make it worth your two minutes.", p: "With every answer, I&rsquo;ll show you something most operators never see on their bill." }
   };
   var WHY_OPEN = { rising: "You said your bills keep going up. Here&rsquo;s what&rsquo;s driving it.", budget: "You said you need to cut costs. Here&rsquo;s where the money is.", equip: "You said equipment keeps breaking down. Here&rsquo;s where it&rsquo;s also costing you power.", referred: "Here&rsquo;s what I found.", curious: "Here&rsquo;s what I found." };
+  /* first question: USA or Canada. Canada switches rates, provinces, programs, units and consent rules */
+  function country() {
+    at("country");
+    question({ whyKey: "country", id: "country", step: 1, eyebrow: "Getting started", q: "Where is your building?", opts: [["US", "United States"], ["CA", "Canada"]],
+      chip: function (k, l) { return l; },
+      pick: function (k) { if (S.country && S.country !== k) { delete S.states; delete S.state; delete S.stateName; delete S.ans.__state; delete S.spread; } S.country = k; },
+      insight: function (k) { return k === "CA" ? { tag: "Canada", h: "Got it. I&rsquo;ll use Canadian utility rates, programs and rules, in Canadian dollars.", p: "Where we work with a Canadian partner, Energy Plus connects you with them directly." } : { quiet: true, h: "Got it. Let&rsquo;s look at your building." }; },
+      next: why });
+  }
   function why() {
     at("why");
     question({ whyKey: "why", step: 1, eyebrow: "Getting started", q: "What brought you here today?", opts: WHY,
       chip: function (k, l) { return "Why: " + l; },
       pick: function (k) { S.why = k; },
-      insight: function (k) { var w = WHY_SAY[k]; return { tag: "Got it", h: w.h, p: w.p }; }, next: facility });
+      insight: function (k) { var w = WHY_SAY[k], p = w.p; if (k === "rising" && isCA()) p = "Rates keep climbing across much of Canada. Part of that is the utility raising rates, and part is your building using more than it should. I&rsquo;ll separate the two."; return { tag: "Got it", h: w.h, p: p }; }, next: facility });
   }
 
   function facility() {
@@ -732,11 +750,17 @@
     gov: { tag: "Ownership", h: "Public buildings can pay for upgrades out of the savings, without new capital budget.", p: "Most states allow energy savings performance contracts for exactly this, and some federal credits can be received as a cash payment. I&rsquo;ll show what fits." },
     unk: { tag: "Ownership", h: "No problem. I&rsquo;ll show the options that work for most owners.", p: "We sort out the details on a quick call." }
   };
+  var OWNER_SAY_CA = {
+    biz: { tag: "Ownership", h: "Businesses may qualify for Canada&rsquo;s Clean Technology Investment Tax Credit, up to 30 percent on eligible equipment.", p: "On top of provincial rebates and the savings themselves. I&rsquo;ll show what fits." },
+    np: { tag: "Ownership", h: "Nonprofits and charities can&rsquo;t use the business tax credits, but provincial programs often cover you.", p: "And the pay-from-savings structure works without needing a tax bill. I&rsquo;ll show what fits your building." },
+    gov: { tag: "Ownership", h: "Public buildings can pay for upgrades out of the savings, without new capital budget.", p: "Energy performance contracts are common across Canada for exactly this. I&rsquo;ll show what fits." },
+    unk: OWNER_SAY.unk
+  };
   function owner() {
     at("owner");
     question({ whyKey: "owner", id: "owner", step: 9 + S.path.length, eyebrow: "Ownership", q: "Who owns the building?", sub: "It changes which credits and financing you can use.", opts: OWNERS, chip: function (k, l) { return "Owner: " + l.replace(/^A /, ""); },
       pick: function (k) { S.owner = k; },
-      insight: function (k) { return OWNER_SAY[k]; }, next: role });
+      insight: function (k) { return isCA() ? OWNER_SAY_CA[k] : OWNER_SAY[k]; }, next: role });
   }
   function role() {
     at("role");
@@ -755,23 +779,28 @@
     ["Mountain & Southwest", ["AZ", "CO", "ID", "MT", "NV", "NM", "UT", "WY"]],
     ["West Coast", ["AK", "CA", "HI", "OR", "WA"]]
   ];
-  var ALL_STATES = Object.keys(EP.states);
+  var REGIONS_US = REGIONS;
+  var REGIONS_CA = [["Ontario", ["ON"]], ["Prairies", ["AB", "SK", "MB"]], ["British Columbia", ["BC"]], ["Atlantic Canada", ["NB", "NS", "PE", "NL"]]];
+  function regions() { return isCA() ? REGIONS_CA : REGIONS_US; }
+  function allCodes() { var c = isCA() ? "CA" : "US"; return Object.keys(EP.states).filter(function (k) { return EP.states[k].country === c; }); }
+  function natCodes() { return isCA() ? allCodes() : allCodes().filter(function (c) { return c !== "AK" && c !== "HI"; }); }
+  var ALL_STATES = Object.keys(EP.states).filter(function (k) { return EP.states[k].country === "US"; });
   var LOWER48 = ALL_STATES.filter(function (c) { return c !== "AK" && c !== "HI"; }); /* nationwide = the lower 48 plus DC, so Hawaii's rates don't skew it */
   function nationwide() { return S.spread === "nation"; }
   function multiState() { return !!(S.states && S.states.length > 1); }
-  function regionOf(codes) { var set = codes.slice().sort().join(); for (var i = 0; i < REGIONS.length; i++) if (REGIONS[i][1].slice().sort().join() === set) return REGIONS[i][0]; return null; }
+  function regionOf(codes) { var set = codes.slice().sort().join(); var RG = regions(); for (var i = 0; i < RG.length; i++) if (RG[i][1].slice().sort().join() === set) return RG[i][0]; return null; }
   function placeName() {
     var c = S.states || [];
-    if (c.length <= 1) return S.state ? EP.states[S.state].name : "your state";
-    if (nationwide()) return "the U.S.";
+    if (c.length <= 1) return S.state ? EP.states[S.state].name : "your " + W().st;
+    if (nationwide()) return W().the;
     var reg = regionOf(c); if (reg) return "the " + reg;
     if (c.length <= 3) { var n = c.map(function (x) { return EP.states[x].name; }); return n.length === 2 ? n.join(" and ") : n.slice(0, -1).join(", ") + " and " + n[n.length - 1]; }
-    return c.length + " states";
+    return c.length + " " + W().sts;
   }
-  function placePoss() { return multiState() ? (nationwide() ? "U.S." : "your states&rsquo;") : esc(placeName()) + "&rsquo;s"; }
+  function placePoss() { return multiState() ? (nationwide() ? (isCA() ? "Canada&rsquo;s" : "U.S.") : "your " + W().sts + "&rsquo;") : esc(placeName()) + "&rsquo;s"; }
   function placeChip() {
-    if (nationwide()) return "Nationwide";
-    var c = S.states, full = REGIONS.filter(function (r) { return r[1].every(function (x) { return c.indexOf(x) >= 0; }); });
+    if (nationwide()) return W().nation;
+    var c = S.states, full = regions().filter(function (r) { return r[1].every(function (x) { return c.indexOf(x) >= 0; }); });
     var inFull = {}; full.forEach(function (r) { r[1].forEach(function (x) { inFull[x] = true; }); });
     var rest = c.filter(function (x) { return !inFull[x]; }).map(function (x) { return EP.states[x].name; }).sort();
     var parts = full.map(function (r) { return r[0]; });
@@ -786,30 +815,30 @@
     S.stateName = placeName();
   }
   function ratesInsight() {
-    var st = EP.states[S.state], nat = EP.national, rise = riseFor(S.state);
+    var st = EP.states[S.state], nat = NAT(), rise = riseFor(S.state);
     if (!multiState()) {
       var rate = st.rate, diff = (rate / nat.rate12mo - 1) * 100, name = esc(st.name);
-      var h = diff >= 3 ? "Commercial power in " + name + " already costs about " + Math.round(diff) + "% more than the national average."
+      var h = diff >= 3 ? "Commercial power in " + name + " already costs about " + Math.round(diff) + "% more than " + W().avg + "."
         : diff <= -3 ? "Power in " + name + " is cheaper than average. That makes waste easy to ignore, and it still compounds."
-        : "Commercial power in " + name + " runs close to the national average.";
-      var p = (rise.local ? "And it's climbing: rates here rose " + rise.pct.toFixed(1) + "% in the last 12 months." : "And it's climbing: commercial rates rose " + rise.pct.toFixed(1) + "% nationally in the last year. Yours may vary.") +
-        (st.retailChoice === true ? " Your state also lets businesses choose who sells them power, like switching phone carriers. Most never shop it, so I'll include that." : "");
+        : "Commercial power in " + name + " runs close to " + W().avg + ".";
+      var p = (rise.local ? "And it's climbing: rates here rose " + rise.pct.toFixed(1) + "% in the last year." : "And it's climbing: commercial rates rose " + rise.pct.toFixed(1) + "% " + (isCA() ? "across Canada" : "nationally") + " in the last year. Yours may vary.") +
+        (st.retailChoice === true ? " Your " + W().st + " also lets businesses choose who sells them power, like switching phone carriers. Most never shop it, so I'll include that." : "");
       return { tag: "Your rates", h: h, p: p,
-        viz: '<div class="fig"><span class="big metered" data-count="' + rate + '" data-fmt="cents">0¢</span><span class="vs">what you pay per unit of power here, vs ' + nat.rate12mo.toFixed(2) + '¢ nationally</span></div><div class="fig" style="margin-top:8px"><span class="big" style="font-size:30px" data-count="' + rise.pct + '" data-fmt="pct">0%</span><span class="vs">' + (rise.local ? "rate rise here, last 12 months" : "rate rise nationally, last 12 months") + '</span></div>',
-        src: "EIA commercial retail prices, 12 months to Aug 2026; national change Aug 2026 vs Aug 2025" };
+        viz: '<div class="fig"><span class="big metered" data-count="' + rate + '" data-fmt="cents">0¢</span><span class="vs">what you pay per unit of power here, vs ' + nat.rate12mo.toFixed(2) + (isCA() ? "¢ Canadian average" : "¢ nationally") + '</span></div><div class="fig" style="margin-top:8px"><span class="big" style="font-size:30px" data-count="' + rise.pct + '" data-fmt="pct">0%</span><span class="vs">' + (rise.local ? "rate rise here, last 12 months" : "rate rise nationally, last 12 months") + '</span></div>',
+        src: rateSrc() };
     }
     var c = S.states, lo = EP.states[c[0]], hi = EP.states[c[c.length - 1]];
     var avg = c.reduce(function (t, x) { return t + EP.states[x].rate; }, 0) / c.length;
     var choice = c.filter(function (x) { return EP.states[x].retailChoice === true; }).length;
-    if (nationwide()) return { tag: "Your rates", h: "Across the country, commercial power runs from " + lo.rate.toFixed(1) + "¢ in " + esc(lo.name) + " to " + hi.rate.toFixed(1) + "¢ in " + esc(hi.name) + ".",
-      p: "With " + esc(fac().units) + " everywhere, the fixes that pay back first are in your highest-rate states. And rates are climbing: commercial power rose " + EP.national.augYoY + "% nationally in the last year.",
-      viz: '<div class="fig"><span class="big metered" data-count="' + EP.national.rate12mo + '" data-fmt="cents">0¢</span><span class="vs">per kWh, national commercial average</span></div>',
-      src: "EIA commercial retail prices, 12 months to Aug 2026; we use the lower 48 states and DC, each weighted equally" };
+    if (nationwide()) return { tag: "Your rates", h: (isCA() ? "Across Canada, commercial power runs from " : "Across the country, commercial power runs from ") + lo.rate.toFixed(1) + "¢ in " + esc(lo.name) + " to " + hi.rate.toFixed(1) + "¢ in " + esc(hi.name) + ".",
+      p: "With " + esc(fac().units) + " everywhere, the fixes that pay back first are in your highest-rate " + W().sts + ". And rates are climbing: commercial power rose " + NAT().augYoY + "% " + (isCA() ? "across Canada" : "nationally") + " in the last year.",
+      viz: '<div class="fig"><span class="big metered" data-count="' + NAT().rate12mo + '" data-fmt="cents">0¢</span><span class="vs">per kWh, ' + (isCA() ? "Canadian" : "national") + ' commercial average</span></div>',
+      src: isCA() ? rateSrc() + "; nine provinces, each weighted equally" : "EIA commercial retail prices, 12 months to Aug 2026; we use the lower 48 states and DC, each weighted equally" };
     return { tag: "Your rates", h: "Your " + esc(fac().units) + " pay anywhere from " + lo.rate.toFixed(1) + "¢ in " + esc(lo.name) + " to " + hi.rate.toFixed(1) + "¢ in " + esc(hi.name) + ".",
-      p: "The same fix pays back fastest where power costs the most, so that's usually where we start. And rates are climbing: commercial power rose " + EP.national.augYoY + "% nationally in the last year." +
-        (choice ? " " + (choice === c.length ? "All" : choice + " of") + " your states let businesses choose who sells them power. Most never shop it, so I'll include that." : ""),
-      viz: '<div class="fig"><span class="big metered" data-count="' + avg + '" data-fmt="cents">0¢</span><span class="vs">per kWh, average of your ' + c.length + " states vs " + EP.national.rate12mo.toFixed(2) + "¢ national</span></div>",
-      src: "EIA commercial retail prices, 12 months to Aug 2026; each state weighted equally" };
+      p: "The same fix pays back fastest where power costs the most, so that's usually where we start. And rates are climbing: commercial power rose " + NAT().augYoY + "% " + (isCA() ? "across Canada" : "nationally") + " in the last year." +
+        (choice ? " " + (choice === c.length ? "All" : choice + " of") + " your " + W().sts + " let businesses choose who sells them power. Most never shop it, so I'll include that." : ""),
+      viz: '<div class="fig"><span class="big metered" data-count="' + avg + '" data-fmt="cents">0¢</span><span class="vs">per kWh, average of your ' + c.length + " states vs " + EP.national.rate12mo.toFixed(2) + "¢ " + (isCA() ? "Canadian average" : "national") + "</span></div>",
+      src: rateSrc() + "; each " + W().st + " weighted equally" };
   }
 
   function stateQ() {
@@ -817,9 +846,9 @@
     if (S.locs === 1) return singleState();
     var F = fac();
     question({ whyKey: "where", step: 4, eyebrow: "Location", q: "Where are your " + F.units + "?",
-      opts: [["one", "All in one state"], ["multi", "In more than one state"], ["nation", "Nationwide"]],
+      opts: [["one", "All in one " + W().st], ["multi", "In more than one " + W().st], ["nation", W().nation]],
       chip: function () { return ""; },
-      pick: function (k) { S.spread = k; if (k === "nation") { setStates(LOWER48); S.ans.__state = "nation"; setChip("__state", "Nationwide"); } },
+      pick: function (k) { S.spread = k; if (k === "nation") { setStates(natCodes()); S.ans.__state = "nation"; setChip("__state", W().nation); } },
       insight: function (k) { return k === "one" ? { redirect: singleState } : k === "multi" ? { redirect: pickStates } : ratesInsight(); },
       next: statusQ });
   }
@@ -828,8 +857,8 @@
     at("singleState");
     setProgress(4);
     stage("listen");
-    var names = Object.keys(STATE_NAMES).sort(), quietNext = false;
-    var n = $('<section class="screen turn">' + ask(S.locs > 1 ? "Which state are they in?" : "Which state is it in?", "", "Location", "state") + '<select class="state" id="stsel" aria-label="State"><option value="">Choose a state</option>' + names.map(function (s) { return "<option>" + esc(s) + "</option>"; }).join("") + '</select><div class="slot"></div></section>');
+    var names = allCodes().map(function (c) { return EP.states[c].name; }).sort(), quietNext = false;
+    var n = $('<section class="screen turn">' + ask(S.locs > 1 ? "Which " + W().st + " are they in?" : "Which " + W().st + " is it in?", isCA() ? "Qu&eacute;bec isn&rsquo;t available here yet. Text Dan at " + PHONE_DISPLAY + " and he&rsquo;ll connect you." : "", "Location", "state") + '<select class="state" id="stsel" aria-label="' + (isCA() ? "Province" : "State") + '"><option value="">Choose a ' + W().st + '</option>' + names.map(function (s) { return "<option>" + esc(s) + "</option>"; }).join("") + '</select><div class="slot"></div></section>');
     var sel = n.querySelector("#stsel"), slot = n.querySelector(".slot");
     sel.addEventListener("change", function () {
       var quiet = quietNext; quietNext = false;
@@ -849,9 +878,9 @@
     setProgress(4);
     stage("listen");
     var F = fac(), chosen = {};
-    if (multiState() && S.states.length < ALL_STATES.length) S.states.forEach(function (c) { chosen[c] = true; });
-    var html = '<section class="screen turn">' + ask("Which states are your " + esc(F.units) + " in?", "Tap a region to select all of it, then tap any state to add or remove it.", "Location", "where") + '<div class="regions">' +
-      REGIONS.map(function (r, i) {
+    if (multiState() && S.states.length < allCodes().length) S.states.forEach(function (c) { chosen[c] = true; });
+    var html = '<section class="screen turn">' + ask("Which " + W().sts + " are your " + esc(F.units) + " in?", "Tap a region to select all of it, then tap any " + W().st + " to add or remove it.", "Location", "where") + '<div class="regions">' +
+      regions().map(function (r, i) {
         return '<div class="region"><button class="reg-h" type="button" data-r="' + i + '"><span>' + esc(r[0]) + '</span><span class="reg-all">Select all</span></button><div class="reg-states">' +
           r[1].map(function (c) { return '<button class="st" type="button" data-c="' + c + '">' + esc(EP.states[c].name) + "</button>"; }).join("") + "</div></div>";
       }).join("") + '</div><div class="next done-row"><span class="picked mono" id="picked"></span><button class="btn" id="st-go" disabled>Done <span class="ar">&rarr;</span></button></div><button class="link change" type="button" hidden>Change my answer</button><div class="slot"></div></section>';
@@ -859,14 +888,14 @@
     function list() { return Object.keys(chosen).filter(function (c) { return chosen[c]; }); }
     function paint() {
       box.querySelectorAll(".st").forEach(function (b) { b.classList.toggle("on", !!chosen[b.dataset.c]); });
-      box.querySelectorAll(".reg-h").forEach(function (h) { var r = REGIONS[h.dataset.r][1], all = r.every(function (c) { return chosen[c]; }); h.classList.toggle("on", all); h.querySelector(".reg-all").textContent = all ? "Clear" : "Select all"; });
-      var n = list().length; cnt.textContent = n ? n + (n === 1 ? " state" : " states") : ""; goB.disabled = n < 2;
-      if (!box.classList.contains("answered")) setAction("Done", function () { finish(list(), false); }, { disabled: n < 2, left: '<span class="picked">' + (n ? n + (n === 1 ? " state" : " states") : "Tap a region or states") + "</span>" });
+      box.querySelectorAll(".reg-h").forEach(function (h) { var r = regions()[h.dataset.r][1], all = r.every(function (c) { return chosen[c]; }); h.classList.toggle("on", all); h.querySelector(".reg-all").textContent = all ? "Clear" : "Select all"; });
+      var n = list().length; cnt.textContent = n ? n + " " + (n === 1 ? W().st : W().sts) : ""; goB.disabled = n < 2;
+      if (!box.classList.contains("answered")) setAction("Done", function () { finish(list(), false); }, { disabled: n < 2, left: '<span class="picked">' + (n ? n + " " + (n === 1 ? W().st : W().sts) : "Tap a region or " + W().sts) + "</span>" });
     }
     box.addEventListener("click", function (e) {
       if (box.classList.contains("answered")) return;
       var h = e.target.closest(".reg-h"), b = e.target.closest(".st");
-      if (h) { var r = REGIONS[h.dataset.r][1], all = r.every(function (c) { return chosen[c]; }); r.forEach(function (c) { chosen[c] = !all; }); }
+      if (h) { var r = regions()[h.dataset.r][1], all = r.every(function (c) { return chosen[c]; }); r.forEach(function (c) { chosen[c] = !all; }); }
       else if (b) chosen[b.dataset.c] = !chosen[b.dataset.c];
       paint();
     });
@@ -891,7 +920,7 @@
   }
 
   function riseFor(state) {
-    var nat = EP.national.augYoY, loc = EP.rateChange[state];
+    var nat = NAT().augYoY, loc = (isCA() ? EP.rateChangeCA : EP.rateChange)[state];
     return (loc != null && loc > nat) ? { pct: loc, local: true } : { pct: nat, local: false };
   }
   function demandInfo(m) {
@@ -1031,7 +1060,7 @@
     at("sizeQ");
     var F = fac();
     question({ whyKey: "size", step: 6, eyebrow: "Your bill", q: "How big is a typical " + F.unit + "?", sub: "We'll estimate the bill from benchmarks and say so.",
-      opts: F.sizes.map(function (s, i) { return [String(i), s[0], s[1]]; }), chip: function (k, l) { return l + " " + F.unit + ", bill estimated"; },
+      opts: F.sizes.map(function (s, i) { return [String(i), s[0], m2(s[1])]; }), chip: function (k, l) { return l + " " + F.unit + ", bill estimated"; },
       pick: function (k) { var s = F.sizes[parseInt(k, 10)]; S.sqft = s[2]; S.monthly = Math.round(s[2] * engFac().eui_kwh_sqft * EP.states[S.state].rate / 100 / 12); S.estimated = true; },
       insight: billInsight, next: afterBill });
   }
@@ -1118,11 +1147,11 @@
     stage("found");
     var F = fac();
     var n = $('<section class="screen turn">' + ask("The cheapest savings are the ones designed in.", "Before equipment is specced is the best time to talk. A " + esc(F.unit) + " built right from day one avoids the overspend I&rsquo;d otherwise be finding in five years. Leave your name and number and an Energy Plus engineer will reach out about your plans.") +
-      '<div class="field"><label for="p-name">First name</label><input id="p-name" autocomplete="given-name"></div><div class="field"><label for="p-phone">Mobile</label><input id="p-phone" type="tel" inputmode="tel" autocomplete="tel"></div><div class="err" id="p-err"></div><div class="next"><button class="btn" id="p-go">Talk to an engineer <span class="ar">&rarr;</span></button></div></section>');
+      '<div class="field"><label for="p-name">First name</label><input id="p-name" autocomplete="given-name"></div><div class="field"><label for="p-phone">Mobile</label><input id="p-phone" type="tel" inputmode="tel" autocomplete="tel"></div>' + consentHtml("p") + '<div class="err" id="p-err"></div><div class="next"><button class="btn" id="p-go">Talk to an engineer <span class="ar">&rarr;</span></button></div></section>');
     n.querySelector("#p-go").addEventListener("click", function () {
       var nm = n.querySelector("#p-name").value.trim(), ph = n.querySelector("#p-phone").value.replace(/\D/g, "");
       if (ph.length < 10) { n.querySelector("#p-err").textContent = "Enter a 10-digit mobile number so we can reach you."; return; }
-      sendLead({ kind: "planning (not built yet)", name: nm, phone: ph, role: S.role, facility: F.label, state: S.stateName, states: (S.states || []).join(" "), locations: S.locLabel });
+      readConsent(n, "p"); sendLead({ kind: "planning (not built yet)", name: nm, phone: ph, country: S.country || "US", consent: JSON.stringify(S.consent || {}), role: S.role, facility: F.label, state: S.stateName, states: (S.states || []).join(" "), locations: S.locLabel });
       n.querySelector("#p-err").textContent = ""; n.querySelector("#p-go").textContent = "Thanks, we'll be in touch"; n.querySelector("#p-go").disabled = true;
       stage("verify");
     });
@@ -1140,19 +1169,28 @@
     if (i >= S.path.length) return doneQ();
     var q = S.path[i];
     if (q.id === "age" && S.status === "new") return pathStep(i + 1);
-    question({ step: 8 + i, id: q.id, eyebrow: q.eyebrow, q: pathQ(q), sub: q.sub, opts: q.opts, pick: q.pick, insight: q.insight, next: function () { pathStep(i + 1); } });
+    var qq = pathQ(q), ins = q.insight;
+    if (q.id === "summer" && isCA()) {
+      qq = "Is your electric bill noticeably higher in summer or winter than the rest of the year?";
+      ins = function (k) {
+        if (k === "much") return { tag: "Pattern", h: "That&rsquo;s the sign of a big demand charge.", p: "In your peak season everything runs at once. Your busiest 15 minutes of the month sets an extra charge for the whole month." };
+        if (k === "little") return { tag: "Pattern", h: "Even a small seasonal bump usually means your equipment is all running at the same moments.", p: "Spreading that out lowers the busiest-15-minutes charge on every bill." };
+        return q.insight(k);
+      };
+    }
+    question({ step: 8 + i, id: q.id, eyebrow: q.eyebrow, q: qq, sub: q.sub, opts: q.opts, pick: q.pick, insight: ins, next: function () { pathStep(i + 1); } });
   }
 
   function under() {
     at("under");
     stage("listen");
     setProgress(TOTAL, "");
-    var n = $('<section class="screen turn">' + ask("Our full program is built for portfolios spending $10K or more a month.", "I don&rsquo;t want to waste your time with a pitch that doesn&rsquo;t fit. Leave your number and we&rsquo;ll reach out as we roll out options sized for you.") + '<div class="field"><label for="u-name">First name</label><input id="u-name" autocomplete="given-name"></div><div class="field"><label for="u-phone">Mobile</label><input id="u-phone" type="tel" inputmode="tel" autocomplete="tel"></div><div class="err" id="u-err"></div><div class="next" style="justify-content:space-between"><button class="link" id="restart">Start over</button><button class="btn" id="u-go">Keep me posted</button></div></section>');
+    var n = $('<section class="screen turn">' + ask("Our full program is built for portfolios spending $10K or more a month.", "I don&rsquo;t want to waste your time with a pitch that doesn&rsquo;t fit. Leave your number and we&rsquo;ll reach out as we roll out options sized for you.") + '<div class="field"><label for="u-name">First name</label><input id="u-name" autocomplete="given-name"></div><div class="field"><label for="u-phone">Mobile</label><input id="u-phone" type="tel" inputmode="tel" autocomplete="tel"></div>' + consentHtml("u") + '<div class="err" id="u-err"></div><div class="next" style="justify-content:space-between"><button class="link" id="restart">Start over</button><button class="btn" id="u-go">Keep me posted</button></div></section>');
     n.querySelector("#restart").addEventListener("click", function () { intro(); syncBack(); });
     n.querySelector("#u-go").addEventListener("click", function () {
       var nm = n.querySelector("#u-name").value.trim(), ph = n.querySelector("#u-phone").value.replace(/\D/g, "");
       if (ph.length < 10) { n.querySelector("#u-err").textContent = "Enter a 10-digit mobile number so we can reach you."; return; }
-      sendLead({ kind: "under-threshold", name: nm, phone: ph });
+      readConsent(n, "u"); sendLead({ kind: "under-threshold", name: nm, phone: ph, country: S.country || "US", consent: JSON.stringify(S.consent || {}) });
       n.querySelector("#u-err").textContent = ""; n.querySelector("#u-go").textContent = "Noted"; n.querySelector("#u-go").disabled = true;
     });
     show(n); dockProxy(n, "#u-go", "Keep me posted");
@@ -1164,15 +1202,27 @@
     setProgress(TOTAL);
     var fs = findings(compute()), F = fac();
     var tease = '<div class="bubble say"><p class="eyebrow">What I found</p><h3>I found ' + fs.length + ' ways your ' + esc(S.locs > 1 ? F.units : F.unit) + ' ' + (S.locs > 1 ? "are" : "is") + ' overspending.</h3><ol class="tease">' + fs.map(function (x) { return "<li>" + esc(x[0]) + "</li>"; }).join("") + '</ol><p>Your report puts a dollar amount on each one' + (function () { var n = payPrograms().length; return n ? ", and shows " + n + (n === 1 ? " program" : " programs") + " that could help pay for it" : ""; })() + '.</p></div>';
-    var n = $('<section class="screen turn">' + tease + ask("Where can Dan text you a copy?", "Your report opens right here. Dan will also text you a copy so it&rsquo;s easy to find and forward. No email, no spam.") + '<div class="field"><label for="c-name">First name</label><input id="c-name" autocomplete="given-name"></div><div class="field"><label for="c-phone">Mobile</label><input id="c-phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="(555) 555-5555"></div><div class="err" id="c-err"></div><div class="next"><button class="btn" id="c-go">Show my diagnostic <span class="ar">&rarr;</span></button></div></section>');
+    var n = $('<section class="screen turn">' + tease + ask("Where can Dan text you a copy?", "Your report opens right here. Dan will also text you a copy so it&rsquo;s easy to find and forward." + (isCA() ? "" : " No email, no spam.")) + '<div class="field"><label for="c-name">First name</label><input id="c-name" autocomplete="given-name"></div><div class="field"><label for="c-phone">Mobile</label><input id="c-phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="(555) 555-5555"></div>' + consentHtml("c") + '<div class="err" id="c-err"></div><div class="next"><button class="btn" id="c-go">Show my diagnostic <span class="ar">&rarr;</span></button></div></section>');
     n.querySelector("#c-go").addEventListener("click", function () {
       var nm = n.querySelector("#c-name").value.trim(), ph = n.querySelector("#c-phone").value.replace(/\D/g, "");
       if (!nm) { n.querySelector("#c-err").textContent = "Add your first name so the report is addressed to you."; return; }
       if (ph.length < 10) { n.querySelector("#c-err").textContent = "Enter a 10-digit mobile number."; return; }
-      S.name = nm; S.phone = ph; working(function () { go(reveal); });
+      S.name = nm; S.phone = ph; readConsent(n, "c"); working(function () { go(reveal); });
     });
     show(n); dockProxy(n, "#c-go", "Show my report");
     setTimeout(function () { var i = n.querySelector("#c-name"); if (i) i.focus({ preventScroll: true }); }, 600);
+  }
+
+  /* consent: Canada needs a clear, unticked opt-in for anything beyond the copy they asked for (CASL); everyone gets the privacy notice */
+  var PRIVACY_URL = "privacy/";
+  function consentHtml(id) {
+    return (isCA() ? '<label class="consent"><input type="checkbox" id="' + id + '-ok"> <span>Yes, Energy Plus may also text and email me about energy savings. I can opt out anytime by replying STOP.</span></label>' : "") +
+      '<p class="privacy-note">We use your details only for your report and follow-up. <a href="' + PRIVACY_URL + '" target="_blank" rel="noopener">Privacy notice</a></p>';
+  }
+  function readConsent(n, id) {
+    var b = n.querySelector("#" + id + "-ok");
+    S.consent = { country: S.country || "US", express: b ? !!b.checked : null, basis: isCA() ? (b && b.checked ? "express opt-in" : "implied: inquiry, report copy requested (6 months)") : "n/a", at: new Date().toISOString(),
+      wording: b ? "Yes, Energy Plus may also text and email me about energy savings. I can opt out anytime by replying STOP." : "" };
   }
 
   /* ---------- math ---------- */
@@ -1219,11 +1269,11 @@
     var extra = {};
     Object.keys(S.pf).forEach(function (k) { var f = S.pf[k], t = f[0].toLowerCase(); var key = /refrig|dock|walk-in|cooler/.test(t) ? "refrig" : /motor|dirty/.test(t) ? "power" : "hvac"; extra[key] = (extra[key] || "") + " " + f[1]; });
     var cand = [
-      ["peak", "Peak demand is likely " + dLo + "% to " + dHi + "% of your bill", "Your busiest 15 minutes sets a charge for the whole month. Spreading out when equipment starts and runs lowers it on every bill."],
+      ["peak", "Peak demand is likely " + dLo + "% to " + dHi + "% of your bill", "Your busiest 15 minutes sets a charge for the whole month. Spreading out when equipment starts and runs lowers it on every bill." + (isCA() && EP.states[S.state].peakNote ? " " + EP.states[S.state].peakNote : "")],
       ["hvac", "Your HVAC is working harder than it needs to", "Cleaning and tuning the system lowers the bill, cuts maintenance by up to 40%, and can add 5 to 15 years of equipment life." + hvacMore],
       ["refrig", "Your refrigeration runs harder than it needs to", "It runs every hour of the year, so small inefficiencies add up to real money, and the same fix extends compressor life."],
-      ["power", "Dirty power on every circuit", "Modern electronics and motors send dirty power back through your wiring. It wastes electricity and wears out equipment early."],
-      ["supply", "Your supply rate is negotiable", multiState() ? "Some of your states let you choose who sells you power, without changing utilities." : "Your state lets you choose who sells you power, without changing utilities."]
+      ["power", "Dirty power on every circuit", "Modern electronics and motors send dirty power back through your wiring. It wastes electricity and wears out equipment early." + (isCA() && EP.states[S.state].pfNote ? " " + EP.states[S.state].pfNote + " Fixing power factor lowers that charge." : "")],
+      ["supply", "Your supply rate is negotiable", multiState() ? "Some of your " + W().sts + " let you choose who sells you power, without changing utilities." : "Your " + W().st + " lets you choose who sells you power, without changing utilities."]
     ];
     /* every lever that applies shows (up to five); never fewer than three, even if one is small */
     var fits = cand.filter(function (c) { return !(c[0] === "refrig" && !engFac().refrigShare) && !(c[0] === "supply" && !anyChoice()) && money[c[0]]; });
@@ -1247,7 +1297,8 @@
     var codes = S.states && S.states.length ? S.states : [S.state], exempt = S.owner === "np" || S.owner === "gov";
     return (EP.incentives || []).filter(function (x) {
       if (x.id === "usda-reap" || x.id === "itc48e-solar") return false;
-      if (exempt && x.id === "bonus-depreciation") return false;
+      if (exempt && (x.id === "bonus-depreciation" || x.taxable)) return false;
+      if (x.states === "all" && isCA()) return false;
       var inState = x.states === "all" || codes.some(function (c) { return x.states.indexOf(c) >= 0; });
       return inState && x.measures.some(function (m) { return PAY_MEASURES.test(m); });
     }).map(function (x) { return exempt && x.id === "itc48e-storage" ? Object.assign({}, x, { display: EXEMPT_STORAGE, url: "https://www.irs.gov/credits-deductions/elective-pay-and-transferability" }) : x; })
@@ -1260,9 +1311,10 @@
     var label = { Utility: "Utility rebate", Financing: "Financing", State: "State", Federal: "Tax" };
     return '<div class="blk pay"><h2>Ways to pay for it</h2>' +
       '<div class="payhero"><p class="ph-t">Designed to pay for itself</p><p>We structure projects so your savings run about <b>twice the payment</b>, so you&rsquo;re cash-flow positive in the first year. Financing typically runs up to 10 years, subject to lender approval. Have your own lender? Bring them in.</p>' +
-      (S.owner === "np" ? '<p>Nonprofits and churches: the same pay-from-savings structure works without needing a tax bill to benefit, and some credits come back as cash.</p>'
-        : S.owner === "gov" ? '<p>Public buildings: an energy savings performance contract lets the savings pay for the work, with no new capital budget.</p>'
-        : S.owner === "biz" ? '<p>Businesses: first-year write-offs can lower the real cost further.</p>' : "") +
+      (isCA() ? '<p>In Canada, Energy Plus connects you with the right Canadian partner for financing and installation. All figures are in Canadian dollars.</p>' : "") +
+      (S.owner === "np" ? '<p>Nonprofits and churches: the same pay-from-savings structure works without needing a tax bill to benefit' + (isCA() ? ", and provincial programs often help." : ", and some credits come back as cash.") + '</p>'
+        : S.owner === "gov" ? '<p>Public buildings: an energy ' + (isCA() ? "" : "savings ") + 'performance contract lets the savings pay for the work, with no new capital budget.</p>'
+        : S.owner === "biz" ? (isCA() ? '<p>Businesses: the Clean Technology Investment Tax Credit can lower the real cost further.</p>' : '<p>Businesses: first-year write-offs can lower the real cost further.</p>') : "") +
       '<p class="sub">Want us to carry more of the performance risk? That can be built into the agreement when you sign.</p></div>' +
       (ps.length ? '<h3 class="ph-h">Programs that may help pay for it</h3><ul class="progs">' + ps.map(function (x) {
         return '<li><span class="plvl">' + esc(label[x.level] || x.level) + '</span><span class="ptxt">' + esc(x.display) + (x.url ? ' <a href="' + esc(x.url) + '" target="_blank" rel="noopener">Details</a>' : "") + "</span></li>";
@@ -1305,7 +1357,7 @@
       pay: payBlock(),
       where: '<div class="blk"><h2>Where the savings come from</h2>' + buckets + "</div>",
       findings: '<div class="blk"><h2>Top findings for your ' + esc(F.units) + '</h2><ol class="finds">' + fs.map(function (x, i) { return '<li style="animation-delay:' + (i * 120 + 300) + 'ms"><span class="n">' + String(i + 1).padStart(2, "0") + "</span><span><strong>" + esc(x[0]) + '</strong><span class="fval">' + (kmoney(x[2][0]) === kmoney(x[2][1]) ? "about " + kmoney(x[2][1]) : rng(x[2])) + " a year" + (x[3] ? '<span class="fpct">' + esc(x[3]) + "</span>" : "") + "</span>" + esc(x[1]) + (x[0] === "Dirty power on every circuit" ? dirtyViz() : "") + "</span></li>"; }).join("") + "</ol></div>",
-      nothing: '<div class="blk"><h2>The cost of waiting</h2><div class="kv"><div><span>Electricity spend, next 10 years</span><b>' + kmoney(annualAll * ENG.escalationFactor(r.escRate, 10)) + "</b></div><div><span>Rate increase we used</span><b>" + escPct + "% / yr</b></div><div><span>Savings left on the table</span><b>" + kmoney(r.typical * ENG.escalationFactor(r.escRate, 10)) + '</b></div></div><p class="sub" style="margin-top:12px">We used a conservative ' + escPct + "% a year for " + esc(placeName()) + ". " + (riseFor(S.state).local && !multiState() ? "Rates here actually rose " + riseFor(S.state).pct.toFixed(1) + "% in the last 12 months." : "Commercial rates actually rose " + EP.national.augYoY + "% nationally in the last year.") + "</p></div>",
+      nothing: '<div class="blk"><h2>The cost of waiting</h2><div class="kv"><div><span>Electricity spend, next 10 years</span><b>' + kmoney(annualAll * ENG.escalationFactor(r.escRate, 10)) + "</b></div><div><span>Rate increase we used</span><b>" + escPct + "% / yr</b></div><div><span>Savings left on the table</span><b>" + kmoney(r.typical * ENG.escalationFactor(r.escRate, 10)) + '</b></div></div><p class="sub" style="margin-top:12px">We used a conservative ' + escPct + "% a year for " + esc(placeName()) + ". " + (riseFor(S.state).local && !multiState() ? "Rates here actually rose " + riseFor(S.state).pct.toFixed(1) + "% in the last year." : "Commercial rates actually rose " + NAT().augYoY + "% " + (isCA() ? "across Canada" : "nationally") + " in the last year.") + "</p></div>",
       beyond: '<div class="blk"><h2>Beyond the bill</h2><div class="kv"><div><span>Maintenance cost</span><b>up to 40% lower</b></div><div><span>Added equipment life</span><b>5 to 15 years</b></div>' + (multi ? "<div><span>Per " + esc(F.unit) + ", typical</span><b>" + kmoney(typ / L) + "/yr</b></div>" : "") + '</div><p class="sub" style="margin-top:14px">And it&rsquo;s paid from the savings: projects are structured so savings run about twice the payment, cash-flow positive in the first year. We walk through the structure on the call.</p></div>',
     };
     var order = { owner: ["findings", "pay", "where", "nothing", "beyond"], fm: ["beyond", "findings", "pay", "where", "nothing"], cfo: ["nothing", "pay", "where", "findings", "beyond"], pm: ["beyond", "pay", "where", "nothing", "findings"], multi: ["where", "findings", "pay", "nothing", "beyond"] }[S.role] || ["findings", "pay", "where", "nothing", "beyond"];
@@ -1315,7 +1367,7 @@
     var smsBody = S.viewOnly ? "Hi Dan, I'm looking at an Energy Plus report someone shared with me (" + F.label + ", " + kmoney(lo) + " to " + kmoney(hi) + "/yr). Let's talk." : "Hi Dan, " + S.name + " here. I just ran the Energy Plus diagnostic: " + F.label + ", " + S.locLabel + " " + (L === 1 ? F.unit : F.units) + " in " + S.stateName + ", about " + kmoney(S.monthly) + "/mo each. It estimated " + kmoney(lo) + " to " + kmoney(hi) + "/yr in savings. Let's talk.";
     var assumptions = [
       S.monthsOpen && !S.estimated ? "Your bill is a typical month when you're open, counted across your open months." : S.estimated ? "Your bill was estimated from a typical " + esc(F.unit) + " size and " + esc(F.label.split(" /")[0].toLowerCase()) + " energy benchmarks." : "Your bill uses the middle of the range you picked, adjusted for the season.",
-      multiState() ? (nationwide() ? "Average commercial rate across the lower 48 states and DC, each weighted equally." : "Average commercial rate across your " + S.states.length + " states, each weighted equally, not your utilities' exact tariffs.") : esc(S.stateName) + " commercial average rate, not your utility's exact tariff.",
+      multiState() ? (nationwide() ? (isCA() ? "Average commercial rate across nine provinces, each weighted equally." : "Average commercial rate across the lower 48 states and DC, each weighted equally.") : "Average commercial rate across your " + S.states.length + " " + W().sts + ", each weighted equally, not your utilities' exact tariffs.") : esc(S.stateName) + " commercial average rate, not your utility's exact tariff.",
       "Demand charge of about " + Math.round(demandShareFor(S.monthly) * 100) + "% of the bill, from the demand rates of " + placePoss() + " largest utilities.",
       S.age == null ? "Equipment age assumed at 10 years." : S.ageKey === "new" ? "Equipment treated as new, since the building opened in the last year." : "Equipment age as you described it.",
       S.monthsOpen ? "Counted " + S.monthsOpen + " open months a year." : "",
@@ -1323,7 +1375,7 @@
       "Savings use Energy Plus program ranges; your answers set where in the range you land. Typical is the middle of the range, not the top.",
       "This is an estimate. Your building sets your number, verified only by a site pilot."
     ];
-    var n = $('<section class="screen readout">' + (S.viewOnly ? ask(esc(S.name || "A colleague") + "&rsquo;s energy report", "Shared from the Energy Plus diagnostic. Our Chief Materials Engineer, Cliff, checks every number before anything is installed. <a href=\"" + baseUrl() + "\">Run your own building</a>.") : "") + (S.viewOnly ? "" : ask(esc(S.name) + ", " + (WHY_OPEN[S.why] || "here&rsquo;s what I found.").replace(/^./, function (c) { return c.toLowerCase(); }), "Based on your answers. Our Chief Materials Engineer, Cliff, checks every number with you before anything is installed.")) + '<div class="panel"><div class="grat"></div><div class="in"><h2>Here&rsquo;s what your ' + esc(multi ? F.units : F.unit) + ' could save each year</h2><div class="range"><span id="lo">$0</span> to <span id="hi">$0</span></div><div class="per">per year &middot; ' + Math.round(r.perSite[0] / r.annual * 100) + " to " + Math.round(r.perSite[1] / r.annual * 100) + '% of your electric spend &middot; typical <span id="typ">$0</span></div><div class="ticks"><div><b id="ten">$0</b><span>10-year savings, typical</span></div><div><b>' + kmoney(annualAll) + "</b><span>annual electric spend" + (S.estimated ? ", est." : "") + "</span></div><div><b>" + escPct + "%</b><span>yearly rate climb used</span></div></div></div></div>" +
+    var n = $('<section class="screen readout">' + (S.viewOnly ? ask(esc(S.name || "A colleague") + "&rsquo;s energy report", "Shared from the Energy Plus diagnostic. Our Chief Materials Engineer, Cliff, checks every number before anything is installed. <a href=\"" + baseUrl() + "\">Run your own building</a>.") : "") + (S.viewOnly ? "" : ask(esc(S.name) + ", " + (WHY_OPEN[S.why] || "here&rsquo;s what I found.").replace(/^./, function (c) { return c.toLowerCase(); }), "Based on your answers. Our Chief Materials Engineer, Cliff, checks every number with you before anything is installed.")) + '<div class="panel"><div class="grat"></div><div class="in"><h2>Here&rsquo;s what your ' + esc(multi ? F.units : F.unit) + ' could save each year</h2><div class="range"><span id="lo">$0</span> to <span id="hi">$0</span></div><div class="per">per year' + (isCA() ? " (CAD)" : "") + ' &middot; ' + Math.round(r.perSite[0] / r.annual * 100) + " to " + Math.round(r.perSite[1] / r.annual * 100) + '% of your electric spend &middot; typical <span id="typ">$0</span></div><div class="ticks"><div><b id="ten">$0</b><span>10-year savings, typical</span></div><div><b>' + kmoney(annualAll) + "</b><span>annual electric spend" + (S.estimated ? ", est." : "") + "</span></div><div><b>" + escPct + "%</b><span>yearly rate climb used</span></div></div></div></div>" +
       '<p class="master">This is an estimate, not a guarantee. Every building is different: weather, equipment age and condition, occupancy, hours, and utility rates all change the outcome. That&rsquo;s why we prove the savings on your site before you commit. <a href="#details" class="tolink">See the details</a></p>' +
       '<div class="blocks">' + order.map(function (k) { return blocks[k]; }).join("") +
       '<div class="blk nextblk"><h2>What happens next</h2><p class="sub">The fastest way to real numbers for your ' + esc(F.units) + ' is a quick text to Dan. He answers personally.</p><div class="verifier"><div class="vf-pics"><img src="../assets/img/cliff-head.jpg" alt="Cliff Suljak" width="72" height="72"><span id="w-ver" class="vf-watt"></span></div><div class="vf-t"><p class="vf-role">Your verifier</p><p class="vf-name">Cliff Suljak</p><p class="vf-title">Chief Materials Engineer, Energy Plus</p><p class="vf-say">Watt finds it. Cliff checks it. Every number in your report is verified by Cliff before anything is installed.</p></div>' +
@@ -1358,7 +1410,7 @@
     function countAll() { countUp(document.getElementById("lo"), lo, kmoney, 1600); countUp(document.getElementById("hi"), hi, kmoney, 1900); countUp(document.getElementById("typ"), typ, kmoney, 1900); countUp(document.getElementById("ten"), tenTyp, kmoney, 2200); }
     setTimeout(function () { var rg = n.querySelector(".range"); if (rg && window.Watt) Watt.fly(rg, countAll); else countAll(); }, reduce ? 0 : 420);
     if (!reduce) n.querySelectorAll(".finds li").forEach(function (li, i) { setTimeout(function () { li.classList.add("stamped"); }, i * 120 + 900); });
-    if (!S.viewOnly && !(S.resumed && S.leadSent)) sendLead({ kind: S.leadSent ? "diagnostic, updated answers" : "diagnostic", name: S.name, phone: S.phone, role: S.role, owner: S.owner || "", facility: F.label, state: S.stateName, states: (S.states || []).join(" "), locations: S.locLabel,
+    if (!S.viewOnly && !(S.resumed && S.leadSent)) sendLead({ kind: S.leadSent ? "diagnostic, updated answers" : "diagnostic", name: S.name, phone: S.phone, role: S.role, owner: S.owner || "", country: S.country || "US", consent: JSON.stringify(S.consent || {}), facility: F.label, state: S.stateName, states: (S.states || []).join(" "), locations: S.locLabel,
       monthly_bill_each: S.monthly, bill_estimated: !!S.estimated, season: S.season, age: S.ageKey || "", summer: S.summer || "",
       why: S.why || "", status: S.status || "", months_open: S.monthsOpen || "", already_done: Object.keys(S.done || {}).join(", "), answers: JSON.stringify(S.answersLog || {}), savings_low: Math.round(lo), savings_high: Math.round(hi), savings_typical: Math.round(typ), ten_year_typical: Math.round(tenTyp) });
   }
@@ -1385,6 +1437,6 @@
     try { fetch(LEAD_ENDPOINT, { method: "POST", headers: { "Content-Type": "application/json", "Accept": "application/json" }, body: JSON.stringify(p) }).catch(function () {}); } catch (e) {}
   }
 
-  SCREENS = { owner: owner, why: why, facility: facility, locations: locations, stateQ: stateQ, singleState: singleState, pickStates: pickStates, statusQ: statusQ, monthsQ: monthsQ, planning: planning, under: under, bill: bill, dial: dial, sizeQ: sizeQ, season: season, doneQ: doneQ, role: role, capture: capture, reveal: reveal };
+  SCREENS = { country: country, owner: owner, why: why, facility: facility, locations: locations, stateQ: stateQ, singleState: singleState, pickStates: pickStates, statusQ: statusQ, monthsQ: monthsQ, planning: planning, under: under, bill: bill, dial: dial, sizeQ: sizeQ, season: season, doneQ: doneQ, role: role, capture: capture, reveal: reveal };
   intro();
 })();
