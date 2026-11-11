@@ -626,7 +626,9 @@
     var F = fac(), st = EP.states[S.state], size = F.sizes[1];
     var typ = size[2] * engFac().eui_kwh_sqft * st.rate / 100 / 12, yours = annual / 12, diff = Math.round((yours / typ - 1) * 100);
     var where = esc(placeShort()), lbl = "Typical " + size[0].toLowerCase() + " " + esc(F.unit) + " (" + esc(size[1]) + ")";
-    var p = diff > 15 ? "That&rsquo;s about " + diff + "% more than a typical " + size[0].toLowerCase() + " " + esc(F.unit) + " in " + where + ". It could be a bigger " + esc(F.unit) + ", or more waste. A walkthrough tells us which."
+    var times = yours / typ;
+    var more = times >= 2 ? "about " + (times >= 3 ? Math.round(times) : (Math.round(times * 2) / 2)) + " times the bill of" : "about " + diff + "% more than";
+    var p = diff > 15 ? "That&rsquo;s " + more + " a typical " + size[0].toLowerCase() + " " + esc(F.unit) + " in " + where + ". It could be a bigger " + esc(F.unit) + ", or more waste. A walkthrough tells us which."
       : diff < -15 ? "That&rsquo;s below a typical " + size[0].toLowerCase() + " " + esc(F.unit) + " in " + where + ". Either a smaller " + esc(F.unit) + " or one that already runs well. Either way, the waste I&rsquo;ll show you is still there."
       : "That&rsquo;s right in line with a typical " + size[0].toLowerCase() + " " + esc(F.unit) + " in " + where + ". Typical isn&rsquo;t the same as efficient, though. Most of them overspend in the same places.";
     var mx = Math.max(yours, typ);
@@ -1193,23 +1195,26 @@
       power: eq(["harmonization"]),
       supply: [r.buckets.brokering.range[0] * L, r.buckets.brokering.range[1] * L]
     };
-    function keyFor(title) { var t = title.toLowerCase(); return /refrig|dock|walk-in|cooler/.test(t) ? "refrig" : /motor|dirty/.test(t) ? "power" : /peak|afternoon|busiest|startup/.test(t) ? "peak" : /supply/.test(t) ? "supply" : "hvac"; }
-    var cand = Object.keys(S.pf).map(function (k) { return S.pf[k]; });
-    if (S.loadShape === "peaky") cand.push(["One hot afternoon is pricing your whole month", "Everything runs at once on hot afternoons, and that busiest 15 minutes sets your demand charge for the month."]);
-    if (S.cases && S.cases !== "door") cand.push(["Your AC and refrigeration are fighting each other", "Open cases spill cold air into the aisles, and your heating pays to warm it back up."]);
-    if (S.age != null && S.age >= 10) cand.push(["Equipment past 10 years old", "Buildup inside the system has likely cost your units about " + Math.round(ENG.lossByAge(S.age) * 100) + "% of their cooling power, and emergency repairs start stacking up."]);
-    cand.push(["Your AC is working harder than it needs to", "Buildup inside the system, and settings never matched to your building, make the units run longer than they should."]);
-    if (engFac().refrigShare) cand.push(["Your refrigeration runs harder than it needs to", "It runs every hour of the year, so small inefficiencies add up to real money."]);
-    cand.push(["Dirty power on every circuit", "Modern electronics and motors send dirty power back through your wiring. It wastes electricity and wears out equipment early."]);
-    if (anyChoice()) cand.push(["Your supply rate is negotiable", multiState() ? "Some of your states let you choose who sells you power, without changing utilities." : "Your state lets you choose who sells you power, without changing utilities."]);
-    cand.push(["Your busiest 15 minutes sets a charge for the whole month", "Spreading out when your equipment runs lowers that charge on every bill."]);
-    var used = {}, out = [];
-    cand.forEach(function (c) {
-      if (out.length >= 4) return;
-      var k = keyFor(c[0]), m = money[k];
-      if (used[k] || !m || m[1] < 500) return;
-      used[k] = true; out.push([c[0], c[1], m]);
-    });
+    /* the big levers, always in this order, each only where it applies to this building and is worth real money */
+    var ds = r.shares && r.shares.demand ? r.shares.demand : 0.3;
+    var dLo = Math.max(5, Math.floor(ds * 100 * 0.85 / 5) * 5), dHi = Math.max(dLo + 5, Math.ceil(ds * 100 * 1.1 / 5) * 5);
+    var hvacMore = "";
+    if (S.cases && S.cases !== "door") hvacMore = " Open cases also make your AC and refrigeration fight each other.";
+    else if (S.age != null && S.age >= 10) hvacMore = " At " + (S.age >= 15 ? "15+" : "10+") + " years, buildup has likely cost your units about " + Math.round(ENG.lossByAge(S.age) * 100) + "% of their cooling power.";
+    var extra = {};
+    Object.keys(S.pf).forEach(function (k) { var f = S.pf[k], t = f[0].toLowerCase(); var key = /refrig|dock|walk-in|cooler/.test(t) ? "refrig" : /motor|dirty/.test(t) ? "power" : "hvac"; extra[key] = (extra[key] || "") + " " + f[1]; });
+    var cand = [
+      ["peak", "Peak demand is likely " + dLo + "% to " + dHi + "% of your bill", "Your busiest 15 minutes sets a charge for the whole month. Spreading out when equipment starts and runs lowers it on every bill."],
+      ["hvac", "Your HVAC is working harder than it needs to", "Cleaning and tuning the system lowers the bill, cuts maintenance by up to 40%, and can add 5 to 15 years of equipment life." + hvacMore],
+      ["refrig", "Your refrigeration runs harder than it needs to", "It runs every hour of the year, so small inefficiencies add up to real money, and the same fix extends compressor life."],
+      ["power", "Dirty power on every circuit", "Modern electronics and motors send dirty power back through your wiring. It wastes electricity and wears out equipment early."],
+      ["supply", "Your supply rate is negotiable", multiState() ? "Some of your states let you choose who sells you power, without changing utilities." : "Your state lets you choose who sells you power, without changing utilities."]
+    ];
+    /* every lever that applies shows (up to five); never fewer than three, even if one is small */
+    var fits = cand.filter(function (c) { return !(c[0] === "refrig" && !engFac().refrigShare) && !(c[0] === "supply" && !anyChoice()) && money[c[0]]; });
+    var big = fits.filter(function (c) { return money[c[0]][1] >= 500; });
+    var pickL = big.length >= 3 ? big : fits.slice(0, Math.max(3, big.length));
+    var out = pickL.slice(0, 5).map(function (c) { return [c[1], c[2] + (extra[c[0]] || ""), money[c[0]]]; });
     return out;
   }
   function rng(r) { return kmoney(r[0]) + " to " + kmoney(r[1]); }

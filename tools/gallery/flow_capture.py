@@ -137,6 +137,10 @@ async def main():
         for i in range(5):
             s = pick_snap(f"pathStep:{i}", f)
             if s: jobs.append((f"pathStep:{i}", s, f"{f}-p{i}"))
+    import os
+    only = os.environ.get("ONLY")
+    if only:
+        jobs = [j for j in jobs if j[2] in only.split(",")]
     async with async_playwright() as p:
         b = await p.chromium.launch()
         sem = asyncio.Semaphore(6)
@@ -147,6 +151,9 @@ async def main():
         if isinstance(r, Exception): print("FAILED", t, str(r)[:200])
         else:
             r["fac"] = parsed(s).get("fac"); good.append(r)
+    if only:
+        old = [r for r in json.load(open("/home/claude/watt/flow.json")) if r["tag"] not in only.split(",")]
+        good = old + good
     json.dump(good, open("/home/claude/watt/flow.json", "w"), indent=1)
     print("done", len(good))
 

@@ -115,7 +115,7 @@ async def run(b, sc):
         node = pg.locator(".range").first.locator("xpath=ancestor::section[1]")
         res = await shot(node, f"{sid}-results", pg)
         rng = (await pg.inner_text(".range")).strip()
-        finds = [x.split("\n")[0] for x in await pg.locator(".finds li").all_inner_texts()]
+        finds = [x.strip() for x in await pg.locator(".finds li strong").all_inner_texts()]
         res = {"img": res, "range": rng, "finds": finds}
     await pg.close()
     return {"id": sid, "title": sc["title"], "desc": sc.get("desc", ""), "group": sc["group"], "screens": screens, "results": res, "errors": errs}

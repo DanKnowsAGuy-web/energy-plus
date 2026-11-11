@@ -4,17 +4,17 @@ from gallery import main
 FAC = [("grocery","Supermarket / Grocery"),("cold","Cold Storage / Food Distribution"),("hotel","Hotels / Hospitality"),("qsr","Multi-Unit Restaurants"),("cstore","Convenience / Fuel"),("health","Senior Living / Healthcare"),("ind","Manufacturing / Industrial"),("fit","Fitness Centers"),("dc","Data Centers"),("mf","Multifamily"),("office","Office / School / General"),("retail","Retail Centers / Multi-Tenant")]
 def base(**kw):
     p = {"why": ("opt","My bills keep going up"), "facility": ("opt","Supermarket / Grocery"), "locations": ("opt","2 to 5"),
-         "stateQ": ("opt","All in one state"), "statusQ": ("opt","Open year-round"), "bill": ("idx",2),
+         "stateQ": ("opt","All in one state"), "statusQ": ("opt","Open year-round"), "bill": ("idx",1),
          "dial": ("opt","Somewhere in that range"), "season": ("opt","Summer"), "role": ("opt","Owner / Operator")}
     p.update(kw); return p
 S = []
 S.append({"id":"main","group":"Main path","title":"Grocery, 2 to 5 stores in Texas, open year-round",
   "desc":"Every screen in order for one typical visitor, from hello to the report.",
-  "plan": base(bill=("idx",3), dial=("idx",2), doneQ=("multi",["LED lighting"]), role=("opt","CFO / Finance"))})
+  "plan": base(doneQ=("multi",["LED lighting"]), role=("opt","CFO / Finance"))})
 for k, label in FAC:
     S.append({"id":"fac-"+k,"group":"Each building type","title":label,
       "desc":"2 to 5 locations in Texas, open year-round, the third bill range. Only the questions unique to this building type are shown, then the report.",
-      "show":["pathStep","season"], "plan": base(facility=("opt",label))})
+      "show":["pathStep","season"], "plan": base(facility=("opt",label), **({"bill": ("idx",2)} if k=="cstore" else {}))})
 S += [
  {"id":"br-one","group":"Branches","title":"Just one location","desc":"Picking 1 location skips the one-state or several-states question.","show":["locations","stateQ","singleState","statusQ"],"plan":base(locations=("opt","1"))},
  {"id":"br-multi","group":"Branches","title":"Locations in more than one state","desc":"Region picker. Here: Southeast and Midwest.","show":["stateQ","pickStates","statusQ","bill","dial"],"plan":base(stateQ=("opt","In more than one state"), pickStates=("regions",["Southeast","Midwest"]))},

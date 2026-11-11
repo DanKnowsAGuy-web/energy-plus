@@ -29,7 +29,9 @@ async def main():
             async with sem:
                 try: await gallery.run(b, sc)
                 except Exception as e: print(sc["id"], "FAILED", str(e)[:150], flush=True)
-        await asyncio.gather(*[one(sc) for sc in S])
+        import os
+        so = os.environ.get("SCEN_ONLY")
+        await asyncio.gather(*[one(sc) for sc in S if not so or sc["id"] in so.split(",")])
         await b.close()
     json.dump(SNAPS, open("/home/claude/watt/snaps.json", "w"))
     print("snaps", len(SNAPS))
