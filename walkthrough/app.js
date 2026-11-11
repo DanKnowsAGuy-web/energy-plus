@@ -383,10 +383,9 @@
   function countUp(el, to, fmt, dur) { if (reduce) { el.textContent = fmt(to); return; } var t0 = performance.now(); dur = dur || 1100; (function st(t) { var p = Math.min((t - t0) / dur, 1), e = 1 - Math.pow(1 - p, 4); el.textContent = fmt(to * e); if (p < 1) requestAnimationFrame(st); })(t0); }
   function fillBars(root) { requestAnimationFrame(function () { requestAnimationFrame(function () { root.querySelectorAll(".bt i").forEach(function (i) { i.style.width = i.dataset.w + "%"; }); }); }); }
   /* give each turn a gutter for Watt, so he sits beside what he's saying */
+  /* Watt stays put in the header; the conversation scrolls underneath him so every change is visible */
   function seatIn(node) {
-    var a = node.querySelector(".bubble.ask, .bubble.say");
-    if (!a) return;
-    a.parentNode.insertBefore(wl, a);
+    if (wl.parentNode !== topEl && topEl) { var tr = topEl.querySelector(".track"); topEl.insertBefore(wl, tr); wl.classList.add("docked"); }
   }
   /* the conversation builds up: earlier turns stay above, quieter; Back takes the last turn off */
   function show(node, fresh) {
@@ -464,7 +463,7 @@
       if (res.quiet || !b2) { finish(); return; }
       slot.appendChild(typingBubble());
       timers.push(setTimeout(finish, 380 + Math.min(420, (res.p || "").length * 1.5)));
-    }, 480));
+    }, 900));
   }
 
   /* Watt remembers: he ties each new reply back to what they already told him */
