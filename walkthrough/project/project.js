@@ -64,7 +64,7 @@
       '<label class="l" for="util">Who is your electric utility?</label><input class="t" id="util" list="utils" autocomplete="off" placeholder="Start typing your utility"><datalist id="utils"></datalist>' +
       '<div class="row"><button class="btn" id="go" type="button">Connect</button></div><div id="cstate" aria-live="polite"></div></div>' +
       '<p class="or">or upload the file</p>' +
-      '<ol class="how"><li>Log in to your electric utility&rsquo;s website, the one that sends your bill.</li><li>Look for <b>Usage</b>, <b>Energy use</b>, or <b>Green Button: Download My Data</b>.</li><li>Download <b>15-minute</b> (or hourly) data for the <b>last 12 months</b>.</li><li>In Texas, most areas get it from <b>Smart Meter Texas</b> at smartmetertexas.com.</li></ol>' +
+      '<ol class="how"><li>Log in to your electric utility&rsquo;s website, the one that sends your bill.</li><li>Look for <b>Usage</b>, <b>Energy use</b>, or <b>Green Button: Download My Data</b>.</li><li>Download <b>15-minute</b> (or hourly) data for the <b>last 12 months</b>.</li>' + (/Texas/.test(P.state || "") ? '<li>In Texas, most areas get it from <b>Smart Meter Texas</b> at smartmetertexas.com.</li>' : "") + '</ol>' +
       dropzone("interval", "Upload your usage file", "Spreadsheet, CSV, PDF or zip", ".csv,.xlsx,.xls,.xml,.zip,.pdf,.txt,.json") +
       "</section>" +
       '<section class="step" id="s-hvac"><div class="sh"><span class="num">2</span><div><p class="tagline">Required</p><h2>Your HVAC equipment</h2></div></div>' +
