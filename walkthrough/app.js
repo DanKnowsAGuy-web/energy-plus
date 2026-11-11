@@ -323,7 +323,7 @@
   function restore(o, viewOnly) {
     S = o; S.resumed = true; if (viewOnly) S.viewOnly = true;
     S.pf = S.pf || {}; S.ans = S.ans || {}; S.chip = S.chip || {}; S.order = S.order || [];
-    if (S.fac && FAC[S.fac]) { S.path = FAC[S.fac].path(); TOTAL = 9 + S.path.length; }
+    if (S.fac && FAC[S.fac]) { S.path = FAC[S.fac].path(); TOTAL = 10 + S.path.length; }
     renderProfile();
   }
   function resumeTo(o) {
@@ -525,6 +525,7 @@
     hours: "The longer things run, the more every bit of waste costs you.",
     done: "So I don&rsquo;t count savings you already have.",
     role: "So I can put what matters most to them at the top.",
+    owner: "Tax credits, write-offs and financing work differently for businesses, nonprofits and public buildings. This lets me show the ones that fit you.",
     stored: "Frozen and chilled storage use power very differently.",
     docks: "Every open dock door lets in warm, wet air your refrigeration has to pull back out.",
     occ: "Hotel bills swing with occupancy, so I adjust for the month you gave me.",
@@ -708,7 +709,7 @@
       opts: FAC_ORDER.map(function (k) { return [k, FAC[k].label]; }), preselect: S.preFac, chip: function (k) { return FAC[k].label.split(" /")[0]; },
       pick: function (k) {
         if (S.fac && S.fac !== k) { S.path.forEach(function (q) { if (q.id !== "age" && q.id !== "summer") { delete S.ans[q.q]; delete S.ans[pathQ(q)]; } }); S.pf = {}; ["cases", "refrigRange", "occupancy", "engOverride", "hours"].forEach(function (x) { delete S[x]; }); }
-        S.fac = k; S.path = FAC[k].path(); TOTAL = 9 + S.path.length; },
+        S.fac = k; S.path = FAC[k].path(); TOTAL = 10 + S.path.length; },
       insight: function () {
         var f = engFac(), sh = f.hvac.cooling + f.hvac.ventilation + f.hvac.heat;
         var rows = [];
@@ -723,9 +724,23 @@
       }, next: locations });
   }
 
+  /* who owns the building decides which tax, credit and financing paths apply */
+  var OWNERS = [["biz", "A business"], ["np", "A nonprofit or church"], ["gov", "Government or public school"], ["unk", "Not sure"]];
+  var OWNER_SAY = {
+    biz: { tag: "Ownership", h: "Businesses can usually write off most of the equipment cost in the first year.", p: "That shrinks the real cost of the project, on top of the savings. I&rsquo;ll show the write-offs, rebates and financing that fit." },
+    np: { tag: "Ownership", h: "Good news: nonprofits and churches can receive some federal energy credits as a cash payment.", p: "It&rsquo;s called elective pay. You don&rsquo;t need to owe taxes to benefit. Battery storage is one example. I&rsquo;ll show what fits your building." },
+    gov: { tag: "Ownership", h: "Public buildings can pay for upgrades out of the savings, without new capital budget.", p: "Most states allow energy savings performance contracts for exactly this, and some federal credits can be received as a cash payment. I&rsquo;ll show what fits." },
+    unk: { tag: "Ownership", h: "No problem. I&rsquo;ll show the options that work for most owners.", p: "We sort out the details on a quick call." }
+  };
+  function owner() {
+    at("owner");
+    question({ whyKey: "owner", id: "owner", step: 9 + S.path.length, eyebrow: "Ownership", q: "Who owns the building?", sub: "It changes which credits and financing you can use.", opts: OWNERS, chip: function (k, l) { return "Owner: " + l.replace(/^A /, ""); },
+      pick: function (k) { S.owner = k; },
+      insight: function (k) { return OWNER_SAY[k]; }, next: role });
+  }
   function role() {
     at("role");
-    question({ whyKey: "role", step: 9 + S.path.length, eyebrow: "Your report", q: "Last question: who's going to read your report?", sub: "I'll put what matters most to them first.", opts: ROLES, chip: function (k, l) { return "Report for: " + l; },
+    question({ whyKey: "role", step: 10 + S.path.length, eyebrow: "Your report", q: "Last question: who's going to read your report?", sub: "I'll put what matters most to them first.", opts: ROLES, chip: function (k, l) { return "Report for: " + l; },
       pick: function (k) { S.role = k; },
       insight: function (k) { return { quiet: true, h: "Got it. " + ROLE_INSIGHT[k].p }; }, next: capture });
   }
@@ -1088,7 +1103,7 @@
       if (!names.length) res = { quiet: true, h: "Then everything I found is still on the table." };
       else res = { tag: "Already done", h: counted.length ? "Good. I took those out of your number so I'm not counting savings you already have." : "Good to know. Those already show up in the bill you gave me.",
         p: (S.done.solar || S.done.led ? "Solar and LED lower your bill, and the bill you gave already reflects them. " : "") + (counted.length ? "What's left is the work your current upgrades don't cover." : "None of them overlap with the fixes in your number.") };
-      respond(slot, res, function () { go(role); }, quiet, false);
+      respond(slot, res, function () { go(owner); }, quiet, false);
     }
     go_.addEventListener("click", function () { finish(picked(), false); });
     show(node);
@@ -1227,13 +1242,16 @@
   }
   function rng(r) { return kmoney(r[0]) + " to " + kmoney(r[1]); }
   var PAY_MEASURES = /HVAC|Efficiency|Refrigeration|Chillers|Demand|Load management|Battery|Most capital|VFD|Motors|Building automation|Custom/i;
+  var EXEMPT_STORAGE = "May receive the federal battery storage credit as a cash payment through elective pay, up to 30 percent";
   function payPrograms() {
-    var codes = S.states && S.states.length ? S.states : [S.state];
+    var codes = S.states && S.states.length ? S.states : [S.state], exempt = S.owner === "np" || S.owner === "gov";
     return (EP.incentives || []).filter(function (x) {
       if (x.id === "usda-reap" || x.id === "itc48e-solar") return false;
+      if (exempt && x.id === "bonus-depreciation") return false;
       var inState = x.states === "all" || codes.some(function (c) { return x.states.indexOf(c) >= 0; });
       return inState && x.measures.some(function (m) { return PAY_MEASURES.test(m); });
-    }).sort(function (a, b) { var o = { Utility: 1, Financing: 2, State: 3, Federal: 4 }; return (o[a.level] || 9) - (o[b.level] || 9); });
+    }).map(function (x) { return exempt && x.id === "itc48e-storage" ? Object.assign({}, x, { display: EXEMPT_STORAGE, url: "https://www.irs.gov/credits-deductions/elective-pay-and-transferability" }) : x; })
+      .sort(function (a, b) { var o = { Utility: 1, Financing: 2, State: 3, Federal: 4 }; return (o[a.level] || 9) - (o[b.level] || 9); });
   }
   function payBlock() {
     var ps = payPrograms(), when = "";
@@ -1242,6 +1260,9 @@
     var label = { Utility: "Utility rebate", Financing: "Financing", State: "State", Federal: "Tax" };
     return '<div class="blk pay"><h2>Ways to pay for it</h2>' +
       '<div class="payhero"><p class="ph-t">Designed to pay for itself</p><p>We structure projects so your savings run about <b>twice the payment</b>, so you&rsquo;re cash-flow positive in the first year. Financing typically runs up to 10 years, subject to lender approval. Have your own lender? Bring them in.</p>' +
+      (S.owner === "np" ? '<p>Nonprofits and churches: the same pay-from-savings structure works without needing a tax bill to benefit, and some credits come back as cash.</p>'
+        : S.owner === "gov" ? '<p>Public buildings: an energy savings performance contract lets the savings pay for the work, with no new capital budget.</p>'
+        : S.owner === "biz" ? '<p>Businesses: first-year write-offs can lower the real cost further.</p>' : "") +
       '<p class="sub">Want us to carry more of the performance risk? That can be built into the agreement when you sign.</p></div>' +
       (ps.length ? '<h3 class="ph-h">Programs that may help pay for it</h3><ul class="progs">' + ps.map(function (x) {
         return '<li><span class="plvl">' + esc(label[x.level] || x.level) + '</span><span class="ptxt">' + esc(x.display) + (x.url ? ' <a href="' + esc(x.url) + '" target="_blank" rel="noopener">Details</a>' : "") + "</span></li>";
@@ -1337,7 +1358,7 @@
     function countAll() { countUp(document.getElementById("lo"), lo, kmoney, 1600); countUp(document.getElementById("hi"), hi, kmoney, 1900); countUp(document.getElementById("typ"), typ, kmoney, 1900); countUp(document.getElementById("ten"), tenTyp, kmoney, 2200); }
     setTimeout(function () { var rg = n.querySelector(".range"); if (rg && window.Watt) Watt.fly(rg, countAll); else countAll(); }, reduce ? 0 : 420);
     if (!reduce) n.querySelectorAll(".finds li").forEach(function (li, i) { setTimeout(function () { li.classList.add("stamped"); }, i * 120 + 900); });
-    if (!S.viewOnly && !(S.resumed && S.leadSent)) sendLead({ kind: S.leadSent ? "diagnostic, updated answers" : "diagnostic", name: S.name, phone: S.phone, role: S.role, facility: F.label, state: S.stateName, states: (S.states || []).join(" "), locations: S.locLabel,
+    if (!S.viewOnly && !(S.resumed && S.leadSent)) sendLead({ kind: S.leadSent ? "diagnostic, updated answers" : "diagnostic", name: S.name, phone: S.phone, role: S.role, owner: S.owner || "", facility: F.label, state: S.stateName, states: (S.states || []).join(" "), locations: S.locLabel,
       monthly_bill_each: S.monthly, bill_estimated: !!S.estimated, season: S.season, age: S.ageKey || "", summer: S.summer || "",
       why: S.why || "", status: S.status || "", months_open: S.monthsOpen || "", already_done: Object.keys(S.done || {}).join(", "), answers: JSON.stringify(S.answersLog || {}), savings_low: Math.round(lo), savings_high: Math.round(hi), savings_typical: Math.round(typ), ten_year_typical: Math.round(tenTyp) });
   }
@@ -1364,6 +1385,6 @@
     try { fetch(LEAD_ENDPOINT, { method: "POST", headers: { "Content-Type": "application/json", "Accept": "application/json" }, body: JSON.stringify(p) }).catch(function () {}); } catch (e) {}
   }
 
-  SCREENS = { why: why, facility: facility, locations: locations, stateQ: stateQ, singleState: singleState, pickStates: pickStates, statusQ: statusQ, monthsQ: monthsQ, planning: planning, under: under, bill: bill, dial: dial, sizeQ: sizeQ, season: season, doneQ: doneQ, role: role, capture: capture, reveal: reveal };
+  SCREENS = { owner: owner, why: why, facility: facility, locations: locations, stateQ: stateQ, singleState: singleState, pickStates: pickStates, statusQ: statusQ, monthsQ: monthsQ, planning: planning, under: under, bill: bill, dial: dial, sizeQ: sizeQ, season: season, doneQ: doneQ, role: role, capture: capture, reveal: reveal };
   intro();
 })();
