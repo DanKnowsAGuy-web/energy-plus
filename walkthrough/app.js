@@ -372,8 +372,8 @@
   function resumeTo(o) {
     restore(o, false);
     var a = S.at || ["why"], fn = SCREENS[a[0]];
+    if (a[0] === "pathStep" && S.path) return go(function () { pathStep(a[1] || 0); });
     if (!fn) return go(why);
-    if (a[0] === "pathStep") return go(function () { pathStep(a[1] || 0); });
     go(fn);
   }
   function welcomeBack(saved) {
@@ -677,7 +677,7 @@
     stage("hello");
     var what = S.preFac ? "your " + FAC[S.preFac].units : "your building";
     var n = $('<section class="screen turn">' + ask("Hi, I&rsquo;m Watt, your Energy+ AI.",
-      "I&rsquo;ll ask you about ten quick questions, the same ones a senior energy strategist asks on a first call. Every answer, I&rsquo;ll show you something about " + esc(what) + ". About two minutes, and I save as we go, so you can stop and come back anytime.") + "</section>");
+      "I&rsquo;ll ask you about a dozen quick questions, the same ones a senior energy strategist asks on a first call. Every answer, I&rsquo;ll show you something about " + esc(what) + ". About two minutes, and I save as we go, so you can stop and come back anytime.") + "</section>");
     show(n, true);
     setAction("Let&rsquo;s start", function () { go(why); });
   }
@@ -705,14 +705,15 @@
     question({ whyKey: "facility", step: 2, eyebrow: "Facility", q: "What kind of facility are we looking at?", grid: true,
       opts: FAC_ORDER.map(function (k) { return [k, FAC[k].label]; }), preselect: S.preFac, chip: function (k) { return FAC[k].label.split(" /")[0]; },
       pick: function (k) {
-        if (S.fac && S.fac !== k) { S.path.forEach(function (q) { if (q.id !== "age" && q.id !== "summer") delete S.ans[q.q]; }); S.pf = {}; ["cases", "refrigRange", "occupancy", "engOverride", "hours"].forEach(function (x) { delete S[x]; }); }
+        if (S.fac && S.fac !== k) { S.path.forEach(function (q) { if (q.id !== "age" && q.id !== "summer") { delete S.ans[q.q]; delete S.ans[pathQ(q)]; } }); S.pf = {}; ["cases", "refrigRange", "occupancy", "engOverride", "hours"].forEach(function (x) { delete S[x]; }); }
         S.fac = k; S.path = FAC[k].path(); TOTAL = 9 + S.path.length; },
       insight: function () {
         var f = engFac(), sh = f.hvac.cooling + f.hvac.ventilation + f.hvac.heat;
         var rows = [];
         if (f.refrigShare) rows.push(["Refrigeration", Math.round(f.refrigShare * 100)]);
         rows.push(["Heating & cooling", Math.round(sh * 100)]);
-        if (f.motorShare >= 0.3) rows.push(["Motors & process", Math.round(f.motorShare * 100)]);
+        /* refrigeration compressors are motors too, so only show a separate motors bar when it doesn't double count */
+        if (f.motorShare >= 0.3 && f.refrigShare + f.motorShare + sh + f.lightingShare <= 1) rows.push(["Motors & process", Math.round(f.motorShare * 100)]);
         rows.push(["Lighting", Math.round(f.lightingShare * 100)]);
         rows.sort(function (a, b) { return b[1] - a[1]; });
         var other = 100 - rows.reduce(function (s, r) { return s + r[1]; }, 0); if (other > 0) rows.push(["Everything else", other]);
@@ -1111,12 +1112,18 @@
     show(n); dockProxy(n, "#p-go", "Talk to an engineer");
   }
 
+  /* one location: "How many hours a day are your stores open?" becomes "is your store open?" */
+  function pathQ(q) {
+    if (S.locs !== 1) return q.q;
+    var F = fac();
+    return q.q.replace(" are your " + F.units + " ", " is your " + F.unit + " ").replace("your " + F.units, "your " + F.unit);
+  }
   function pathStep(i) {
     at("pathStep", i);
     if (i >= S.path.length) return doneQ();
     var q = S.path[i];
     if (q.id === "age" && S.status === "new") return pathStep(i + 1);
-    question({ step: 8 + i, id: q.id, eyebrow: q.eyebrow, q: q.q, sub: q.sub, opts: q.opts, pick: q.pick, insight: q.insight, next: function () { pathStep(i + 1); } });
+    question({ step: 8 + i, id: q.id, eyebrow: q.eyebrow, q: pathQ(q), sub: q.sub, opts: q.opts, pick: q.pick, insight: q.insight, next: function () { pathStep(i + 1); } });
   }
 
   function under() {
