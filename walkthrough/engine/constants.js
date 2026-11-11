@@ -429,6 +429,10 @@
 
     rcx: { range: [0.05, 0.15], src: null, grade: "B" },
 
+    // Energy Plus field ranges, set by Dan 2026-11-11: whole HVAC system 15% to 50%, refrigeration 10% to 35%
+    hvacSystem: { range: [0.15, 0.50], ageLoCap: 0.30, controlsFactor: 0.7, src: "energyplus", grade: "C" },
+    refrigSystem: { range: [0.10, 0.35], src: "energyplus", grade: "C" },
+
     compressorCeiling: 0.55, // 55% of compressor cooling
     compressorCeilingSrc: "ashrae901", compressorCeilingGrade: "B",
 

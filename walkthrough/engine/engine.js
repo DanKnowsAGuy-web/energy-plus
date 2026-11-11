@@ -146,11 +146,14 @@
 
     /* ---------- Equipment not tuned ---------- */
     const loss = lossByAge(age);
-    const antifouling = [cooling$ * loss, cooling$ * loss];
-    const remainder = cooling$ * (1 - loss);
-    const optimizer = R.mul(S.optimizer.standalone, remainder * S.optimizer.stackedFactor * (done.controls ? 0.5 : 1));
-    let compressor = R.sum([antifouling, optimizer]);
-    compressor = R.cap(compressor, cooling$ * S.compressorCeiling);
+    // whole HVAC system (cooling, heat, fans): Energy Plus range 15% to 50%, set 2026-11-11.
+    // Older, dirtier equipment starts higher in the range; existing smart controls leave less on the table.
+    const hv = S.hvacSystem;
+    const hvLo = Math.min(hv.ageLoCap, Math.max(hv.range[0], loss));
+    const hvRange = done.controls ? [hvLo * hv.controlsFactor, hv.range[1] * hv.controlsFactor] : [hvLo, hv.range[1]];
+    const antifouling = R.mul(hvRange, hvacAll$);
+    const optimizer = [0, 0];
+    const compressor = antifouling;
 
     const motorsRange = S.motorsBlended.range || S.motorsBlended;
     const ventilationAll = R.mul(motorsRange, vent$);
@@ -169,7 +172,7 @@
     const lighting = L.lighting ? lightingAll : [0, 0];
     const harmonAll = R.mul(S.harmonization.kwh, annual);
     const harmon = L.harmonization ? harmonAll : [0, 0];
-    const refrigAll = R.mul(input.refrigRange || [0.05, 0.12], refrig$ * (done.refrig ? 0.5 : 1)); // walkthrough: case setup positions this inside 5 to 12% // refrigeration tuning, conservative, grade C
+    const refrigAll = R.mul(input.refrigRange || S.refrigSystem.range, refrig$ * (done.refrig ? 0.5 : 1)); // walkthrough: case setup positions this inside 5 to 12% // refrigeration tuning, conservative, grade C
     const refrigTune = (L.refrigeration && refrig$ > 0) ? refrigAll : [0, 0];
 
     let equipment = R.sum([compressor, ventilation, motors, heating, lighting, refrigTune, harmon]);
