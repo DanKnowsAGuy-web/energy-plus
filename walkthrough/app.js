@@ -1218,6 +1218,13 @@
     return out;
   }
   function rng(r) { return kmoney(r[0]) + " to " + kmoney(r[1]); }
+  /* each lever as a share of the whole bill: "lowers your bill 4% to 7%" */
+  function billPct(m, annual) {
+    if (!annual) return "";
+    var lo = Math.round(m[0] / annual * 100), hi = Math.round(m[1] / annual * 100);
+    if (hi < 1) return "";
+    return '<span class="fpct">' + (lo < 1 ? "up to " + hi + "% off your bill" : lo === hi ? "about " + hi + "% off your bill" : lo + "% to " + hi + "% off your bill") + "</span>";
+  }
 
   /* a short working beat: Watt reads the answers before the readout */
   function working(done) {
@@ -1238,7 +1245,7 @@
     var buckets = '<div class="kv"><div><span>Fixing equipment that&rsquo;s wasting power</span><b>' + rng(eq) + '</b></div><div><span>Lowering your busiest-15-minutes charge</span><b>' + rng(pk) + "</b></div>" + (sp[1] > 0 ? '<div><span>Buying your power for less</span><b>' + rng(sp) + "</b></div>" : "") + "</div>";
     var blocks = {
       where: '<div class="blk"><h2>Where the savings come from</h2>' + buckets + "</div>",
-      findings: '<div class="blk"><h2>Top findings for your ' + esc(F.units) + '</h2><ol class="finds">' + fs.map(function (x, i) { return '<li style="animation-delay:' + (i * 120 + 300) + 'ms"><span class="n">' + String(i + 1).padStart(2, "0") + "</span><span><strong>" + esc(x[0]) + '</strong><span class="fval">' + (kmoney(x[2][0]) === kmoney(x[2][1]) ? "about " + kmoney(x[2][1]) : rng(x[2])) + " a year</span>" + esc(x[1]) + (x[0] === "Dirty power on every circuit" ? dirtyViz() : "") + "</span></li>"; }).join("") + "</ol></div>",
+      findings: '<div class="blk"><h2>Top findings for your ' + esc(F.units) + '</h2><ol class="finds">' + fs.map(function (x, i) { return '<li style="animation-delay:' + (i * 120 + 300) + 'ms"><span class="n">' + String(i + 1).padStart(2, "0") + "</span><span><strong>" + esc(x[0]) + '</strong><span class="fval">' + (kmoney(x[2][0]) === kmoney(x[2][1]) ? "about " + kmoney(x[2][1]) : rng(x[2])) + " a year" + billPct(x[2], annualAll) + "</span>" + esc(x[1]) + (x[0] === "Dirty power on every circuit" ? dirtyViz() : "") + "</span></li>"; }).join("") + "</ol></div>",
       nothing: '<div class="blk"><h2>The cost of waiting</h2><div class="kv"><div><span>Electricity spend, next 10 years</span><b>' + kmoney(annualAll * ENG.escalationFactor(r.escRate, 10)) + "</b></div><div><span>Rate increase we used</span><b>" + escPct + "% / yr</b></div><div><span>Savings left on the table</span><b>" + kmoney(r.typical * ENG.escalationFactor(r.escRate, 10)) + '</b></div></div><p class="sub" style="margin-top:12px">We used a conservative ' + escPct + "% a year for " + esc(placeName()) + ". " + (riseFor(S.state).local && !multiState() ? "Rates here actually rose " + riseFor(S.state).pct.toFixed(1) + "% in the last 12 months." : "Commercial rates actually rose " + EP.national.augYoY + "% nationally in the last year.") + "</p></div>",
       beyond: '<div class="blk"><h2>Beyond the bill</h2><div class="kv"><div><span>Maintenance cost</span><b>up to 40% lower</b></div><div><span>Added equipment life</span><b>5 to 15 years</b></div>' + (multi ? "<div><span>Per " + esc(F.unit) + ", typical</span><b>" + kmoney(typ / L) + "/yr</b></div>" : "") + '</div><p class="sub" style="margin-top:14px">And it&rsquo;s paid from the savings: projects are structured to be cash flow positive from day one where the numbers support it. We walk through the structure on the call.</p></div>',
     };
