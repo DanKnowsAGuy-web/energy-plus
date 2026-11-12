@@ -54,8 +54,10 @@
   /* input: { state, utility|null, facility, billMonthly, season, heat, hoursWeek, occupancy, locations, nudges } */
   // Share of the bill set by the demand charge, from the state's utility $/kW and the facility's load factor.
   // $/kW / (load factor x 730 hours) = demand cost per kWh; divided by the all-in rate gives the share.
-  function stateDemandShare(stateKey, facKey, rateCents) {
-    const C = EP(), sd = C.stateDemand && C.stateDemand[stateKey], fac = C.facilities[facKey], st = C.states[stateKey];
+  function stateDemandShare(stateKey, facKey, rateCents, dkw) {
+    const C = EP(), fac = C.facilities[facKey], st = C.states[stateKey];
+    let sd = C.stateDemand && C.stateDemand[stateKey];
+    if (dkw) sd = { d: dkw, lo: dkw, hi: dkw, del: sd ? sd.del : 0, hu: sd ? sd.hu : 0 }; // a utility's own demand rate overrides the state average
     if (!sd || !fac || !st) return null;
     const lf = fac.loadFactor ? (fac.loadFactor.lo + fac.loadFactor.hi) / 2 : 0.5;
     const r = (rateCents || st.rate) / 100;
@@ -98,7 +100,7 @@
 
     // three products on one bill (display)
     // demand share of the bill: small accounts often have no demand meter at all, so tier by bill size (grade C rule)
-    const sd = stateDemandShare(input.state, input.facility, rate);
+    const sd = stateDemandShare(input.state, input.facility, rate, util && util.dkw);
     const baseDemand = (util && util.demandShare) || (sd && sd.share) || st.demandShare || S.demand.shareDefault;
     const sizeTier = input.billMonthly < 3000 ? 0.15 : (input.billMonthly < 10000 ? 0.28 : baseDemand);
     const demandShare = Math.min(baseDemand, sizeTier);

@@ -918,7 +918,7 @@
   }
   function utilityObj() {
     var u = S.utility; if (!u || !u.id || multiState()) return null;
-    if (isCA()) { var c = (EP.utilitiesCA[S.state] || []).filter(function (x) { return x.id === u.id; })[0]; return c && c.commRate ? { commRate: c.commRate } : null; }
+    if (isCA()) { var c = (EP.utilitiesCA[S.state] || []).filter(function (x) { return x.id === u.id; })[0]; return c && (c.commRate || c.dkw) ? { commRate: c.commRate || null, dkw: c.dkw || null, pfClause: c.pfClause || null } : null; }
     return (EP.utilities || []).filter(function (x) { return x.id === u.id; })[0] || null;
   }
   function utilityQ() {
@@ -944,7 +944,8 @@
       sel.disabled = true; nm.disabled = true;
       var c = isCA() && u ? (EP.utilitiesCA[S.state] || []).filter(function (x) { return x.id === u.id; })[0] : null;
       var res = !S.utility ? { quiet: true, h: "No problem. I&rsquo;ll use " + esc(placeName()) + " averages." }
-        : c && c.commRate ? { tag: "Your utility", h: "Got it. Business power from " + esc(c.name) + " runs about " + c.commRate.toFixed(1) + "&cent; per kWh.", p: "I&rsquo;ll use that instead of the " + W().st + " average." + (c.pfNote ? " " + c.pfNote : ""), src: rateSrc() }
+        : c && c.commRate ? { tag: "Your utility", h: "Got it. Business power from " + esc(c.name) + " runs about " + c.commRate.toFixed(1) + "&cent; per kWh.", p: "I&rsquo;ll use that instead of the " + W().st + " average." + (c.dkw ? " Demand runs about $" + Math.round(c.dkw) + " per kW each month." : "") + (c.pfNote ? " " + c.pfNote : ""), src: rateSrc() + (c.dkw ? "; demand from the 2026 approved tariff" : "") }
+        : c && c.dkw ? { tag: "Your utility", h: "Got it. I&rsquo;ll use " + esc(c.name) + "&rsquo;s 2026 demand rates.", p: "Demand costs about $" + Math.round(c.dkw) + " per kW each month there." + (c.pfNote ? " " + c.pfNote : ""), src: "2026 approved tariff, distribution and transmission demand charges, CAD" }
         : { quiet: true, h: "Got it. I&rsquo;ll use " + esc(S.utility.name) + "&rsquo;s rules where I have them." };
       respond(slot, res, function () { go(statusQ); }, quiet, false);
     }
@@ -973,7 +974,7 @@
     return (loc != null && loc > nat) ? { pct: loc, local: true } : { pct: nat, local: false };
   }
   function demandInfo(m) {
-    var sd = ENG.demandShare(S.state, engKey()), base = sd ? sd.share : EP.streams.demand.shareDefault;
+    var u = utilityObj(), sd = ENG.demandShare(S.state, engKey(), u && u.commRate, u && u.dkw), base = sd ? sd.share : EP.streams.demand.shareDefault;
     var tier = m < 3000 ? 0.15 : m < 10000 ? 0.28 : 1;
     return { d: Math.min(base, tier), capped: tier < base, sd: sd };
   }

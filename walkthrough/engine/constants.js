@@ -685,6 +685,9 @@
   // ---------------------------------------------------------------------
 
   EP.sources = {
+    oebTariffs2026: { label: "Ontario Energy Board, Tariff of Rates and Charges effective January 1, 2026 (Toronto Hydro EB-2025-0006; Hydro One)", url: "https://www.hydroone.com/rates-and-billing/2026-delivery-rates" },
+    hydroOttawa2026: { label: "Hydro Ottawa, business rates explained, 2026 delivery charges", url: "https://hydroottawa.com/accounts-services/accounts/rates-conditions/business-rates" },
+    aucTariffs2026: { label: "Alberta Utilities Commission, 2026 interim distribution rate schedules (ENMAX D300/D310, EPCOR DAS/SAS, FortisAlberta Rate 61, ATCO D21/D31), effective January 1, 2026", url: "https://media.auc.ab.ca/prd-wp-uploads/Shared%20Documents/Rates/ENMAXPower-RateSchedule.pdf" },
     hqCompare2025: { label: "Hydro-Québec, Comparison of Electricity Prices in Major North American Cities, rates in effect April 1, 2025", url: "https://pannes.hydroquebec.com/data/documents-donnees/pdf/comparaison-prix-2025-en.pdf" },
     eia561: { label: "EIA Electric Power Monthly, Table 5.6.A, commercial sector", url: "https://www.eia.gov/electricity/monthly/epm_table_grapher.php?t=epmt_5_6_a" },
     cbecs2018: { label: "EIA CBECS 2018", url: "https://www.eia.gov/consumption/commercial/data/2018/" },
@@ -708,13 +711,13 @@
 
   /* ---------- Canada (provinces). Rates: Hydro-Québec, Comparison of Electricity Prices in Major North American Cities,
      rates in effect April 1 2025, medium-power profile (500 kW, 100,000 kWh a month), CAD excluding taxes; provinces with
-     two cities averaged (ON: Toronto, Ottawa; AB: Calgary, Edmonton). Demand shares, cooling shares and seasonal patterns
-     are Energy Plus estimates (grade C) pending tariff verification. Quebec is not offered until a French version exists. */
+     two cities averaged (ON: Toronto, Ottawa; AB: Calgary, Edmonton). Ontario and Alberta demand costs come from 2026 tariffs (see EP.stateDemand.ON/AB); other provinces' demand shares,
+     cooling shares and seasonal patterns are Energy Plus estimates (grade C) pending tariff verification. Quebec is not offered until a French version exists. */
   (function () {
     var winterPeak = { summer: 0.92, winter: 1.12, mild: 0.96 }, mixed = { summer: 1.02, winter: 1.03, mild: 0.96 };
     var P = {
-      ON: ["Ontario", 20.69, 0.40, mixed, false, 0.30, "Hydro One bills on 90% of your peak kVA instead of kW when your power factor drops below 90%.", "In Ontario, the Global Adjustment is a large part of the bill. Larger (Class A) customers pay it based on their share of the province's five highest peak hours a year, so avoiding those hours can cut it sharply."],
-      AB: ["Alberta", 17.07, 0.25, mixed, true, 0.40, "Many Alberta distribution rates bill on the highest of metered demand or a contracted minimum, and some use a ratchet that holds a high peak for up to 11 months.", "Some Alberta rates use a ratchet: one high peak can set your demand charge for the next 11 months."],
+      ON: ["Ontario", 20.69, 0.40, mixed, false, 0.33, "Ontario's large utilities bill demand on kVA or on 90% of kVA, so low power factor raises the demand charge directly.", "In Ontario, the Global Adjustment is a large part of the bill. Larger (Class A) customers pay it based on their share of the province's five highest peak hours a year, so avoiding those hours can cut it sharply."],
+      AB: ["Alberta", 17.07, 0.25, mixed, true, 0.38, "Calgary (ENMAX) and smaller Edmonton (EPCOR) accounts are billed demand on kVA, and FortisAlberta bills on kVA when it is higher than kW, so low power factor raises the demand charge directly.", "Alberta demand rates use a ratchet: your billed demand can't fall below 85% to 90% of your highest peak in the past 12 months, so one bad peak keeps costing you for a year, and savings show up fully once it rolls off."],
       BC: ["British Columbia", 13.02, 0.25, winterPeak, false, 0.25, "BC Hydro adds a surcharge to your whole bill when your power factor drops below 90%, starting at 2% and rising as it falls.", ""],
       MB: ["Manitoba", 11.43, 0.25, winterPeak, false, 0.25, "", ""],
       SK: ["Saskatchewan", 18.55, 0.25, winterPeak, false, 0.30, "", ""],
@@ -728,15 +731,36 @@
       o.country = "CA"; o.demandShare = r[5]; o.src = "hqCompare2025"; o.grade = "B"; o.pfNote = r[6]; o.peakNote = r[7];
       EP.states[k] = o;
     });
+    /* Demand cost per kW-month (CAD, distribution + transmission, kVA rates converted at 0.90 power factor), 2026 tariffs.
+       Used the same way as the US stateDemand rows: share = $/kW-month / (load factor x 730 h) / all-in rate. See EP.utilitiesCA for each utility. */
+    EP.stateDemand.ON = { d: 19.30, lo: 14.82, hi: 25.60, n: 4, del: 1, src: "oebTariffs2026" };
+    EP.stateDemand.AB = { d: 18.60, lo: 13.51, hi: 22.32, n: 4, del: 1, src: "aucTariffs2026" };
     Object.keys(EP.states).forEach(function (k) { if (!EP.states[k].country) EP.states[k].country = "US"; });
   })();
   /* Canadian utilities by province. commRate where the Hydro-Québec 2025 comparison prices that utility's city (CAD ¢/kWh, medium-power profile). */
   EP.utilitiesCA = {
-    ON: [{ id: "torontohydro", name: "Toronto Hydro", commRate: 22.01, pfNote: "Toronto Hydro bills its distribution demand charge per kVA for 50 to 999 kW accounts, so low power factor directly raises that charge." }, { id: "hydroottawa", name: "Hydro Ottawa", commRate: 19.37 },
-         { id: "hydroone", name: "Hydro One", pfNote: "Hydro One bills on 90% of your peak kVA instead of kW when your power factor drops below 90%." },
+    /* dkw: demand cost per kW-month, CAD, 2026 tariffs (OEB tariff of rates and charges, AUC-approved rate schedules), distribution + transmission
+       + demand riders; kVA rates converted at 0.90 power factor. Medium general service class (roughly 50 to 1,000 kW). Verified 2026-11-12. */
+    ON: [{ id: "torontohydro", name: "Toronto Hydro", commRate: 22.01, dkw: 19.08, pfClause: "kVA", src: "oebTariffs2026",
+           tariff: "GS 50 to 999 kW: distribution $10.58 per kVA, transmission $7.32 per kW (per 30 days)",
+           pfNote: "Toronto Hydro bills its distribution demand charge per kVA for 50 to 999 kW accounts, so low power factor directly raises that charge." },
+         { id: "hydroottawa", name: "Hydro Ottawa", commRate: 19.37, dkw: 14.82, src: "hydroOttawa2026", tariff: "GS 50 to 1,499 kW: distribution $7.65 per kW, transmission $7.17 per kW" },
+         { id: "hydroone", name: "Hydro One", dkw: 25.60, pfClause: "90% kVA", src: "oebTariffs2026",
+           tariff: "GSd (outside urban zones): distribution $20.02 per kW after riders, transmission $5.57 per kW; UGd (urban zones): $10.54 and $7.15",
+           pfNote: "Hydro One bills distribution demand on the greater of your peak kW or 90% of your peak kVA, so power factor below 90% raises that charge." },
          { id: "alectra", name: "Alectra Utilities" }, { id: "elexicon", name: "Elexicon Energy" }, { id: "londonhydro", name: "London Hydro" }, { id: "enova", name: "Enova Power" }],
-    AB: [{ id: "enmax", name: "ENMAX (Calgary)", commRate: 16.26 }, { id: "epcor", name: "EPCOR (Edmonton)", commRate: 17.87 },
-         { id: "fortisab", name: "FortisAlberta" }, { id: "atco", name: "ATCO Electric" }],
+    AB: [{ id: "enmax", name: "ENMAX (Calgary)", commRate: 16.26, dkw: 18.73, pfClause: "kVA", ratchetPct: 0.90, src: "aucTariffs2026",
+           tariff: "D310 (over 150 kVA): $0.554 per kVA per day distribution + transmission; billing demand is the greater of metered, 90% of the 365-day peak, or contract",
+           pfNote: "ENMAX bills demand on kVA, so low power factor directly raises the demand charge." },
+         { id: "epcor", name: "EPCOR (Edmonton)", commRate: 17.87, dkw: 18.25, pfClause: "kVA under 150 kVA", ratchetPct: 0.85, src: "aucTariffs2026",
+           tariff: "DAS-TOU + SAS-TOU (150 to 5,000 kVA): $0.600 per kW per day; billing demand is the greater of metered, 85% of the 12-month peak, contract or 50 kW",
+           pfNote: "EPCOR bills accounts under 150 kVA on kVA, and can require correction equipment below 90% power factor." },
+         { id: "fortisab", name: "FortisAlberta", dkw: 18.50, pfClause: "greater of kW or kVA", ratchetPct: 0.85, src: "aucTariffs2026",
+           tariff: "Rate 61 (up to 2 MW): $0.608 per kW per day distribution + transmission; capacity charges use the greater of metered or 85% of the 12-month peak",
+           pfNote: "FortisAlberta bills on kVA whenever it is higher than kW, so low power factor raises the demand charge." },
+         { id: "atco", name: "ATCO Electric", dkw: 18.92, pfClause: "penalty over 500 kW", ratchetPct: 0.85, src: "aucTariffs2026",
+           tariff: "D21 (up to 500 kW): 62.2 cents per kW per day; D31 (over 500 kW): 73.4 cents; 85% 12-month ratchet",
+           pfNote: "ATCO adds a power factor charge on accounts over 500 kW when power factor drops below 90%." }],
     BC: [{ id: "bchydro", name: "BC Hydro", commRate: 13.02 }, { id: "fortisbc", name: "FortisBC", pfNote: "" }],
     MB: [{ id: "mbhydro", name: "Manitoba Hydro", commRate: 11.43 }],
     SK: [{ id: "saskpower", name: "SaskPower", commRate: 18.55 }, { id: "saskatoonlp", name: "Saskatoon Light & Power" }, { id: "swiftcurrent", name: "Swift Current Light & Power" }],
