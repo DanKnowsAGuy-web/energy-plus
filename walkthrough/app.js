@@ -1414,7 +1414,10 @@
     S.estText = kmoney(lo) + " to " + kmoney(hi) + "/yr";
     var shareTitle = "Energy Plus report: " + F.label.split(" /")[0];
     var shareText = "Here's the Energy Plus report for our " + (multi ? F.units : F.unit) + ": about " + kmoney(lo) + " to " + kmoney(hi) + " a year in possible savings.";
-    var smsBody = S.viewOnly ? "Hi Dan, I'm looking at an Energy Plus report someone shared with me (" + F.label + ", " + kmoney(lo) + " to " + kmoney(hi) + "/yr). Let's talk." : "Hi Dan, " + S.name + " here. I just ran the Energy Plus diagnostic: " + F.label + ", " + S.locLabel + " " + (L === 1 ? F.unit : F.units) + " in " + S.stateName + ", about " + kmoney(S.monthly) + "/mo each. It estimated " + kmoney(lo) + " to " + kmoney(hi) + "/yr in savings. Let's talk.";
+    /* the text Dan gets: who, what Watt found, and one question that asks for the next step */
+    var cad = isCA() ? " CAD" : "";
+    var smsBody = S.viewOnly ? "Hi Dan, I'm looking at an Energy Plus report a colleague shared: " + kmoney(lo) + " to " + kmoney(hi) + cad + " a year in savings for a " + F.label.split(" /")[0].toLowerCase() + ". What would it take to prove that number on our building?"
+      : "Hi Dan, it's " + S.name + ". Watt estimated " + kmoney(lo) + " to " + kmoney(hi) + cad + " a year in savings for our " + (L === 1 ? F.unit : S.locLabel + " " + F.units) + " in " + S.stateName + ". What would it take to prove that number on one of our buildings?";
     var assumptions = [
       S.monthsOpen && !S.estimated ? "Your bill is a typical month when you're open, counted across your open months." : S.estimated ? "Your bill was estimated from a typical " + esc(F.unit) + " size and " + esc(F.label.split(" /")[0].toLowerCase()) + " energy benchmarks." : "Your bill uses the middle of the range you picked, adjusted for the season.",
       multiState() ? (nationwide() ? (isCA() ? "Average commercial rate across nine provinces, each weighted equally." : "Average commercial rate across the lower 48 states and DC, each weighted equally.") : "Average commercial rate across your " + S.states.length + " " + W().sts + ", each weighted equally, not your utilities' exact tariffs.") : esc(S.stateName) + " commercial average rate, not your utility's exact tariff.",
