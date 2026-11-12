@@ -732,7 +732,7 @@
   })();
   /* Canadian utilities by province. commRate where the Hydro-Québec 2025 comparison prices that utility's city (CAD ¢/kWh, medium-power profile). */
   EP.utilitiesCA = {
-    ON: [{ id: "torontohydro", name: "Toronto Hydro", commRate: 22.01 }, { id: "hydroottawa", name: "Hydro Ottawa", commRate: 19.37 },
+    ON: [{ id: "torontohydro", name: "Toronto Hydro", commRate: 22.01, pfNote: "Toronto Hydro bills its distribution demand charge per kVA for 50 to 999 kW accounts, so low power factor directly raises that charge." }, { id: "hydroottawa", name: "Hydro Ottawa", commRate: 19.37 },
          { id: "hydroone", name: "Hydro One", pfNote: "Hydro One bills on 90% of your peak kVA instead of kW when your power factor drops below 90%." },
          { id: "alectra", name: "Alectra Utilities" }, { id: "elexicon", name: "Elexicon Energy" }, { id: "londonhydro", name: "London Hydro" }, { id: "enova", name: "Enova Power" }],
     AB: [{ id: "enmax", name: "ENMAX (Calgary)", commRate: 16.26 }, { id: "epcor", name: "EPCOR (Edmonton)", commRate: 17.87 },
