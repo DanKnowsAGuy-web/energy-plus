@@ -451,7 +451,7 @@
       var nums = b.querySelectorAll("[data-count]"), bar = b.querySelector(".bars, .cmp, .shown svg, .shown canvas");
       function go() {
         fillBars(b);
-        nums.forEach(function (el) { var v = parseFloat(el.dataset.count), f = el.dataset.fmt; countUp(el, v, f === "cents" ? function (x) { return x.toFixed(2) + "¢"; } : f === "pct" ? function (x) { return (x >= 0 ? "+" : "") + x.toFixed(1) + "%"; } : kmoney); });
+        nums.forEach(function (el) { var v = parseFloat(el.dataset.count), f = el.dataset.fmt; if (f === "cents") { el.textContent = v.toFixed(2) + "\u00a2"; return; } countUp(el, v, f === "cents" ? function (x) { return x.toFixed(2) + "¢"; } : f === "pct" ? function (x) { return (x >= 0 ? "+" : "") + x.toFixed(1) + "%"; } : kmoney); });
       }
       var target = nums[0] || bar;
       if (target && window.Watt) Watt.fly(target, go); else go();
@@ -564,7 +564,7 @@
   var ASKS = [
     ["What&rsquo;s a demand charge?", "It&rsquo;s a charge for your busiest 15 minutes of the month.", "Your utility bills you once for the power you use, and again for the single busiest 15 minutes of the month. It&rsquo;s like a speeding ticket priced on your top speed, not your average. It&rsquo;s one of the easiest parts of a bill to bring down."],
     ["Who are you, Watt?", "I&rsquo;m the Energy+ AI.", "I find where your building is overspending on power. A real engineer, Cliff Suljak, checks every number before anything is installed."],
-    ["Is this a sales pitch?", "It&rsquo;s a free estimate first.", "You&rsquo;ll see your numbers before anyone asks you for anything. If you want to go further, Dan sets up a short call, and nothing is installed until Cliff verifies it on your building."],
+    ["Is this a sales pitch?", "It&rsquo;s a free estimate first.", "You&rsquo;ll see what I found before I ask for anything, and all I ask is a first name and mobile so Dan can text you a copy of the report. If you want to go further, Dan sets up a short call, and nothing is installed until Cliff verifies it on your building."],
     ["How do projects get paid for?", "Usually out of the savings.", "Projects are structured to be cash-flow positive from day one where the numbers support it, so you aren&rsquo;t writing a big check up front. Dan walks through the details on the call."],
     ["Where do your numbers come from?", "Public data, plus our own field results.", "Rates and how buildings use power come from the U.S. Energy Department. Savings ranges come from Energy Plus programs, including 150+ of our own HVAC tests. Your answers decide where in the range you land."],
     ["What is dirty power?", "Electricity roughed up by your own equipment.", "Motors and electronics send jagged power back through your wiring. It wastes electricity you pay for and wears equipment out early."]
@@ -765,7 +765,7 @@
   }
   function role() {
     at("role");
-    question({ whyKey: "role", step: 10 + S.path.length, eyebrow: "Your report", q: "Last question: who's going to read your report?", sub: "I'll put what matters most to them first.", opts: ROLES, chip: function (k, l) { return "Report for: " + l; },
+    question({ whyKey: "role", step: 10 + S.path.length, eyebrow: "Your report", q: "Almost done: who's going to read your report?", sub: "I'll put what matters most to them first.", opts: ROLES, chip: function (k, l) { return "Report for: " + l; },
       pick: function (k) { S.role = k; },
       insight: function (k) { return { quiet: true, h: "Got it. " + ROLE_INSIGHT[k].p }; }, next: capture });
   }
@@ -981,7 +981,7 @@
   function demandShareFor(m) { return demandInfo(m).d; }
   function billInsight() {
     var m = S.monthly, di = demandInfo(m), d = di.d, sd = di.sd;
-    if (m * S.locs < QUALIFY_MONTHLY) return { redirect: under };
+    if (Math.max(m, S.monthlyHi || 0) * S.locs <= QUALIFY_MONTHLY && m * S.locs < QUALIFY_MONTHLY) return { redirect: under }; /* a range that reaches past the line qualifies; we keep the number they picked */
     var dPct = Math.round(d * 100), name = EP.states[S.state].name;
     var src = "Based on demand rates at " + name + "'s largest utilities and how a typical " + fac().unit + " uses power through the day." + (di.capped ? " Smaller bills usually carry less, so we scaled it down." : "");
     return { found: true, tag: "Your demand charge", h: "About " + dPct + "% of that bill, roughly " + kmoney(m * d) + " a month, is probably a demand charge.",
@@ -1100,10 +1100,10 @@
     var lo = S.band[0], hi = S.band[1], e = [];
     for (var i = 0; i <= 4; i++) e.push(niceRound(lo * Math.pow(hi / lo, i / 4)));
     var opts = [];
-    for (var j = 0; j < 4; j++) if (e[j + 1] > e[j]) opts.push([String(Math.round(Math.sqrt(e[j] * e[j + 1]))), "$" + fmtK(e[j]) + " to $" + fmtK(e[j + 1])]);
-    opts.push([String(Math.round(Math.sqrt(lo * hi))), "Somewhere in that range"]);
+    for (var j = 0; j < 4; j++) if (e[j + 1] > e[j]) opts.push([Math.round(Math.sqrt(e[j] * e[j + 1])) + ":" + e[j + 1], "$" + fmtK(e[j]) + " to $" + fmtK(e[j + 1])]);
+    opts.push([Math.round(Math.sqrt(lo * hi)) + ":" + hi, "Somewhere in that range"]);
     question({ whyKey: "dial", step: 6, q: "Let's dial that in. Which is closest?", sub: "Between $" + fmtK(lo) + " and $" + fmtK(hi) + " a month.", opts: opts, chip: function (k) { return "About " + kmoney(parseInt(k, 10)) + "/mo per " + fac().unit; },
-      pick: function (k) { S.monthly = parseInt(k, 10); },
+      pick: function (k) { var p = String(k).split(":"); S.monthly = parseInt(p[0], 10); S.monthlyHi = p[1] ? parseInt(p[1], 10) : S.monthly; },
       insight: billInsight, next: afterBill });
   }
   function sizeQ() {
@@ -1235,8 +1235,9 @@
     at("under");
     stage("listen");
     setProgress(TOTAL, "");
-    var n = $('<section class="screen turn">' + ask("Our full program is built for portfolios spending $10K or more a month.", "I don&rsquo;t want to waste your time with a pitch that doesn&rsquo;t fit. Leave your number and we&rsquo;ll reach out as we roll out options sized for you.") + '<div class="field"><label for="u-name">First name</label><input id="u-name" autocomplete="given-name"></div><div class="field"><label for="u-phone">Mobile</label><input id="u-phone" type="tel" inputmode="tel" autocomplete="tel"></div>' + consentHtml("u") + '<div class="err" id="u-err"></div><div class="next" style="justify-content:space-between"><button class="link" id="restart">Start over</button><button class="btn" id="u-go">Keep me posted</button></div></section>');
+    var n = $('<section class="screen turn">' + ask("Our full program is built for portfolios spending $10K or more a month.", "I don&rsquo;t want to waste your time with a pitch that doesn&rsquo;t fit. Leave your number and we&rsquo;ll reach out as we roll out options sized for you.") + '<div class="field"><label for="u-name">First name</label><input id="u-name" autocomplete="given-name" value="' + esc(S.name || "") + '"></div><div class="field"><label for="u-phone">Mobile</label><input id="u-phone" type="tel" inputmode="tel" autocomplete="tel"></div>' + consentHtml("u") + '<div class="err" id="u-err"></div><div class="next" style="justify-content:space-between"><button class="link" id="restart">Start over</button><button class="btn" id="u-go">Keep me posted</button></div></section>');
     n.querySelector("#restart").addEventListener("click", function () { intro(); syncBack(); });
+    n.querySelector("#u-name").addEventListener("input", function (e) { S.name = e.target.value.trim(); save(); });
     n.querySelector("#u-go").addEventListener("click", function () {
       var nm = n.querySelector("#u-name").value.trim(), ph = n.querySelector("#u-phone").value.replace(/\D/g, "");
       if (ph.length < 10) { n.querySelector("#u-err").textContent = "Enter a 10-digit mobile number so we can reach you."; return; }
@@ -1252,7 +1253,8 @@
     setProgress(TOTAL);
     var fs = findings(compute()), F = fac();
     var tease = '<div class="bubble say"><p class="eyebrow">What I found</p><h3>I found ' + fs.length + ' ways your ' + esc(S.locs > 1 ? F.units : F.unit) + ' ' + (S.locs > 1 ? "are" : "is") + ' overspending.</h3><ol class="tease">' + fs.map(function (x) { return "<li>" + esc(x[0]) + "</li>"; }).join("") + '</ol><p>Your report puts a dollar amount on each one' + (function () { var n = payPrograms().length; return n ? ", and shows " + n + (n === 1 ? " program" : " programs") + " that could help pay for it" : ""; })() + '.</p></div>';
-    var n = $('<section class="screen turn">' + tease + ask("Where can Dan text you a copy?", "Your report opens right here. Dan will also text you a copy so it&rsquo;s easy to find and forward." + (isCA() ? "" : " No email, no spam.")) + '<div class="field"><label for="c-name">First name</label><input id="c-name" autocomplete="given-name"></div><div class="field"><label for="c-phone">Mobile</label><input id="c-phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="(555) 555-5555"></div>' + consentHtml("c") + '<div class="err" id="c-err"></div><div class="next"><button class="btn" id="c-go">Show my diagnostic <span class="ar">&rarr;</span></button></div></section>');
+    var n = $('<section class="screen turn">' + tease + ask("Where can Dan text you a copy?", "Your report opens right here. Dan will also text you a copy so it&rsquo;s easy to find and forward." + (isCA() ? "" : " No email, no spam.")) + '<div class="field"><label for="c-name">First name</label><input id="c-name" autocomplete="given-name" value="' + esc(S.name || "") + '"></div><div class="field"><label for="c-phone">Mobile</label><input id="c-phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="(555) 555-5555"></div>' + consentHtml("c") + '<div class="err" id="c-err"></div><div class="next"><button class="btn" id="c-go">Show my diagnostic <span class="ar">&rarr;</span></button></div></section>');
+    n.querySelector("#c-name").addEventListener("input", function (e) { S.name = e.target.value.trim(); save(); });
     n.querySelector("#c-go").addEventListener("click", function () {
       var nm = n.querySelector("#c-name").value.trim(), ph = n.querySelector("#c-phone").value.replace(/\D/g, "");
       if (!nm) { n.querySelector("#c-err").textContent = "Add your first name so the report is addressed to you."; return; }

@@ -55,7 +55,7 @@
   function render() {
     var first = P.name ? P.name + ", here" : "Here";
     $("#title").textContent = first + "'s your savings plan";
-    $("#lead").textContent = "Two things turn your estimate" + (P.estimate ? " (" + P.estimate + ")" : "") + " into real numbers for your " + (P.facility ? P.facility.split(" /")[0].toLowerCase() : "building") + ". Add them anytime, from your phone or computer.";
+    $("#lead").textContent = "Two things turn your estimate" + (P.estimate ? " (" + P.estimate + ")" : "") + " into real numbers for your " + (P.facility ? P.facility.split(" /")[0].toLowerCase() : "building") + ". Add them anytime, from your phone or computer. Dan reads every file you send and texts you when your numbers are updated.";
     var html =
       '<section class="step" id="s-interval"><div class="sh"><span class="num">1</span><div><p class="tagline">Required</p><h2>Your meter&rsquo;s 15-minute data</h2></div></div>' +
       '<p class="why">Your meter records your power use every 15 minutes. It shows exactly when your busiest 15 minutes happen, which is how we size your peak demand savings.</p>' +
@@ -65,7 +65,8 @@
       '<div class="row"><button class="btn" id="go" type="button">Connect</button></div><div id="cstate" aria-live="polite"></div></div>' +
       '<p class="or">or upload the file</p>' +
       '<ol class="how"><li>Log in to your electric utility&rsquo;s website, the one that sends your bill.</li><li>Look for <b>Usage</b>, <b>Energy use</b>, or <b>Green Button: Download My Data</b>.</li><li>Download <b>15-minute</b> (or hourly) data for the <b>last 12 months</b>.</li>' + (/Texas/.test(P.state || "") ? '<li>In Texas, most areas get it from <b>Smart Meter Texas</b> at smartmetertexas.com.</li>' : "") + '</ol>' +
-      dropzone("interval", "Upload your usage file", "Spreadsheet, CSV, PDF or zip", ".csv,.xlsx,.xls,.xml,.zip,.pdf,.txt,.json") +
+      '<p class="msg">Only have monthly bills? Send the last 12 instead. They help too, and Dan will tell you if the 15-minute file would change your numbers.</p>' +
+      dropzone("interval", "Upload your usage file", "15-minute data or monthly bills: spreadsheet, CSV, PDF or zip", ".csv,.xlsx,.xls,.xml,.zip,.pdf,.txt,.json") +
       "</section>" +
       '<section class="step" id="s-hvac"><div class="sh"><span class="num">2</span><div><p class="tagline">Required</p><h2>Your HVAC equipment</h2></div></div>' +
       '<p class="why">Make, model, size and age of each unit tell us how much your system can save.</p>' +
